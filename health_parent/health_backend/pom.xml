@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>health_parent</artifactId>
+        <groupId>com.itheima</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>health_backend</artifactId>
+    <packaging>war</packaging>
+    <name>health_backend Maven Webapp</name>
+    <dependencies>
+        <dependency>
+            <groupId>com.itheima</groupId>
+            <artifactId>health_interface</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+    <!--在pom文件配置tomcat7插件-->
+    <build>
+        <!--maven插件-->
+        <plugins>
+            <!--jdk编译插件-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>utf-8</encoding>
+                </configuration>
+            </plugin>
+            <!--tomcat插件-->
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <!-- tomcat7的插件， 不同tomcat版本这个也不一样 -->
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <!-- 通过maven tomcat7:run运行项目时，访问项目的端口号 -->
+                    <port>82</port>
+                    <!-- 项目访问路径  本例：localhost:9090,  如果配置的aa， 则访问路径为localhost:9090/aa-->
+                    <path>/</path>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

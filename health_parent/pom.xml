@@ -7,6 +7,12 @@
     <groupId>com.itheima</groupId>
     <artifactId>health_parent</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>health_common</module>
+        <module>health_interface</module>
+        <module>health_service_provider</module>
+        <module>health_backend</module>
+    </modules>
     <packaging>pom</packaging>
     <!-- 集中定义依赖版本号 -->
     <properties>
