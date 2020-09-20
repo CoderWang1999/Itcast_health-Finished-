@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="health_service_provider:war">
+    <output-path>$PROJECT_DIR$/health_parent/health_service_provider/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <module>health_service_provider</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="archive" name="health_service_provider-1.0-SNAPSHOT.war">
+      <element id="artifact" artifact-name="health_service_provider:war exploded" />
+    </root>
+  </artifact>
+</component>

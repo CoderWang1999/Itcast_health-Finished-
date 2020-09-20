@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--映射配置文件：配置statement对象-->
+<mapper namespace="com.itheima.dao.CheckItemDao">
+    <!--插入数据-->
+    <insert id="add" parameterType="com.itheima.pojo.CheckItem">
+        insert into t_checkitem(code,name,sex,age,price,type,remark,attention)
+                      values
+        (#{code},#{name},#{sex},#{age},#{price},#{type},#{remark},#{attention})
+    </insert>
+    <!--分页查询-->
+    <select id="selectByCondition" parameterType="String" resultType="com.itheima.pojo.CheckItem">
+        select * from t_checkitem
+        <if test="value!=null and value.length>0">
+            where code=#{value} or name =#{value}
+        </if>
+    </select>
+    <!--查询中间表中CheckItemId数量-->
+    <select id="findCountCheckItemID" parameterType="int" resultType="long">
+        select count(*) from t_checkgroup_checkitem where checkitem_id=#{id}
+    </select>
+    <!--根据id删除-->
+    <delete id="deltetByid" parameterType="int">
+        delete from t_checkitem where id=#{id}
+    </delete>
+    <!--修改-->
+    <update id="edit" parameterType="com.itheima.pojo.CheckItem">
+        update t_checkitem set
+        code=#{code},
+        name=#{name},
+        sex=#{sex},
+        age=#{age},
+        price=#{price},
+        type=#{type},
+        remark=#{remark},
+        attention=#{attention}
+        where id=#{id}
+    </update>
+</mapper>
