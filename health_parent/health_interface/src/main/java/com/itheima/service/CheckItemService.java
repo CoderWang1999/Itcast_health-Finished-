@@ -6,6 +6,8 @@ import com.itheima.entity.QueryPageBean;
 import com.itheima.entity.Result;
 import com.itheima.pojo.CheckItem;
 
+import java.util.List;
+
 public interface CheckItemService {
     //新增功能
     void add(CheckItem checkItem);
@@ -15,4 +17,6 @@ public interface CheckItemService {
     void deltetByid(Integer id) throws CheckItemDeleteException;
     //编辑
     void edit(CheckItem checkItem);
+    //不带分页的查询所有
+    List<CheckItem> findAll();
 }

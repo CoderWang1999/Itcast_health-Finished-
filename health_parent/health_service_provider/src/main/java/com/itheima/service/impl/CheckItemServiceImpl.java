@@ -58,4 +58,11 @@ public class CheckItemServiceImpl implements CheckItemService {
     public void edit(CheckItem checkItem) {
         checkItemDao.edit(checkItem);
     }
+
+    //不带分页的查询所有
+    @Override
+    public List<CheckItem> findAll() {
+        return checkItemDao.findAll();
+    }
+
 }

@@ -3,6 +3,8 @@ package com.itheima.dao;
 import com.github.pagehelper.Page;
 import com.itheima.pojo.CheckItem;
 
+import java.util.List;
+
 public interface CheckItemDao {
     //插入
     void add(CheckItem checkItem);
@@ -14,4 +16,6 @@ public interface CheckItemDao {
     void deltetByid(Integer id);
     //编辑
     void edit(CheckItem checkItem);
+    //不带分页的查询所有
+    List<CheckItem> findAll();
 }

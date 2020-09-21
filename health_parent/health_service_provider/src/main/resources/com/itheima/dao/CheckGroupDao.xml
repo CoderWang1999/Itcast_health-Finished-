@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--映射配置文件：配置statement对象-->
+<mapper namespace="com.itheima.dao.CheckGroupDao">
+    <!--插入数据-->
+    <!--插入检查组数据-->
+    <insert id="add" parameterType="com.itheima.pojo.CheckGroup">
+        <!--通过mybatis框架提供的selectKey标签获得自增产生的ID值-->
+        <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+            select LAST_INSERT_ID()
+        </selectKey>
+        insert into t_checkgroup(code,name,sex,helpCode,remark,attention)
+        values
+        (#{code},#{name},#{sex},#{helpCode},#{remark},#{attention})
+    </insert>
+    <!--插入检查组和检查项的关联关系-->
+    <insert id="setCheckGroupIdAndCheckItemId" parameterType="map">
+        insert into t_checkgroup_checkitem(checkgroup_id,checkitem_id)
+        values
+        (#{checkgroupId},#{checkitemId})
+    </insert>
+    <!--分页、条件查询-->
+    <select id="selectByCondition" parameterType="String" resultType="com.itheima.pojo.CheckGroup">
+        select * from t_checkgroup
+        <if test="value != null and value.length>0">
+            where code = #{value} or name = #{value} or helpCode = #{value}
+        </if>
+    </select>
+    <!--根据id查询-->
+    <select id="findById" parameterType="java.lang.Integer" resultType="com.itheima.pojo.CheckGroup">
+        select * from t_checkgroup where id=#{checkgroupId}
+    </select>
+    <!--//根据检查组id查询其所关联的检查项的id-->
+    <select id="findCheckitemIdsByCheckgroupId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select checkitem_id from t_checkgroup_checkitem where checkgroup_id=#{checkgroupId}
+    </select>
+    <!--修改检查组-->
+    <update id="edit" parameterType="com.itheima.pojo.CheckGroup">
+        update t_checkgroup
+         set
+         code=#{code},
+         name=#{name},
+         sex=#{sex},
+         helpCode=#{helpCode},
+         remark=#{remark},
+         attention=#{attention}
+         where
+         id=#{id}
+    </update>
+    <!--清理查组和检查项的关联关系-->
+    <delete id="clear" parameterType="java.lang.Integer">
+        delete from t_checkgroup_checkitem where checkgroup_id=#{groupId}
+    </delete>
+    <!--根据id删除检查组-->
+    <delete id="delete" parameterType="int">
+        delete from t_checkgroup where id=#{id}
+    </delete>
+</mapper>
