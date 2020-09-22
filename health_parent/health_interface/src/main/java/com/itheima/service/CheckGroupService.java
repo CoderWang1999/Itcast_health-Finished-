@@ -21,4 +21,6 @@ public interface CheckGroupService {
     void edit(CheckGroup checkGroup, Integer[] checkitemIds);
     //删除
     void delete(Integer id);
+    //不带分页的查询所有
+    List<CheckGroup> findAll();
 }

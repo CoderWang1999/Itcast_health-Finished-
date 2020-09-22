@@ -81,6 +81,12 @@ public class CheckGroupServiceImpl implements CheckGroupService {
         checkGroupDao.delete(id);
     }
 
+    //不带分页的查询所有
+    @Override
+    public List<CheckGroup> findAll() {
+        return checkGroupDao.findAll();
+    }
+
     //抽取的新增关联关系的方法
     public void setCheckGroupIdAndCheckItemId(Integer groupId, Integer[] checkitemIds){
         //判断检查项ids数组是否为空

@@ -55,4 +55,8 @@
     <delete id="delete" parameterType="int">
         delete from t_checkgroup where id=#{id}
     </delete>
+    <!--不带分页的查询所有-->
+    <select id="findAll" resultType="com.itheima.pojo.CheckGroup">
+        select * from t_checkgroup
+    </select>
 </mapper>

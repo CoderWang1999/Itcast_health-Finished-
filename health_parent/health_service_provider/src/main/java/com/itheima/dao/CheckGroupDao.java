@@ -23,4 +23,6 @@ public interface CheckGroupDao {
     void clear(Integer groupId);
     //删除检查组
     void delete(Integer id);
+    //不带分页的查询所有
+    List<CheckGroup> findAll();
 }
