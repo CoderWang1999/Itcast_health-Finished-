@@ -12,4 +12,6 @@ public interface SetmealDao {
     void addSetmeal(Setmeal setmeal);
     //新增关联关系
     void setSetmealIdAndCheckGroupId(Map map);
+    //分页查询
+    Page<Setmeal> selectByCondition(String queryString);
 }

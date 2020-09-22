@@ -3,6 +3,8 @@ package com.itheima.controller;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.itheima.constant.MessageConstant;
 import com.itheima.constant.RedisConstant;
+import com.itheima.entity.PageResult;
+import com.itheima.entity.QueryPageBean;
 import com.itheima.entity.Result;
 import com.itheima.pojo.Setmeal;
 import com.itheima.service.SetmealService;
@@ -53,5 +55,10 @@ public class SetmealController {
             return new Result(false, MessageConstant.ADD_SETMEAL_FAIL);
         }
         return new Result(true,MessageConstant.ADD_SETMEAL_SUCCESS);
+    }
+    //查询所有(分页查询)
+    @RequestMapping("/findPage")
+    public PageResult findPage(@RequestBody QueryPageBean queryPageBean){
+        return setmealService.findPage(queryPageBean);
     }
 }

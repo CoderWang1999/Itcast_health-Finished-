@@ -1,8 +1,12 @@
 package com.itheima.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.itheima.constant.RedisConstant;
 import com.itheima.dao.SetmealDao;
+import com.itheima.entity.PageResult;
+import com.itheima.entity.QueryPageBean;
 import com.itheima.pojo.Setmeal;
 import com.itheima.service.SetmealService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +36,23 @@ public class SetmealServiceImpl implements SetmealService {
         String fileName = setmeal.getImg();
         //新建套餐成功之后将图片名称存入Redis小集合中
         jedisPool.getResource().sadd(RedisConstant.SETMEAL_PIC_DB_RESOURCES,fileName);
+    }
+
+    @Override
+    public PageResult findPage(QueryPageBean queryPageBean) {
+        //获取当前页，总页数，条件查询的参数
+        Integer currentPage = queryPageBean.getCurrentPage();
+        Integer pageSize = queryPageBean.getPageSize();
+        String queryString = queryPageBean.getQueryString();
+        //启动分页插件
+        PageHelper.startPage(currentPage,pageSize);
+        //调用持久层查询所有
+        Page<Setmeal> page=setmealDao.selectByCondition(queryString);
+        //获取总条目数
+        long total = page.getTotal();
+        //获取查询结果
+        List<Setmeal> rows = page.getResult();
+        return new PageResult(total,rows);
     }
 
     //抽取的新增关联关系的方法
