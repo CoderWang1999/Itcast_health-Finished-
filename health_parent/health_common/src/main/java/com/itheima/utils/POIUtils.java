@@ -57,6 +57,9 @@ public class POIUtils {
                     for(int cellNum = firstCellNum; cellNum < lastCellNum;cellNum++){
                         Cell cell = row.getCell(cellNum);
                         cells[cellNum] = getCellValue(cell);
+                        if (cells[cellNum]==null||"".equals(cells[cellNum])){
+                            continue;
+                        }
                     }
                     list.add(cells);
                 }
@@ -107,7 +110,7 @@ public class POIUtils {
         }
         //如果当前单元格内容为日期类型，需要特殊处理
         String dataFormatString = cell.getCellStyle().getDataFormatString();
-        if(dataFormatString.equals("m/d/yy")){
+        if(dataFormatString.equals("m/d/yy")||dataFormatString.equals("m-d-yy")||dataFormatString.equals("m年d月yy日")){
             cellValue = new SimpleDateFormat(DATE_FORMAT).format(cell.getDateCellValue());
             return cellValue;//"2019/10/10"
         }

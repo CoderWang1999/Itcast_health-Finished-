@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--映射配置文件：配置statement对象-->
+<mapper namespace="com.itheima.dao.OrderSettingDao">
+    <!--查询日期是否存在-->
+    <select id="findCountByOrderDate" parameterType="date" resultType="long">
+        select count(*) from t_ordersetting where orderDate=#{orderDate}
+    </select>
+    <!--新增预约设计-->
+    <insert id="add" parameterType="com.itheima.pojo.OrderSetting">
+        insert into t_ordersetting (orderDate,number,reservations)
+        values
+        (#{orderDate},#{number},#{reservations})
+    </insert>
+    <!--跟新预约设计-->
+    <update id="undate" parameterType="com.itheima.pojo.OrderSetting">
+        update t_ordersetting set number=#{number} where orderDate=#{orderDate}
+    </update>
+</mapper>
