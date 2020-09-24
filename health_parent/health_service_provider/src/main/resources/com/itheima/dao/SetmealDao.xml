@@ -26,4 +26,32 @@
             where code = #{value} or name = #{value} or helpCode = #{value}
         </if>
     </select>
+    <!--查询所有套餐-->
+    <select id="findAll" resultType="com.itheima.pojo.Setmeal">
+         select * from t_setmeal
+    </select>
+    <!--根据id查询套餐-->
+    <resultMap id="BaseMap" type="com.itheima.pojo.Setmeal">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="helpCode" property="helpCode"/>
+        <result column="sex" property="sex"/>
+        <result column="age" property="age"/>
+        <result column="price" property="price"/>
+        <result column="remark" property="remark"/>
+        <result column="attention" property="attention"/>
+        <result column="img" property="img"/>
+    </resultMap>
+    <resultMap id="findByIdResultMap" type="com.itheima.pojo.Setmeal" extends="BaseMap">
+        <collection
+                property="checkGroups"
+                ofType="com.itheima.pojo.CheckGroup"
+                select="com.itheima.dao.CheckGroupDao.findCheckGroupById"
+                column="id">
+        </collection>
+    </resultMap>
+    <select id="findById" parameterType="int" resultMap="findByIdResultMap">
+        select * from t_setmeal where id=#{id}
+    </select>
 </mapper>

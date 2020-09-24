@@ -59,4 +59,26 @@
     <select id="findAll" resultType="com.itheima.pojo.CheckGroup">
         select * from t_checkgroup
     </select>
+    <!--根据id查询检查组信息-->
+    <resultMap id="baseResultMap" type="com.itheima.pojo.CheckGroup">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="helpCode" property="helpCode"/>
+        <result column="sex" property="sex"/>
+        <result column="remark" property="remark"/>
+        <result column="attention" property="attention"/>
+    </resultMap>
+    <resultMap id="findByIdMap" type="com.itheima.pojo.CheckGroup" extends="baseResultMap">
+        <collection
+                property="checkItems"
+                ofType="com.itheima.pojo.CheckItem"
+                select="com.itheima.dao.CheckItemDao.findCheckItemById"
+                column="id">
+        </collection>
+    </resultMap>
+    <select id="findCheckGroupById" parameterType="int" resultMap="findByIdMap">
+        select * from t_checkgroup where id in
+        (select checkgroup_id from t_setmeal_checkgroup where setmeal_id = #{setmeal_id})
+    </select>
 </mapper>

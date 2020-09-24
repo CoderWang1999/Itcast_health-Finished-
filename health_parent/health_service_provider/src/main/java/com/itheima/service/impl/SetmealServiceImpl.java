@@ -23,6 +23,7 @@ public class SetmealServiceImpl implements SetmealService {
     //注入JedisPool
     @Autowired
     private JedisPool jedisPool;
+
     //新增
     @Override
     public void add(Setmeal setmeal, Integer[] checkgroupIds) {
@@ -31,13 +32,14 @@ public class SetmealServiceImpl implements SetmealService {
         //获取SetmealId
         Integer setmealId = setmeal.getId();
         //调用新增关联关系方法
-        this.setSetmealIdAndCheckGroupId(setmealId,checkgroupIds);
+        this.setSetmealIdAndCheckGroupId(setmealId, checkgroupIds);
         //获取图片名称
         String fileName = setmeal.getImg();
         //新建套餐成功之后将图片名称存入Redis小集合中
-        jedisPool.getResource().sadd(RedisConstant.SETMEAL_PIC_DB_RESOURCES,fileName);
+        jedisPool.getResource().sadd(RedisConstant.SETMEAL_PIC_DB_RESOURCES, fileName);
     }
 
+    //分页查询
     @Override
     public PageResult findPage(QueryPageBean queryPageBean) {
         //获取当前页，总页数，条件查询的参数
@@ -45,25 +47,37 @@ public class SetmealServiceImpl implements SetmealService {
         Integer pageSize = queryPageBean.getPageSize();
         String queryString = queryPageBean.getQueryString();
         //启动分页插件
-        PageHelper.startPage(currentPage,pageSize);
+        PageHelper.startPage(currentPage, pageSize);
         //调用持久层查询所有
-        Page<Setmeal> page=setmealDao.selectByCondition(queryString);
+        Page<Setmeal> page = setmealDao.selectByCondition(queryString);
         //获取总条目数
         long total = page.getTotal();
         //获取查询结果
         List<Setmeal> rows = page.getResult();
-        return new PageResult(total,rows);
+        return new PageResult(total, rows);
+    }
+
+    //查询所有套餐
+    @Override
+    public List<Setmeal> findAll() {
+        return setmealDao.findAll();
+    }
+
+    //根据id查询套餐信息
+    @Override
+    public Setmeal findById(int id) {
+        return setmealDao.findById(id);
     }
 
     //抽取的新增关联关系的方法
-    public void setSetmealIdAndCheckGroupId(Integer setmealId, Integer[] checkgroupIds){
+    public void setSetmealIdAndCheckGroupId(Integer setmealId, Integer[] checkgroupIds) {
         //判断检查项ids数组是否为空
-        if (checkgroupIds!=null&&checkgroupIds.length>0){
+        if (checkgroupIds != null && checkgroupIds.length > 0) {
             //不为空则遍历数组，用map存储CheckItemId和CheckGroupId
             for (Integer checkgroupId : checkgroupIds) {
-                Map map=new HashMap<>();
-                map.put("setmealId",setmealId);
-                map.put("checkgroupId",checkgroupId);
+                Map map = new HashMap<>();
+                map.put("setmealId", setmealId);
+                map.put("checkgroupId", checkgroupId);
                 //新增关联关系
                 setmealDao.setSetmealIdAndCheckGroupId(map);
             }
