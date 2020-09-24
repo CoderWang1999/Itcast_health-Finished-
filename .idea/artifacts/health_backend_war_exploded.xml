@@ -80,6 +80,9 @@
           <element id="library" level="project" name="Maven: org.springframework.security:spring-security-config:5.0.5.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework.security:spring-security-taglibs:5.0.5.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework.security:spring-security-acl:5.0.5.RELEASE" />
+          <element id="library" level="project" name="Maven: com.aliyun:aliyun-java-sdk-core:3.3.1" />
+          <element id="library" level="project" name="Maven: org.json:json:20170516" />
+          <element id="library" level="project" name="Maven: com.aliyun:aliyun-java-sdk-dysmsapi:1.0.0" />
         </element>
       </element>
       <element id="directory" name="META-INF">
