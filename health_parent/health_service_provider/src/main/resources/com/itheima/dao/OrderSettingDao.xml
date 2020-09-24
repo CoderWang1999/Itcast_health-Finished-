@@ -16,4 +16,8 @@
     <update id="undate" parameterType="com.itheima.pojo.OrderSetting">
         update t_ordersetting set number=#{number} where orderDate=#{orderDate}
     </update>
+    <!--根据月份查询预约信息-->
+    <select id="getOrderSettingByMonth" parameterType="map" resultType="com.itheima.pojo.OrderSetting">
+        SELECT * FROM t_ordersetting WHERE orderDate BETWEEN #{begain} AND #{end}
+    </select>
 </mapper>
