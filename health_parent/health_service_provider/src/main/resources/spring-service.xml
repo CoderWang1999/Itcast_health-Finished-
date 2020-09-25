@@ -9,7 +9,7 @@
     <!-- 指定应用名称 -->
     <dubbo:application name="health_service_provider"/>
     <!--配置注册中心-->
-    <dubbo:registry address="zookeeper://localhost:2181"/>
+    <dubbo:registry address="zookeeper://192.168.23.129:2181"/>
     <!--配置服务协议和端口号-->
     <dubbo:protocol name="dubbo" port="20881"/>
     <!--开启注解扫描-->

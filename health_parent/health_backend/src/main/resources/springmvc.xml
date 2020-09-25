@@ -26,7 +26,7 @@
     <!-- 指定应用名称 -->
     <dubbo:application name="health_backend" />
     <!--指定服务注册中心地址-->
-    <dubbo:registry address="zookeeper://localhost:2181"/>
+    <dubbo:registry address="zookeeper://192.168.23.129:2181"/>
     <!--批量扫描-->
     <dubbo:annotation package="com.itheima" />
     <!--
