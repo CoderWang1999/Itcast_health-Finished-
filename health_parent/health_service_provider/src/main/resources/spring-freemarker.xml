@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       https://www.springframework.org/schema/context/spring-context.xsd">
+    <bean id="freemarkerConfig"
+          class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+        <!--指定模板文件所在目录-->
+        <property name="templateLoaderPath" value="/WEB-INF/ftl/" />
+        <!--指定字符集-->
+        <property name="defaultEncoding" value="UTF-8" />
+    </bean>
+    <!--加载属性文件，后期在java代码中会使用到属性文件中定义的key和value-->
+    <context:property-placeholder location="classpath:freemarker.properties"/>
+</beans>
