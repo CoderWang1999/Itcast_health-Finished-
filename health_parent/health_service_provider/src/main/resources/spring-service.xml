@@ -2,10 +2,11 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                             http://www.springframework.org/schema/beans/spring-beans.xsd
                             http://code.alibabatech.com/schema/dubbo
-                            http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+                            http://code.alibabatech.com/schema/dubbo/dubbo.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
     <!-- 指定应用名称 -->
     <dubbo:application name="health_service_provider"/>
     <!--配置注册中心-->
@@ -14,4 +15,13 @@
     <dubbo:protocol name="dubbo" port="20881"/>
     <!--开启注解扫描-->
     <dubbo:annotation package="com.itheima.service"/>
+    <bean id="freemarkerConfig"
+          class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+        <!--指定模板文件所在目录-->
+        <property name="templateLoaderPath" value="/WEB-INF/ftl/" />
+        <!--指定字符集-->
+        <property name="defaultEncoding" value="UTF-8" />
+    </bean>
+    <!--加载属性文件，后期在java代码中会使用到属性文件中定义的key和value-->
+    <context:property-placeholder location="classpath:freemarker.properties"/>
 </beans>

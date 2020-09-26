@@ -16,10 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 import redis.clients.jedis.JedisPool;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +32,7 @@ public class SetmealServiceImpl implements SetmealService {
     @Autowired
     private FreeMarkerConfigurer freeMarkerConfigurer;
     //从属性文件中读取要生成的html对应的目录
-    @Value("${out_put_path}")
-    private String outPutPath;
+    private String outPutPath="D:/IDE/Idea_space/itcast_health/health_parent/health_mobile/src/main/webapp/staticPages";
 
     //新增
     @Override
@@ -94,7 +90,7 @@ public class SetmealServiceImpl implements SetmealService {
             //加载模板文件
             Template template = configuration.getTemplate(templateName);
             //构造输出流
-            out = new FileWriter(new File(outPutPath + "/" + htmlPageName));
+            out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(outPutPath + "/" + htmlPageName)),"UTF-8"));
             //输出文件
             template.process(map, out);
             //关流释放资源
