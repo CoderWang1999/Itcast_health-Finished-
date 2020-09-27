@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0,user-scalable=no,minimal-ui">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../img/asset-favico.ico">
+    <title>预约详情</title>
+    <link rel="stylesheet" href="../css/page-health-orderDetail.css"/>
+    <script src="../plugins/vue/vue.js"></script>
+    <script src="../plugins/vue/axios-0.18.0.js"></script>
+    <script src="../plugins/healthmobile.js"></script>
+</head>
+<body data-spy="scroll" data-target="#myNavbar" data-offset="150">
+<div id="app" class="app">
+    <!-- 页面头部 -->
+    <div class="top-header">
+        <span class="f-left"><i class="icon-back" onclick="history.go(-1)"></i></span>
+        <span class="center">传智健康</span>
+        <span class="f-right"><i class="icon-more"></i></span>
+    </div>
+    <!-- 页面内容 -->
+    <div class="contentBox">
+        <div class="card">
+            <div class="project-img">
+                <img src="http://qh1sg4xnd.hn-bkt.clouddn.com/69cdf778-2510-4e7d-9617-8cce3e36a4e5w.jpg"
+                     width="100%" height="100%"/>
+            </div>
+            <div class="project-text">
+                <h4 class="tit">性功能检测</h4>
+                <p class="subtit">检测男性性功能</p>
+                <p class="keywords">
+                    <span>
+                                男
+                    </span>
+                    <span>18-58</span>
+                </p>
+            </div>
+        </div>
+        <div class="table-listbox">
+            <div class="box-title">
+                <i class="icon-zhen"><span class="path1"></span><span class="path2"></span></i>
+                <span>套餐详情</span>
+            </div>
+            <div class="box-table">
+                <div class="table-title">
+                    <div class="tit-item flex2">项目名称</div>
+                    <div class="tit-item  flex3">项目内容</div>
+                    <div class="tit-item  flex3">项目解读</div>
+                </div>
+                <div class="table-content">
+                    <ul class="table-list">
+                            <li class="table-item">
+                                <div class="item flex2">血常规</div>
+                                <div class="item flex3">
+                                        <label>
+                                            白细胞计数
+                                        </label>
+                                        <label>
+                                            红细胞计数
+                                        </label>
+                                        <label>
+                                            血红蛋白
+                                        </label>
+                                        <label>
+                                            红细胞压积
+                                        </label>
+                                        <label>
+                                            平均红细胞体积
+                                        </label>
+                                        <label>
+                                            平均红细胞血红蛋白含量
+                                        </label>
+                                        <label>
+                                            平均红细胞血红蛋白浓度
+                                        </label>
+                                        <label>
+                                            红细胞分布宽度-变异系数
+                                        </label>
+                                        <label>
+                                            血小板计数
+                                        </label>
+                                        <label>
+                                            平均血小板体积
+                                        </label>
+                                        <label>
+                                            血小板分布宽度
+                                        </label>
+                                        <label>
+                                            淋巴细胞百分比
+                                        </label>
+                                        <label>
+                                            中间细胞百分比
+                                        </label>
+                                        <label>
+                                            中性粒细胞百分比
+                                        </label>
+                                        <label>
+                                            淋巴细胞绝对值
+                                        </label>
+                                        <label>
+                                            中间细胞绝对值
+                                        </label>
+                                        <label>
+                                            中性粒细胞绝对值
+                                        </label>
+                                        <label>
+                                            红细胞分布宽度-标准差
+                                        </label>
+                                        <label>
+                                            血小板压积
+                                        </label>
+                                </div>
+                                <div class="item flex3">血常规</div>
+                            </li>
+                            <li class="table-item">
+                                <div class="item flex2">尿常规</div>
+                                <div class="item flex3">
+                                        <label>
+                                            尿比重
+                                        </label>
+                                        <label>
+                                            尿酸碱度
+                                        </label>
+                                        <label>
+                                            尿白细胞
+                                        </label>
+                                        <label>
+                                            尿亚硝酸盐
+                                        </label>
+                                        <label>
+                                            尿蛋白质
+                                        </label>
+                                        <label>
+                                            尿糖
+                                        </label>
+                                        <label>
+                                            尿酮体
+                                        </label>
+                                        <label>
+                                            尿胆原
+                                        </label>
+                                        <label>
+                                            尿胆红素
+                                        </label>
+                                        <label>
+                                            尿隐血
+                                        </label>
+                                        <label>
+                                            尿镜检红细胞
+                                        </label>
+                                        <label>
+                                            尿镜检白细胞
+                                        </label>
+                                        <label>
+                                            上皮细胞
+                                        </label>
+                                        <label>
+                                            无机盐类
+                                        </label>
+                                        <label>
+                                            尿镜检蛋白定性
+                                        </label>
+                                </div>
+                                <div class="item flex3">尿常规</div>
+                            </li>
+                            <li class="table-item">
+                                <div class="item flex2">肾功三项</div>
+                                <div class="item flex3">
+                                        <label>
+                                            尿素
+                                        </label>
+                                        <label>
+                                            肌酐
+                                        </label>
+                                        <label>
+                                            尿酸
+                                        </label>
+                                </div>
+                                <div class="item flex3">肾功三项</div>
+                            </li>
+                    </ul>
+                </div>
+                <div class="box-button">
+                    <a @click="toOrderInfo()" class="order-btn">立即预约</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vue = new Vue({
+        el: '#app',
+        methods: {
+            toOrderInfo() {
+                window.location.href = "../pages/orderInfo.html?id=22";
+            }
+        }
+    });
+</script>
+</body>
