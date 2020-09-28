@@ -35,6 +35,6 @@
 		<url-pattern>*.do</url-pattern>
 	</servlet-mapping>
 	<welcome-file-list>
-		<welcome-file>/pages/index.html</welcome-file>
+		<welcome-file>/pages/login.html</welcome-file>
 	</welcome-file-list>
 </web-app>
