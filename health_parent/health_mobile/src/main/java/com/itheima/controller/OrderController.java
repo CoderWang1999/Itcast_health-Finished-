@@ -48,8 +48,9 @@ public class OrderController {
             if (result.isFlag()){
                 //预约成功，短信提醒用户
                 try {
-                    Date date = DateUtils.parseString2Date((String) map.get("orderDate"));
-                    SMSUtils.sendShortMessage2(SMSUtils.ORDER_NOTICE,telephone,date);
+                    String date= (String) map.get("orderDate");
+                    System.out.println("1---------------------------------1");
+                    SMSUtils.sendShortMessage(SMSUtils.ORDER_NOTICE,telephone,date);
                 }catch (Exception e){
                     e.printStackTrace();
                 }
