@@ -6,6 +6,7 @@ import com.itheima.entity.Result;
 import com.itheima.pojo.OrderSetting;
 import com.itheima.service.OrderSettingService;
 import com.itheima.utils.POIUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@PreAuthorize("hasAuthority('ORDERSETTING')")//权限校验
 @RequestMapping("/ordersetting")
 public class OrderSettingController {
     @Reference

@@ -7,6 +7,7 @@ import com.itheima.entity.QueryPageBean;
 import com.itheima.entity.Result;
 import com.itheima.pojo.CheckGroup;
 import com.itheima.service.CheckGroupService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +21,7 @@ public class CheckGroupController {
     @Reference
     private CheckGroupService checkGroupService;
     //新增
+    @PreAuthorize("hasAuthority('CHECKGROUP_ADD')")//权限校验
     @RequestMapping("/add.do")
     public Result add(@RequestBody CheckGroup checkGroup, Integer[] checkitemIds){
         try {
@@ -31,6 +33,7 @@ public class CheckGroupController {
         return new Result(true,MessageConstant.ADD_CHECKGROUP_SUCCESS);
     }
     //查询所有(分页查询)
+    @PreAuthorize("hasAuthority('CHECKGROUP_QUERY')")//权限校验
     @RequestMapping("/findPage.do")
     public PageResult findPage(@RequestBody QueryPageBean queryPageBean){
         return checkGroupService.findPage(queryPageBean);
@@ -59,6 +62,7 @@ public class CheckGroupController {
         }
     }
     //编辑
+    @PreAuthorize("hasAuthority('CHECKGROUP_EDIT')")//权限校验
     @RequestMapping("/edit.do")
     public Result edit(@RequestBody CheckGroup checkGroup, Integer[] checkitemIds){
         try {
@@ -70,6 +74,7 @@ public class CheckGroupController {
         return new Result(true,MessageConstant.EDIT_CHECKGROUP_SUCCESS);
     }
     //删除
+    @PreAuthorize("hasAuthority('CHECKGROUP_DELETE')")//权限校验
     @RequestMapping("/delete.do")
     public Result delete(Integer id){
         try {

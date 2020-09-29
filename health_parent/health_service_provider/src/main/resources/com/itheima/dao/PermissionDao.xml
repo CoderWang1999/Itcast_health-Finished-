@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--映射配置文件：配置statement对象-->
+<mapper namespace="com.itheima.dao.PermissionDao">
+    <select id="findByRoleId" parameterType="int" resultType="com.itheima.pojo.Permission">
+          select p.*
+          from t_permission p,t_role_permission rp
+          where p.id = rp.permission_id and rp.role_id = #{role_id}
+    </select>
+</mapper>

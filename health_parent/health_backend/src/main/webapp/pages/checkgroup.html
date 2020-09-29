@@ -399,6 +399,16 @@
                     this.pagination.currentPage = currentPage;
                     this.findPage();
                 },
+                showMessage(r) {
+                    if (r == 'Error: Request failed with status code 403') {
+                        //权限不足
+                        this.$message.error('无访问权限');
+                        return;
+                    } else {
+                        this.$message.error('未知错误');
+                        return;
+                    }
+                },
                 // 删除
                 handleDelete(row) {
                     this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {

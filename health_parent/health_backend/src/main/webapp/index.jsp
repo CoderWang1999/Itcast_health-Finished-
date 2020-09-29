@@ -11,6 +11,6 @@
     <title>index</title>
 </head>
 <body>
-<%response.sendRedirect(request.getContextPath()+"pages/main.html");%>
+<%response.sendRedirect(request.getContextPath()+"login.html");%>
 </body>
 </html>

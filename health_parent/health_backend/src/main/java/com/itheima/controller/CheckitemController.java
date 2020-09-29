@@ -8,6 +8,7 @@ import com.itheima.entity.QueryPageBean;
 import com.itheima.entity.Result;
 import com.itheima.pojo.CheckItem;
 import com.itheima.service.CheckItemService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,11 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("checkitem")
+@RequestMapping("/checkitem")
 public class CheckitemController {
     @Reference
     private CheckItemService checkItemService;
     //新增
+    @PreAuthorize("hasAuthority('CHECKITEM_ADD')")//权限校验
     @RequestMapping("/add.do")
     public Result add(@RequestBody CheckItem checkItem){
         try {
@@ -31,11 +33,13 @@ public class CheckitemController {
         return new Result(true,MessageConstant.ADD_CHECKITEM_SUCCESS);
     }
     //查询所有(分页查询)
+    @PreAuthorize("hasAuthority('CHECKITEM_QUERY')")//权限校验
     @RequestMapping("findPage.do")
     public PageResult findPage(@RequestBody QueryPageBean queryPageBean){
         return checkItemService.findPage(queryPageBean);
     }
     //根据id删除
+    @PreAuthorize("hasAuthority('CHECKITEM_DELETE')")//权限校验
     @RequestMapping("/delete.do")
     public Result deltetByid(Integer id){
         try {
@@ -50,6 +54,7 @@ public class CheckitemController {
         return new Result(true,MessageConstant.DELETE_CHECKITEM_SUCCESS);
     }
     //编辑
+    @PreAuthorize("hasAuthority('CHECKITEM_EDIT')")//权限校验
     @RequestMapping("/edit.do")
     public Result edit(@RequestBody CheckItem checkItem){
         try {

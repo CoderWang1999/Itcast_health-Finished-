@@ -10,6 +10,7 @@ import com.itheima.pojo.Setmeal;
 import com.itheima.service.SetmealService;
 import com.itheima.utils.QiniuUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -46,6 +47,7 @@ public class SetmealController {
         return new Result(true, MessageConstant.PIC_UPLOAD_SUCCESS,fileName);
     }
     //新增
+    @PreAuthorize("hasAuthority('SETMEAL_ADD')")//权限校验
     @RequestMapping("/add")
     public Result add(@RequestBody Setmeal setmeal, Integer[] checkgroupIds){
         try {
@@ -57,6 +59,7 @@ public class SetmealController {
         return new Result(true,MessageConstant.ADD_SETMEAL_SUCCESS);
     }
     //查询所有(分页查询)
+    @PreAuthorize("hasAuthority('SETMEAL_QUERY')")//权限校验
     @RequestMapping("/findPage")
     public PageResult findPage(@RequestBody QueryPageBean queryPageBean){
         return setmealService.findPage(queryPageBean);
