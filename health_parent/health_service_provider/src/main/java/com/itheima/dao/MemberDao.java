@@ -7,4 +7,6 @@ public interface MemberDao {
     Member findByTelephone(String telephone);
     //新增会员
     void add(Member member);
+    //查询指定月份之前会员总数
+    Integer findMemberCountBeforeDate(String month);
 }

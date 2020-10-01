@@ -9,10 +9,14 @@
     <!--新增会员-->
     <insert id="add" parameterType="com.itheima.pojo.Member">
         <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
-        SELECT LAST_INSERT_ID()
+            SELECT LAST_INSERT_ID()
         </selectKey>
         insert into t_member(fileNumber,name,sex,idCard,phoneNumber,regTime,password,email,birthday,remark)
         values
         (#{fileNumber},#{name},#{sex},#{idCard},#{phoneNumber},#{regTime},#{password},#{email},#{birthday},#{remark})
     </insert>
+    <!--查询指定月份之前的会员总数-->
+    <select id="findMemberCountBeforeDate" parameterType="string" resultType="int">
+        SELECT count(id) FROM t_member WHERE regTime &lt;= #{date}
+    </select>
 </mapper>

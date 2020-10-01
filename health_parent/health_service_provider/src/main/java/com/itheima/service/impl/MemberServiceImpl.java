@@ -7,6 +7,9 @@ import com.itheima.service.MemberService;
 import com.itheima.utils.MD5Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class MemberServiceImpl implements MemberService {
     @Autowired
@@ -34,5 +37,18 @@ public class MemberServiceImpl implements MemberService {
             }
             memberDao.add(member);
         }
+    }
+
+    @Override
+    public List<Integer> findMemberCountByMonths(List<String> months) {
+        List<Integer> list=new ArrayList<>();
+        if (months!=null){
+            for (String month : months) {
+                month+=".31";
+                Integer count = memberDao.findMemberCountBeforeDate(month);
+                list.add(count);
+            }
+        }
+        return list;
     }
 }
