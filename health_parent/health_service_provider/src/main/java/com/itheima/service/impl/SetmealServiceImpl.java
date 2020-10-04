@@ -130,6 +130,12 @@ public class SetmealServiceImpl implements SetmealService {
         return setmealDao.findById(id);
     }
 
+    //套餐预约占比饼形图
+    @Override
+    public List<Map<String, Object>> findSetmealCount() {
+        return setmealDao.findSetmealCount();
+    }
+
     //抽取的新增关联关系的方法
     public void setSetmealIdAndCheckGroupId(Integer setmealId, Integer[] checkgroupIds) {
         //判断检查项ids数组是否为空

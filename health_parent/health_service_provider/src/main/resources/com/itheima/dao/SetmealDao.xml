@@ -54,4 +54,8 @@
     <select id="findById" parameterType="int" resultMap="findByIdResultMap">
         select * from t_setmeal where id=#{id}
     </select>
+    <!--查询套餐预约占比-->
+    <select id="findSetmealCount" resultType="map">
+        select s.name, count(o.id) value from t_order o,t_setmeal s where o.setmeal_id = s.id group by s.name
+    </select>
 </mapper>

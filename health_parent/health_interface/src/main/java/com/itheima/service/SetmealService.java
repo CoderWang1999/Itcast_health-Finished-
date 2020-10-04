@@ -7,6 +7,7 @@ import com.itheima.entity.QueryPageBean;
 import com.itheima.pojo.Setmeal;
 
 import java.util.List;
+import java.util.Map;
 
 public interface SetmealService {
     //新增
@@ -17,4 +18,6 @@ public interface SetmealService {
     List<Setmeal> findAll();
     //根据id查询套餐数据
     Setmeal findById(int id);
+    //获取套餐预约占比
+    List<Map<String, Object>> findSetmealCount();
 }

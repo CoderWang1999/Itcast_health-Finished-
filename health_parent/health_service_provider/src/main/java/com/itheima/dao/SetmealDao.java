@@ -17,4 +17,6 @@ public interface SetmealDao {
     List<Setmeal> findAll();
     //根据id查询
     Setmeal findById(int id);
+    //查询套餐预约占比
+    List<Map<String, Object>> findSetmealCount();
 }
