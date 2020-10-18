@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import redis.clients.jedis.JedisPool;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -63,5 +64,40 @@ public class SetmealController {
     @RequestMapping("/findPage")
     public PageResult findPage(@RequestBody QueryPageBean queryPageBean){
         return setmealService.findPage(queryPageBean);
+    }
+    //根据套餐id查询检查组ids
+    @RequestMapping("/findIdInMiddleTable")
+    public Result findIdInMiddleTable(String setMealId){
+        try {
+            List<String> checkgroupIds=setmealService.findIdInMiddleTable(setMealId);
+            return new Result(true,MessageConstant.QUERY_CHECKGROUP_SUCCESS,checkgroupIds);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Result(false, MessageConstant.QUERY_CHECKGROUP_FAIL);
+        }
+    }
+    //修改
+    @PreAuthorize("hasAuthority('SETMEAL_EDIT')")//权限校验
+    @RequestMapping("/edit")
+    public Result edit(@RequestBody Setmeal setmeal, Integer[] checkgroupIds ,String tempImgId){
+        try {
+            setmealService.edit(setmeal,checkgroupIds,tempImgId);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Result(false, MessageConstant.EDIT_SETMEAL_FAIL);
+        }
+        return new Result(true,MessageConstant.EDIT_SETMEAL_SUCCESS);
+    }
+    //删除
+    @PreAuthorize("hasAuthority('SETMEAL_DELETE')")//权限校验
+    @RequestMapping("/delete")
+    public Result delete(Integer setMealId,String imgId){
+        try {
+            setmealService.delete(setMealId,imgId);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Result(false, MessageConstant.DELETE_SETMEAL_FAIL);
+        }
+        return new Result(true,MessageConstant.DELETE_SETMEAL_SUCCESS);
     }
 }

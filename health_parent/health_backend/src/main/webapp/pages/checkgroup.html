@@ -280,6 +280,31 @@
                 this.findPage();
             },
             methods: {
+                //深拷贝
+                deepClone(obj) {
+                    return JSON.parse(JSON.stringify(obj));
+                },
+                //前置处理,obj0是所有套餐的集合，obj1是该套餐的检查组的id组成的集合
+                preProcessing(obj0, obj1) {
+                    let tempTableData = obj0;
+                    //定义一个指针，用于指向下次被交换的元素
+                    let point = 0;
+                    //遍历该套餐的检查组集合
+                    for (let j = 0; j < obj1.length; j++) {
+                        //遍历所有检查组集合
+                        for (let i = 0; i < obj0.length; i++) {
+                            if (obj1[j] == obj0[i].id) {
+                                let tempCheckItem = obj0[point];
+                                obj0[point] = obj0[i];
+                                obj0[i] = tempCheckItem;
+                                point = point + 1;
+                            }
+                        }
+                    }
+                    //对没有被勾选的检查项按照项目编码排序---->obj0[i].code
+                    //有需求你就排序，这里可以排序，但是没必要.
+                    return tempTableData;
+                },
                 //编辑
                 handleEdit() {
                     //发送ajax请求，将修改后的表单数据（检查组基本信息、勾选的检查项）提交到后台进行处理
@@ -362,7 +387,10 @@
                 handleUpdate(row) {
                     //弹出编辑窗口
                     this.dialogFormVisible4Edit = true;
+                    this.resetForm();
                     this.activeName = 'first';
+                    //基于深拷贝的数据回显
+                    this.formData = this.deepClone(row);
                     //发送ajax请求，根据检查组ID查询当前检查组数据，用于基本信息的回显
                     axios.get("/checkgroup/findById.do?checkgroupId=" + row.id).then((res) => {
                         if(res.data.flag){
@@ -382,6 +410,7 @@
                             axios.get("/checkgroup/findCheckitemIdsByCheckgroupId.do?checkgroupId=" + row.id).then((res) => {
                                 if(res.data.flag){
                                     this.checkitemIds = res.data.data;
+                                    this.tableData = this.preProcessing(this.tableData, res.data.data);
                                 }else{
                                     this.$message.error(res.data.message);
                                 }

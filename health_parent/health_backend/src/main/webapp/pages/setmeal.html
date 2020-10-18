@@ -103,8 +103,8 @@
                 <el-table-column prop="remark" label="说明" align="center"></el-table-column>
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
-                        <el-button type="primary" size="mini">编辑</el-button>
-                        <el-button size="mini" type="danger">删除</el-button>
+                        <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
+                        <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -230,6 +230,121 @@
                     </div>
                 </el-dialog>
             </div>
+            <!-- 编辑标签弹层 -->
+            <div class="add-form">
+                <el-dialog title="编辑检查组" :visible.sync="dialogFormVisible4Edit">
+                    <template>
+                        <el-tabs v-model="activeName" type="card">
+                            <el-tab-pane label="基本信息" name="first">
+                                <el-form label-position="right" label-width="100px">
+                                    <el-row>
+                                        <el-col :span="12">
+                                            <el-form-item label="编码">
+                                                <el-input v-model="formData.code"/>
+                                            </el-form-item>
+                                        </el-col>
+                                        <el-col :span="12">
+                                            <el-form-item label="名称">
+                                                <el-input v-model="formData.name"/>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                    <el-row>
+                                        <el-col :span="12">
+                                            <el-form-item label="适用性别">
+                                                <el-select v-model="formData.sex">
+                                                    <el-option label="不限" value="0"></el-option>
+                                                    <el-option label="男" value="1"></el-option>
+                                                    <el-option label="女" value="2"></el-option>
+                                                </el-select>
+                                            </el-form-item>
+                                        </el-col>
+                                        <el-col :span="12">
+                                            <el-form-item label="助记码">
+                                                <el-input v-model="formData.helpCode"/>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                    <el-row>
+                                        <el-col :span="12">
+                                            <el-form-item label="套餐价格">
+                                                <el-input v-model="formData.price"/>
+                                            </el-form-item>
+                                        </el-col>
+                                        <el-col :span="12">
+                                            <el-form-item label="适用年龄">
+                                                <el-input v-model="formData.age"/>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                    <el-row>
+                                        <el-col :span="24">
+                                            <el-form-item label="上传图片">
+                                                <el-upload
+                                                        class="avatar-uploader"
+                                                        action="/setmeal/upload.do"
+                                                        :auto-upload="autoUpload"
+                                                        name="imgFile"
+                                                        :show-file-list="false"
+                                                        :on-success="handleAvatarSuccess"
+                                                        :before-upload="beforeAvatarUpload">
+                                                    <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                                                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                                </el-upload>
+                                                <el-row>
+                                                    <el-button @click="clear()" type="danger" round>删除</el-button>
+                                                </el-row>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                    <el-row>
+                                        <el-col :span="24">
+                                            <el-form-item label="说明">
+                                                <el-input v-model="formData.remark" type="textarea"></el-input>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                    <el-row>
+                                        <el-col :span="24">
+                                            <el-form-item label="注意事项">
+                                                <el-input v-model="formData.attention" type="textarea"></el-input>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                </el-form>
+                            </el-tab-pane>
+                            <el-tab-pane label="检查组信息" name="second">
+                                <div class="checkScrol">
+                                    <table class="datatable">
+                                        <thead>
+                                        <tr>
+                                            <th>选择</th>
+                                            <th>项目编码</th>
+                                            <th>项目名称</th>
+                                            <th>项目说明</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr v-for="c in tableData">
+                                            <td>
+                                                <input :id="c.id" v-model="checkgroupIds" type="checkbox" :value="c.id">
+                                            </td>
+                                            <td><label :for="c.id">{{c.code}}</label></td>
+                                            <td><label :for="c.id">{{c.name}}</label></td>
+                                            <td><label :for="c.id">{{c.remark}}</label></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </el-tab-pane>
+                        </el-tabs>
+                    </template>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="dialogFormVisible4Edit = false">取消</el-button>
+                        <el-button type="primary" @click="handleEdit()">确定</el-button>
+                    </div>
+                </el-dialog>
+            </div>
         </div>
     </div>
 </div>
@@ -252,12 +367,18 @@
             formData: {},//表单数据
             tableData: [],//添加表单窗口中检查组列表数据
             checkgroupIds: [],//添加表单窗口中检查组复选框对应id
-            dialogFormVisible: false//控制添加窗口显示/隐藏
+            dialogFormVisible: false,//控制添加窗口显示/隐藏
+            dialogFormVisible4Edit: false,//控制编辑窗口显示/隐藏
+            tempImgId:null//用作把原来已有的图片名称保存。
         },
         created() {
             this.findPage();
         },
         methods: {
+            //深拷贝
+            deepClone(obj) {
+                return JSON.parse(JSON.stringify(obj));
+            },
             //文件上传成功后的钩子，response为服务端返回的值，file为当前上传的文件封装成的js对象
             handleAvatarSuccess(response, file) { //http 200
                 this.imageUrl = "http://qh1sg4xnd.hn-bkt.clouddn.com//" + response.data;
@@ -292,7 +413,7 @@
                     } else {
                         this.$message.error(res.data.message);
                     }
-                }).finally(()=>{
+                }).finally(() => {
                     this.findPage();
                 })
 
@@ -327,6 +448,119 @@
                         this.$message.error(res.data.message);
                     }
                 })
+            },
+            // 删除
+            handleDelete(row) {
+                this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    axios.get("/setmeal/delete.do?setMealId=" + row.id + "&imgId=" + row.img).then((res) => {
+                        if (res.data.flag) {
+                            this.$message({
+                                type: 'success',
+                                message: res.data.message
+                            });
+                        } else {
+                            this.$message.error(res.data.message);
+                        }
+                    }).finally(() => {
+                        this.findPage();
+                    });
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+            },
+            //清除编辑框中的图片
+            clear() {
+                this.imageUrl = null;
+                this.formData.img = null;
+            },
+            // 弹出编辑窗口
+            handleUpdate(row) {
+                //弹出编辑窗口
+                this.dialogFormVisible4Edit = true;
+                this.resetForm();
+                //把原来已有的图片名称保存。
+                this.tempImgId = row.img;
+                //进行图片的回显
+                if (row.img != null && row.img.length > 0) {
+                    this.imageUrl = "http://qh1sg4xnd.hn-bkt.clouddn.com//" + row.img;
+                }
+                //基于深拷贝的数据回显
+                this.formData = this.deepClone(row);
+
+                //发送ajax请求，查询所有的检查组数据，用于展示检查组列表
+                axios.get("/checkgroup/findAll.do").then((res) => {
+                    if (res.data.flag) {
+                        //查询检查项数据成功
+                        this.tableData = res.data.data;
+                        //发送ajax请求，根据套餐Id查询检查组id
+                        axios.get("/setmeal/findIdInMiddleTable.do?setMealId=" + row.id).then((res) => {
+                            if (res.data.flag) {
+                                //把该套餐中有的检查组id的数组赋值给checkgroupIds
+                                this.checkgroupIds = res.data.data;
+                                //把该套餐中有的检查组移到开头位置
+                                this.tableData = this.preProcessing(this.tableData, res.data.data);
+                            } else {
+                                this.$message.error(res.data.message);
+                            }
+                        });
+                    } else {
+                        //查询检查项数据失败
+                        this.$message.error(res.data.message);
+                    }
+                });
+
+            },
+
+            //前置处理,obj0是所有套餐的集合，obj1是该套餐的检查组的id组成的集合
+            preProcessing(obj0, obj1) {
+                let tempTableData = obj0;
+                //定义一个指针，用于指向下次被交换的元素
+                let point = 0;
+                //遍历该套餐的检查组集合
+                for (let j = 0; j < obj1.length; j++) {
+                    //遍历所有检查组集合
+                    for (let i = 0; i < obj0.length; i++) {
+                        if (obj1[j] == obj0[i].id) {
+                            let tempCheckItem = obj0[point];
+                            obj0[point] = obj0[i];
+                            obj0[i] = tempCheckItem;
+                            point = point + 1;
+                        }
+                    }
+                }
+                //对没有被勾选的检查项按照项目编码排序---->obj0[i].code
+                //有需求你就排序，这里可以排序，但是没必要.
+                return tempTableData;
+            },
+
+            //修改之后提交数据
+            handleEdit() {
+                //判断tempImgId和this.formData.img是否相同，相同另tempImgId为null，这样后端就不会进行删除
+                //不同就把tempImgId传过去
+                if (this.tempImgId == this.formData.img) {
+                    this.tempImgId = null;
+                }
+
+                axios.post("/setmeal/edit.do?checkgroupIds=" + this.checkgroupIds + "&tempImgId=" + this.tempImgId, this.formData).then((res) => {
+                    this.dialogFormVisible4Edit = false;
+                    if (res.data.flag) {
+                        this.$message({
+                            type: 'success',
+                            message: res.data.message
+                        })
+                    } else {
+                        this.$message.error(res.data.message);
+                    }
+                }).finally(() => {
+                    this.findPage();
+                });
             },
             //切换页码
             handleCurrentChange(currentPage) {

@@ -12,11 +12,11 @@ import com.itheima.service.SetmealService;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 import redis.clients.jedis.JedisPool;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +32,7 @@ public class SetmealServiceImpl implements SetmealService {
     @Autowired
     private FreeMarkerConfigurer freeMarkerConfigurer;
     //从属性文件中读取要生成的html对应的目录
-    private String outPutPath="D:/IDE/Idea_space/itcast_health/health_parent/health_mobile/src/main/webapp/staticPages";
+    private String outPutPath = "D:/IDE/Idea_space/itcast_health/health_parent/health_mobile/src/main/webapp/staticPages";
 
     //新增
     @Override
@@ -49,7 +49,6 @@ public class SetmealServiceImpl implements SetmealService {
         jedisPool.getResource().sadd(RedisConstant.SETMEAL_PIC_DB_RESOURCES, fileName);
         //当添加套餐后需要重新生成静态页面（套餐列表页面、套餐详情页面）
         generateMobileStaticHtml();
-        ;
     }
 
     //生成当前方法所需的静态页面
@@ -90,7 +89,7 @@ public class SetmealServiceImpl implements SetmealService {
             //加载模板文件
             Template template = configuration.getTemplate(templateName);
             //构造输出流
-            out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(outPutPath + "/" + htmlPageName)),"UTF-8"));
+            out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(outPutPath + "/" + htmlPageName)), "UTF-8"));
             //输出文件
             template.process(map, out);
             //关流释放资源
@@ -134,6 +133,59 @@ public class SetmealServiceImpl implements SetmealService {
     @Override
     public List<Map<String, Object>> findSetmealCount() {
         return setmealDao.findSetmealCount();
+    }
+
+    //根据套餐Id查询检查组id
+    @Override
+    public List<String> findIdInMiddleTable(String setMealId) {
+        List<String> checkgroupIds = new ArrayList<>();
+        if (setMealId != null && !setMealId.equals("")) {
+            checkgroupIds = setmealDao.findCheckGroupIdsBySetMealId(setMealId);
+        }
+        return checkgroupIds;
+    }
+
+    //编辑套餐
+    @Override
+    public void edit(Setmeal setmeal, Integer[] checkgroupIds, String tempImgId) {
+        //把Redis中小集合中存的图片名称替换
+        if (tempImgId != null && !tempImgId.equals("")) {
+            //清理Redis中小集合内的原图片名
+            jedisPool.getResource().srem(RedisConstant.SETMEAL_PIC_DB_RESOURCES, tempImgId);
+            //将更新后的图片名称存入Redis
+            String fileName = setmeal.getImg();
+            jedisPool.getResource().sadd(RedisConstant.SETMEAL_PIC_DB_RESOURCES, fileName);
+        }
+        //编辑套餐
+        setmealDao.editSetmeal(setmeal);
+        //获取SetmealId
+        Integer setmealId = setmeal.getId();
+        //编辑套餐和检查组关联关系
+        if (checkgroupIds != null && checkgroupIds.length > 0) {
+            //先清空关联关系
+            setmealDao.deleteSetmealAndCheckgroup(setmealId);
+            this.setSetmealIdAndCheckGroupId(setmealId, checkgroupIds);
+        }
+        //生成静态页面
+        generateMobileStaticHtml();
+    }
+
+    //删除套餐
+    @Override
+    public void delete(Integer setMealId, String imgId) {
+        //删除Redis中小集合中的图片
+        if (imgId != null && !imgId.equals("")) {
+            jedisPool.getResource().srem(RedisConstant.SETMEAL_PIC_DB_RESOURCES, imgId);
+        }
+        //删除操作
+        if (setMealId!=null&&!setMealId.equals("")){
+            //先删除关联关系
+            setmealDao.deleteSetmealAndCheckgroup(setMealId);
+            //根据id删除套餐
+            setmealDao.deleteSetmealById(setMealId);
+        }
+        //生成静态页面
+        generateMobileStaticHtml();
     }
 
     //抽取的新增关联关系的方法

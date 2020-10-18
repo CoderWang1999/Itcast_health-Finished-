@@ -19,4 +19,12 @@ public interface SetmealDao {
     Setmeal findById(int id);
     //查询套餐预约占比
     List<Map<String, Object>> findSetmealCount();
+    //根据套餐Id查询检查组id
+    List<String> findCheckGroupIdsBySetMealId(String setMealId);
+    //修改套餐
+    void editSetmeal(Setmeal setmeal);
+    //根据SetmealID删除关联关系
+    void deleteSetmealAndCheckgroup(Integer setmealId);
+    //根据id删除套餐
+    void deleteSetmealById(Integer setMealId);
 }

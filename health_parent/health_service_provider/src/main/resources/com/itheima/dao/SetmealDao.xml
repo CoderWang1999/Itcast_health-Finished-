@@ -58,4 +58,30 @@
     <select id="findSetmealCount" resultType="map">
         select s.name, count(o.id) value from t_order o,t_setmeal s where o.setmeal_id = s.id group by s.name
     </select>
+    <!--根据套餐Id查询检查组id-->
+    <select id="findCheckGroupIdsBySetMealId" parameterType="String" resultType="String">
+        SELECT checkgroup_id FROM t_setmeal_checkgroup WHERE setmeal_id = #{setMealId}
+    </select>
+    <!--修改套餐-->
+    <update id="editSetmeal" parameterType="com.itheima.pojo.Setmeal">
+        update t_setmeal set
+        code=#{code},
+        name=#{name},
+        sex=#{sex},
+        helpCode=#{helpCode},
+        remark=#{remark},
+        attention=#{attention},
+        age=#{age},
+        price=#{price},
+        img=#{img}
+        where id=#{id}
+    </update>
+    <!--根据SetmealId删除关联关系-->
+    <delete id="deleteSetmealAndCheckgroup" parameterType="int">
+        DELETE FROM t_setmeal_checkgroup WHERE setmeal_id=#{setmealId}
+    </delete>
+    <!--根据Id删除套餐-->
+    <delete id="deleteSetmealById" parameterType="int">
+        delete from t_setmeal where id=#{setMealId}
+    </delete>
 </mapper>
