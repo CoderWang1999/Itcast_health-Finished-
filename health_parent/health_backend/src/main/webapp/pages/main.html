@@ -5,6 +5,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>传智健康</title>
+    <audio id="audio" src="../1551961057/acb.mp3" controls  loop controlsList="nodownload"
+           oncontextmenu="return false">
+    </audio>
     <meta name="description" content="传智健康">
     <meta name="keywords" content="传智健康">
     <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
@@ -13,68 +16,99 @@
     <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="../css/style.css">
     <style type="text/css">
-    .el-main{
-        position: absolute;
-        top: 70px;
-        bottom: 0px;
-        left: 200px;
-        right: 10px;
-        padding: 0;
-    }
+        .el-main {
+            position: absolute;
+            top: 70px;
+            bottom: 0px;
+            left: 200px;
+            right: 10px;
+            padding: 0;
+        }
     </style>
 </head>
 <body class="hold-transition skin-purple sidebar-mini">
-    <div id="app">
-        <el-container>
-            <el-header  class="main-header" style="height:70px;">
-                <nav class="navbar navbar-static-top" :class=''>
-                    <!-- Logo -->
-                    <a href="#" class="logo" style="text-align:center">
-                        <span class="logo-lg"><img src="../img/logo.png"></span>
-                    </a>
-                    <div class="right-menu">
-                        <span class="help"><i class="fa fa-exclamation-circle" aria-hidden="true"></i>帮助</span>
-                        <el-dropdown class="avatar-container right-menu-item" trigger="click">
-                            <div class="avatar-wrapper">
-                                <img src="../img/user2-160x160.jpg" class="user-avatar">
-                                {{username}}
-                            </div>
-                            <el-dropdown-menu slot="dropdown">
-                                <el-dropdown-item divided>
-                                    <span style="display:block;">修改密码</span>
-                                </el-dropdown-item>
-                                <el-dropdown-item divided>
-                                        <span style="display:block;">
-                                            <a href="/logout.do">退出</a>
+<div id="app">
+    <el-container>
+        <el-header class="main-header" style="height:70px;">
+            <nav class="navbar navbar-static-top" :class=''>
+                <!-- Logo -->
+                <a href="#" class="logo" style="text-align:center">
+                    <span class="logo-lg"><img src="../img/logo.png"></span>
+                </a>
+                <div class="right-menu">
+                    <span class="help"><i class="fa fa-exclamation-circle" aria-hidden="true"></i>帮助</span>
+                    <el-dropdown class="avatar-container right-menu-item" trigger="click">
+                        <div class="avatar-wrapper">
+                            <img src="../img/user2-160x160.jpg" class="user-avatar">
+                            {{username}}
+                        </div>
+                        <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item divided>
+                                <span style="display:block;"><button
+                                        style="border: white;background: white;font-size: 15px"
+                                        @click="changePassword()">修改密码</button></span>
+                            </el-dropdown-item>
+                            <el-dropdown-item divided>
+                                        <span style="display:block;" @click="logout()">
+                                            退出
                                         </span>
-                                    </el-dropdown-item>
-                            </el-dropdown-menu>
-                        </el-dropdown>
-                    </div>
-                </nav>
-            </el-header>
+                            </el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
+                </div>
+            </nav>
+        </el-header>
+        <el-container>
+            <el-aside width="200px">
+                <el-menu>
+                    <el-submenu v-for="menu in menuList" :index="menu.path">
+                        <template slot="title">
+                            <i class="fa" :class="menu.icon"></i>
+                            {{menu.name}}
+                        </template>
+                        <template v-for="child in menu.children">
+                            <el-menu-item :index="child.path">
+                                <a :href="child.linkUrl" target="right">{{child.name}}</a>
+                            </el-menu-item>
+                        </template>
+                    </el-submenu>
+                </el-menu>
+            </el-aside>
             <el-container>
-                <el-aside width="200px">
-                    <el-menu>
-                        <el-submenu v-for="menu in menuList" :index="menu.path">
-                            <template slot="title">
-                                <i class="fa" :class="menu.icon"></i>
-                                {{menu.title}}
-                            </template>
-                            <template v-for="child in menu.children">
-                                <el-menu-item :index="child.path">
-                                    <a :href="child.linkUrl" target="right">{{child.title}}</a>
-                                </el-menu-item>
-                            </template>
-                        </el-submenu>
-                    </el-menu>
-                </el-aside>
-                <el-container>
-                    <iframe name="right" class="el-main" src="checkitem.html" width="100%" height="580px" frameborder="0"></iframe>
-                </el-container>
+                <iframe name="right" class="el-main" src="../1551961057/bb.html" width="100%" height="580px"
+                        frameborder="0"></iframe>
             </el-container>
         </el-container>
+    </el-container>
+
+    <!-- 修改密码 -->
+    <div class="add-form">
+        <el-dialog title="修改密码" :visible.sync="dialogFormVisible">
+            <el-form ref="dataAddForm" :model="formData" :rules="rules" label-position="right"
+                     label-width="70px">
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="新密码" prop="password">
+                            <el-input v-model="formData.password"/>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="确认密码" prop="senPassword">
+                            <el-input v-model="formData.senPassword"/>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogFormVisible = false">取消</el-button>
+                <el-button type="primary" @click="handleChangePassword()">确定</el-button>
+            </div>
+        </el-dialog>
     </div>
+</div>
 </body>
 <!-- 引入组件库 -->
 <script src="../js/vue.js"></script>
@@ -84,128 +118,97 @@
 <script>
     new Vue({
         el: '#app',
-        data:{
-            username:'',//当前登录用户的用户名
-            menuList:[
-                {
-                    "path": "1",
-                    "title": "工作台",
-                    "icon":"fa-dashboard",
-                    "children": []
-                },
-                {
-                    "path": "2",
-                    "title": "会员管理",
-                    "icon":"fa-user-md",
-                    "children": [
-                        {
-                            "path": "/2-1",
-                            "title": "会员档案",
-                            "linkUrl":"member.html",
-                            "children":[]
-                        },
-                        {
-                            "path": "/2-2",
-                            "title": "体检上传",
-                            "children":[]
-                        },
-                        {
-                            "path": "/2-3",
-                            "title": "会员统计",
-                            "linkUrl":"all-item-list.html",
-                            "children":[]
-                        },
-                    ]
-                },
-                {
-                    "path": "3",
-                    "title": "预约管理",
-                    "icon":"fa-tty",
-                    "children": [
-                        {
-                            "path": "/3-1",
-                            "title": "预约列表",
-                            "linkUrl":"ordersettinglist.html",
-                            "children":[]
-                        },
-                        {
-                            "path": "/3-2",
-                            "title": "预约设置",
-                            "linkUrl":"ordersetting.html",
-                            "children":[]
-                        },
-                        {
-                            "path": "/3-3",
-                            "title": "套餐管理",
-                            "linkUrl":"setmeal.html",
-                            "children":[]
-                        },
-                        {
-                            "path": "/3-4",
-                            "title": "检查组管理",
-                            "linkUrl":"checkgroup.html",
-                            "children":[]
-                        },
-                        {
-                            "path": "/3-5",
-                            "title": "检查项管理",
-                            "linkUrl":"checkitem.html",
-                            "children":[]
-                        },
-                    ]
-                },
-                {
-                    "path": "4",
-                    "title": "健康评估",
-                    "icon":"fa-stethoscope",
-                    "children":[
-                        {
-                            "path": "/4-1",
-                            "title": "中医体质辨识",
-                            "linkUrl":"all-medical-list.html",
-                            "children":[]
-                        },
-                    ]
-                },
-                {
-                    "path": "5",     //菜单项所对应的路由路径
-                    "title": "统计分析",     //菜单项名称
-                    "icon":"fa-heartbeat",
-                    "children":[//是否有子菜单，若没有，则为[]
-                        {
-                            "path": "/5-1",
-                            "title": "会员数量统计",
-                            "linkUrl":"report_member.html",
-                            "children":[]
-                        },
-                        {
-                            "path": "/5-2",
-                            "title": "套餐预约占比统计",
-                            "linkUrl":"report_setmeal.html",
-                            "children":[]
-                        },
-                        {
-                            "path": "/5-3",
-                            "title": "运营数据统计",
-                            "linkUrl":"report_business.html",
-                            "children":[]
-                        }
-                    ]
-                }
-            ]
+        data: {
+            dialogFormVisible: false,//控制修改密码弹框是否显示
+            formData: {},//修改密码 两次输入框的表单
+            //校验规则
+            rules: {
+                password: [
+                    {required: true, message: '请输入密码', trigger: 'blur'},
+                    {min: 6, message: '密码最少需要6位', trigger: 'blur'}
+                ],
+                senPassword: [
+                    {required: true, message: '请输入密码', trigger: 'change'},
+                    {min: 6, message: '密码最少需要6位', trigger: 'blur'}
+                ],
+            },
+            username: '',//当前登录用户的用户名
+            menuList: []
         },
-        created(){
+        mounted() {
             //发送ajax请求，请求Controller获取当前登录用户的用户名，展示到页面中
             axios.get("/user/getUsername.do").then((res) => {
-                if(res.data.flag){
+                if (res.data.flag) {
                     this.username = res.data.data;
                 }
             });
+
+            axios.get("/user/getAllMenus.do").then((res) => {
+                if (res.data.flag) {
+                    this.menuList = res.data.data;
+                }
+            });
+        },
+
+        methods: {
+            //弹出修改密码的弹框
+            changePassword() {
+                //重置表单
+                this.formData = {};
+                //弹框可见
+                this.dialogFormVisible = true;
+            },
+
+            //点击确认修改的操作
+            handleChangePassword() {
+                this.$refs['dataAddForm'].validate((valid) => {
+                    if (valid) {
+                        //点击确定,通过校验规则
+                        axios.post("/user/changePassword.do", this.formData).then((res) => {
+                            if (res.data.flag) {
+                                this.$message({
+                                    type: 'success',
+                                    message: res.data.message
+                                });
+
+                                //登出
+                                window.location.href = "/logout.do";
+                            } else {
+                                this.$message.error(res.data.message);
+                            }
+                        }).finally(() => {
+                            this.findPage();
+                            this.dialogFormVisible4Edit = false;
+                        })
+                    } else {
+                        this.$message.error("密码格式不正确");
+                    }
+
+                    //清空校验规则
+                    this.$refs['dataAddForm'].clearValidate();
+                });
+            },
+
+            //退出操作
+            logout() {
+                window.location.href = "/logout.do";
+            }
+
+        },
+        methods: {
+
+            //退出失败
+            logout() {
+                axios.post("/user/quit.do").then((res) => {
+                    window.location.href = "/logout.do"
+                })
+            },
         }
+
     });
-    $(function() {
-            var wd = 200;
-            $(".el-main").css('width', $('body').width() - wd + 'px');
+    $(function () {
+        var wd = 200;
+        $(".el-main").css('width', $('body').width() - wd + 'px');
     });
 </script>
 </html>

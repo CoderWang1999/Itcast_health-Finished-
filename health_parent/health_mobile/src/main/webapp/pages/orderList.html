@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0,user-scalable=no,minimal-ui">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../img/asset-favico.ico">
+    <title>飞猪健康</title>
+    <link rel="stylesheet" href="../css/page-health-index.css"/>
+    <link rel="stylesheet" href="../css/page-health-login.css"/>
+    <link rel="stylesheet" href="../css/page-health-order.css"/>
+    <link rel="stylesheet" href="../plugins/elementui/index.css"/>
+    <script src="../plugins/jquery/dist/jquery.min.js"></script>
+    <script src="../plugins/healthmobile.js"></script>
+    <script src="../plugins/vue/vue.js"></script>
+    <script src="../plugins/vue/axios-0.18.0.js"></script>
+    <script src="../plugins/elementui/index.js"></script>
+    <script>
+        import { Message } from 'element-ui'
+        Vue.use(Message)
+        Vue.prototype.$message = Message
+    </script>
+    <style>
+        .button {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 5px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline;
+            font-size: 16px;
+            margin-left: 25px;
+        }
+    </style>
+    <script>
+        var id = getUrlParam("id");//从URL地址栏获取体检套餐id
+    </script>
+</head>
+<body data-spy="scroll" data-target="#myNavbar" data-offset="150">
+<div id="app" class="app">
+    <!-- 页面头部 -->
+    <div class="top-header">
+        <span class="f-left"><i class="icon-back" onclick="history.go(-1)"></i></span>
+        <span class="center">传智健康</span>
+        <span class="f-right"><i class="icon-more"></i></span>
+    </div>
+    <!-- 页面内容 -->
+    <div class="contentBox">
+        <div class="form-info">
+            <form class="info-form">
+                <div class="input-row">
+                    起始日期:
+                    <input v-model="queryCondition.startDate" style="width: 70%;height: 30px;border: 0px" type="date"
+                           class="input-clear">
+                </div>
+
+                <div class="input-row">
+                    截止日期:
+                    <input v-model="queryCondition.endDate" style="width: 70%;height: 30px;border: 0px" type="date"
+                           class="input-clear">
+                    <span class="box-button">
+
+                         <div class="input-row">
+                <label>套餐名称</label>
+                <input v-model="queryCondition.setmealName" type="text" class="input-clear"
+                       style="width: 70%;height: 30px;border: 0px" placeholder="套餐名称">
+                </div>
+
+                            <button @click="findSetmealByIdAndDate()" type="button" class="button">查询</button>
+                            </span>
+                </div>
+            </form>
+
+        </div>
+        <div class="list-column1">
+            <ul class="list">
+                <li class="list-item" v-for="order in orderAndSetmealList">
+                    <a class="link-page" :href="'member_order_detail.html?id='+order.setmealId+'&orderId='+order.orderId+'&setmealImg='+order.setmealImg">
+                        <img class="img-object f-left" :src="'http://qgi2e8sac.hd-bkt.clouddn.com/'+order.setmealImg"
+                             alt="">
+                        <div class="item-body">
+                            <h4 class="ellipsis item-title">{{order.setmealName}}</h4>
+                            <p class="ellipsis-more item-desc">{{order.setmealRemark}}</p>
+                            <p class="item-keywords">
+                                <span>{{order.setmealSex == '0' ? '性别不限' : order.setmealSex == '1' ? '男':'女'}}</span>
+                                <span>{{order.setmealAge}}</span>
+                            </p>
+                            <p>{{order.orderDate}}</p>
+                            <p>{{order.orderStatus}}</p>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<script>
+    //定义一个全局变量用于倒计时
+    let second = 3;
+
+    //定义一个定时器变量，这个变量在引入的js文件中已经被定义了
+    // let clock = '';
+
+    //每秒执行一次这个方法
+    function countDown() {
+        second--;
+
+        if (second < 0) {
+            //清除定时器变量
+            clearInterval(clock);
+            //进行跳转页面
+            window.location.href = "/pages/index.html";
+        }
+    }
+
+    var vue = new Vue({
+        el: '#app',
+        data: {
+            //订单和套餐列表
+            orderAndSetmealList: [],
+
+            //查询条件
+            queryCondition: {}
+        },
+
+        methods: {
+            findSetmealByIdAndDate() {
+                axios.post("/order/findSetmealByIdAndDate.do", this.queryCondition).then((response) => {
+                    if (response.data.flag) {
+                        //把数据进行回显
+                        this.$message({
+                            type: 'success',
+                            message: response.data.message
+                        });
+
+                        this.orderAndSetmealList = response.data.data;
+                    } else {
+                        //给出查询失败的信息
+                        this.$message.error(response.data.message);
+                    }
+                });
+            }
+        },
+
+        //加载页面的钩子函数
+        mounted() {
+            //查询该会员所有的订单，以及每一个订单对应的套餐
+            axios.post("/order/findAll4OrderAndSetmeal.do").then((response) => {
+                if (response.data.flag) {
+                    if (response.data.data != null && response.data.data.length > 0) {
+                        //该会员有预约
+
+                        //把该会员对应的订单信息回显
+                        this.orderAndSetmealList = response.data.data;
+                    } else {
+                        this.$message.error('您没有预约,3秒后返回主界面');
+                        //该会员没有预约
+                        clock = window.setInterval(countDown, 1000); //一秒执行一次
+                    }
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>

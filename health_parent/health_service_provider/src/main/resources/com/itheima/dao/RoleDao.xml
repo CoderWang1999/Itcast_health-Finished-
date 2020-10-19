@@ -7,4 +7,99 @@
           from t_role r,t_user_role ur
           where r.id = ur.role_id and ur.user_id = #{userId}
     </select>
+    <!--查询所有的角色-->
+    <select id="findAllRoles" resultType="com.itheima.pojo.Role">
+        select * from t_role
+    </select>
+
+    <!--分页查询-->
+    <select id="findPage" parameterType="string" resultType="com.itheima.pojo.Role">
+        select * from t_role
+        <if test="value != null and value.length > 0">
+            where name like concat('%',#{value},"%")
+        </if>
+    </select>
+
+    <!--通过用户名或关键字查询角色-->
+    <select id="findByName2Kd" parameterType="string" resultType="com.itheima.pojo.Role">
+        select * from t_role
+            where name =#{name} or keyword=#{keyword}
+    </select>
+
+    <!--添加角色-->
+    <insert id="add" parameterType="com.itheima.pojo.Role">
+        <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+            select LAST_INSERT_ID()
+        </selectKey>
+        insert into t_role(id,name,keyword,description)
+        values
+        (#{id},#{name},#{keyword},#{description})
+    </insert>
+
+    <!--给角色添加权限-->
+    <insert id="addPermissionAndRole">
+        insert into t_role_permission values (#{roleId},#{permissionId})
+    </insert>
+
+    <!--给角色添加菜单-->
+    <insert id="addMenuAndRole">
+        insert into t_role_menu values (#{roleId},#{menuId})
+    </insert>
+
+    <!--通过角色id查询所有与他有关的权限id-->
+    <select id="findPermissionIdByrid" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select permission_id from t_role_permission where role_id = #{rId}
+    </select>
+
+    <!--通过角色id查询所有与他有关的菜单id-->
+    <select id="findMenuIdByrid" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select menu_id from t_role_menu where role_id = #{rId}
+    </select>
+
+    <!--通过角色id修改已有的角色-->
+    <update id="update" parameterType="com.itheima.pojo.Role">
+        update t_role
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="keyword != null">
+                keyword = #{keyword},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <!--通过觉色id删除关联的权限id-->
+    <delete id="deleteConnection4PermissionByrid" parameterType="int">
+        delete from t_role_permission where role_id = #{roleId}
+    </delete>
+    <!--通过角色id删除关联的菜单id-->
+    <delete id="deleteConnection4MenuByrid" parameterType="int">
+        delete from t_role_menu where role_id = #{roleId}
+    </delete>
+    <!--通过角色id查找角色-->
+    <select id="findById" parameterType="int" resultType="com.itheima.pojo.Role">
+        select * from t_role where id=#{id}
+    </select>
+    <!--通过角色id删除关联的用户-->
+    <delete id="deleteConnection4UserByrid" parameterType="int">
+        delete from t_user_role where role_id = #{roleId}
+    </delete>
+
+    <!--通过角色id删除角色-->
+    <delete id="deleterole" parameterType="int">
+        delete from t_role where id = #{roleId}
+    </delete>
+
+    <!--通过菜单id查询所有的角色-->
+    <select id="findRoleBymid" parameterType="int" resultType="com.itheima.pojo.Role">
+        select * from t_role where id in (select role_id from t_role_menu where menu_id = #{id})
+    </select>
+
+    <select id="findMenuByRoleId" parameterType="int" resultType="com.itheima.pojo.Menu">
+        select * from t_menu where id in (select menu_id from t_role_menu where role_id = #{roleId})
+    </select>
 </mapper>

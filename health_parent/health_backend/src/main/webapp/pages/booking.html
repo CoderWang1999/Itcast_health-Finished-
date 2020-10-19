@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>传智健康</title>
+    <meta name="description" content="传智健康">
+    <meta name="keywords" content="传智健康">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../plugins/elementui/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- 引入组件库 -->
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="../plugins/elementui/index.js"></script>
+    <script src="../js/axios-0.18.0.js"></script>
+    <style>
+        .avatar-uploader .el-upload {
+            border: 1px dashed #d9d9d9;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar-uploader .el-upload:hover {
+            border-color: #409EFF;
+        }
+
+        .avatar-uploader-icon {
+            font-size: 28px;
+            color: #8c939d;
+            width: 178px;
+            height: 178px;
+            line-height: 178px;
+            text-align: center;
+        }
+
+        .avatar {
+            width: 178px;
+            height: 178px;
+            display: block;
+        }
+
+        .datatable {
+            position: relative;
+            box-sizing: border-box;
+            -webkit-box-flex: 1;
+            width: 100%;
+            max-width: 100%;
+            font-size: 14px;
+            color: rgb(96, 98, 102);
+            overflow: hidden;
+            flex: 1 1 0%;
+        }
+
+        .datatable td, .datatable th {
+            padding: 12px 0;
+            min-width: 0;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+            position: relative;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body class="hold-transition">
+<div id="app">
+    <div class="content-header">
+        <h1>预约管理
+            <small>预约信息管理</small>
+        </h1>
+        <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>预约管理</el-breadcrumb-item>
+            <el-breadcrumb-item>预约信息管理</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+    <div class="app-container">
+        <div class="box">
+            <div class="filter-container">
+                <el-date-picker
+                        v-model="pagination.queryDate"
+                        type="daterange"
+                        value-format="yyyy-MM-dd"
+                        range-separator="至"
+                        start-placeholder="开始日期"
+                        end-placeholder="结束日期">
+                </el-date-picker>
+                <el-select v-model="pagination.queryOrderType" placeholder="请选择">
+                    <el-option
+                            v-for="item in typeOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                    </el-option>
+                </el-select>
+                <el-select v-model="pagination.queryOrderStatus" placeholder="请选择">
+                    <el-option
+                            v-for="item in statusOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                    </el-option>
+                </el-select>
+
+                <el-input placeholder="会员姓名/手机号" v-model="pagination.queryString" style="width: 200px;"
+                          class="filter-item" @keyup.enter.native="handleFilter"></el-input>
+                <el-button @click="findPage()" class="dalfBut" v-if="permission.ORDER_QUERY">查询</el-button>
+                <el-button type="primary" class="butT" @click="handleOrder()">预约</el-button>
+                <el-button type="primary" class="butT" @click="clearCondition()" v-if="permission.ORDER_QUERY">清除</el-button>
+            </div>
+            <el-table size="small" current-row-key="id" :data="dataList" stripe highlight-current-row>
+                <el-table-column type="index" align="center" label="序号"></el-table-column>
+                <el-table-column prop="member.name" label="会员姓名" align="center"></el-table-column>
+                <el-table-column prop="member.phoneNumber" label="电话号码" align="center"></el-table-column>
+                <el-table-column prop="orderDate" label="预约日期" align="center"></el-table-column>
+                <el-table-column prop="orderType" label="预约类型" align="center"></el-table-column>
+                <el-table-column label="预约状态" align="center">
+
+                    <template slot-scope="scope">
+                        <el-switch
+                                style="display: block"
+                                v-model="dataList[scope.$index].orderStatus"
+                                active-color="#13ce66"
+                                inactive-color="#ff4949"
+                                :inactive-text="showName(dataList[scope.$index].orderStatus)"
+                                @change="statusEdit(scope.row)"
+                        >
+                        </el-switch>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="setmeal.name" label="套餐名称" align="center">
+                </el-table-column>
+                <el-table-column label="操作" align="center">
+                    <template slot-scope="scope">
+                        <el-button type="primary" size="mini" id="edit" @click="handleAdvice(scope.row)" v-if="permission.HEALTH_ADD">建议</el-button>
+                        <el-button size="mini" type="danger" @click="handUpdate(scope.row)" v-if="permission.HEALTH_LOOK">查看</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <div class="pagination-container">
+                <el-pagination
+                        class="pagiantion"
+                        @current-change="handleCurrentChange"
+                        :current-page.sync="pagination.currentPage"
+                        :page-size="pagination.pageSize"
+                        layout="total, prev, pager, next, jumper"
+                        :total="pagination.total">
+                </el-pagination>
+            </div>
+            <!--建议 标签弹层-->
+            <div class="add-form">
+                <el-dialog title="添加干预方案" :visible.sync="dialogFormVisible">
+                    <template>
+                        <el-tabs v-model="activeName" type="card">
+                            <el-tab-pane label="基本信息" name="first">
+                                <el-form ref="dataAddForm" :model="formData" :rules="rules" label-position="right"
+                                         label-width="120px">
+                                    <el-row>
+                                        <el-col :span="12">
+                                            <el-form-item label="健康建议" prop="suggestion">
+                                                <el-input
+                                                        type="textarea"
+                                                        :rows="2"
+                                                        placeholder="请输入健康建议"
+                                                        v-model="formData.suggestion">
+                                                </el-input>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                </el-form>
+                            </el-tab-pane>
+                            <el-tab-pane label="饮食库管理" name="second">
+                                <div class="checkScrol">
+                                    <table class="datatable">
+                                        <thead>
+                                        <tr>
+                                            <th>选择</th>
+                                            <th>食物名称</th>
+                                            <th>所属类型</th>
+                                            <th>食用尺寸</th>
+                                            <th>年龄区间</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr v-for="c in tableDataFood">
+                                            <td>
+                                                <input :id="'a'+c.id" v-model="foodIds" type="checkbox"
+                                                       :value="'a'+c.id">
+                                            </td>
+                                            <td><label :for="'a'+c.id">{{c.foodname}}</label></td>
+                                            <td><label :for="'a'+c.id">{{c.kind}}</label></td>
+                                            <td><label :for="'a'+c.id">{{c.size}}</label></td>
+                                            <td><label :for="'a'+c.id">{{c.age}}</label></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </el-tab-pane>
+                            <el-tab-pane label="运动库管理" name="third">
+                                <div class="checkScrol">
+                                    <table class="datatable">
+                                        <thead>
+                                        <tr>
+                                            <th>选择</th>
+                                            <th>运动助记码</th>
+                                            <th>运动名称</th>
+                                            <th>运动次数</th>
+                                            <th>运动时间</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr v-for="c in tableDataSport">
+                                            <td>
+                                                <input :id="'b'+c.id" v-model="sportIds" type="checkbox"
+                                                       :value="'b'+c.id">
+                                            </td>
+                                            <td><label :for="'b'+c.id">{{c.helpCode}}</label></td>
+                                            <td><label :for="'b'+c.id">{{c.sportname}}</label></td>
+                                            <td><label :for="'b'+c.id">{{c.number}}</label></td>
+                                            <td><label :for="'b'+c.id">{{c.sporttime}}</label></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </el-tab-pane>
+                        </el-tabs>
+                    </template>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="dialogFormVisible = false">取消</el-button>
+                        <el-button type="primary" @click="handleAdd()">确定</el-button>
+                    </div>
+                </el-dialog>
+            </div>
+            <!--查看干预标签弹层-->
+            <div class="add-form">
+                <el-dialog title="【查看给出干预方案】" :visible.sync="dialogFormVisible4Edit">
+                    <template>
+                        <el-tabs v-model="activeName" type="card">
+                            <el-tab-pane label="干预方案" name="first">
+                                <el-form ref="dataAddForm" :model="formData" :rules="rules" label-position="right"
+                                         label-width="120px">
+                                    <el-row>
+                                        <el-col :span="12">
+                                            <el-form-item label="健康建议" prop="suggestion">
+                                                <el-input
+                                                        type="textarea"
+                                                        :rows="2"
+                                                        placeholder="暂无健康建议"
+                                                        v-model="formData.suggestion">
+                                                </el-input>
+                                            </el-form-item>
+                                            <el-form-item label="饮食信息" prop="suggestion">
+                                                <el-input
+                                                        type="textarea"
+                                                        :rows="2"
+                                                        placeholder="暂无饮食信息"
+                                                        v-model="formData.food">
+                                                </el-input>
+                                            </el-form-item>
+                                            <el-form-item label="运动信息" prop="suggestion">
+                                                <el-input
+                                                        type="textarea"
+                                                        :rows="2"
+                                                        placeholder="暂无运动信息"
+                                                        v-model="formData.sport">
+                                                </el-input>
+                                            </el-form-item>
+                                            <el-form-item label="健康师" prop="suggestion">
+                                                <el-input
+                                                        type="textarea"
+                                                        :rows="2"
+                                                        placeholder="暂无健康师"
+                                                        v-model="formData.healthName">
+                                                </el-input>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                </el-form>
+                            </el-tab-pane>
+                        </el-tabs>
+                    </template>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="dialogFormVisible4Edit = false">返回</el-button>
+                    </div>
+                </el-dialog>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<!-- 引入组件库 -->
+<script src="../js/vue.js"></script>
+<script src="../plugins/elementui/index.js"></script>
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script src="../js/axios-0.18.0.js"></script>
+<!--
+<script src="../js/permission.js"></script>
+-->
+<script>
+    var validatePhone = (rule, value, callback) => {
+        var phoneNumberValue = vue.formData.phoneNumber;
+        var reg = /^[1][3,4,5,7,8,9][0-9]{9}$/;
+        if (!reg.test(phoneNumberValue)) {
+            callback(new Error("请填写正确的手机号码"));
+        } else {
+            callback();
+        }
+    };
+    var vue = new Vue({
+        el: '#app',
+        data: {
+            //本页面按钮显示需要的权限
+            permission:{
+            },
+
+            //保证只能在今天之后预约
+            pickerOptions: {
+                disabledDate(time) {
+                    return time.getTime() < Date.now() - 8.64e7;
+                }
+            },
+            // id:,//预约信息行id
+            phoneNumber: "",//手机号码
+            checked: null,//单选框的选中
+            typeOptions: [{
+                value: '微信预约',
+                label: '微信预约'
+            }, {
+                value: '电话预约',
+                label: '电话预约'
+            }],
+            statusOptions: [{
+                value: '未到诊',
+                label: '未到诊'
+            }, {
+                value: '已到诊',
+                label: '已到诊'
+            }],
+            rules: {//校验规则
+                phoneNumber: [{validator: validatePhone, trigger: 'blur'}]
+            },
+            activeName: 'first',//添加/编辑窗口Tab标签名称
+            pagination: {//分页相关属性
+                queryDate: [],
+                queryOrderType: null,
+                queryOrderStatus: null,
+                currentPage: 1,
+                pageSize: 10,
+                total: 100,
+                queryString: null,
+            },
+            tableDataFood: [],//建议和更改表单的饮食库列表数据
+            tableDataSport: [],//建议和更改表单的运动库列表数据
+            foodIds: [],//添加表单窗口中饮食库复选框对应id
+            sportIds: [],//添加表单窗口中运动库复选框对应id
+
+            dataList: [],//列表数据,状态使用
+            formData: {},//表单数据
+            editFormData: {},//编辑窗口数据
+            tableData: [],//添加表单窗口中检查组列表数据
+            dialogFormVisible: false,//控制建议窗口显示/隐藏
+            dialogFormVisible4Edit: false,//跟新窗口显示问题
+            setmealIds: [],//新增和编辑表单中套餐对应的单选框，基于双向绑定可以进行回显和数据提交
+            setmealId: [], //因为添加和修改套餐都只是一个套餐,所以此处接收一个数据
+            addresslist: [],//所有机构地址的集合
+            dept: "", //中间表机构名称
+            tempOrderId: ""//临时存储订单id
+        },
+        //钩子函数
+        created() {
+            //发送ajax请求向后端获取到该用户拥有的权限
+            axios.post("/permissionserver/findAllPermission.do").then((res) => {
+                this.permission = res.data;
+            });
+
+            this.findPage();
+        },
+
+        methods: {
+            // 弹出建议窗口  查询饮食信息和运动信息的选项列表
+            handleAdvice(row) {
+                this.tempOrderId = row.id;//获取预约表中的id值
+                if (row.orderStatus) {//判断预约状态 未到诊不能进行干预
+                    this.dialogFormVisible = false;
+                    this.$message.error("该会员未到诊，不能添加健康建议");
+                    return;
+                }
+                this.resetForm();
+                this.dialogFormVisible = true;//显示建议页面
+                this.activeName = 'first';
+                this.checkitemIds = [];//重置复选框
+                //从数据库中查询饮食库的信息
+                axios.get("/food/findAllFood.do").then((res) => {
+                    if (res.data.flag) {
+                        this.tableDataFood = res.data.data; //查询饮食信息成功
+                    } else {
+                        this.$message.error(res.data.message);
+                    }
+                });
+                //从数据库中查询运动库可以的信息
+                axios.get("/sport/findAllSport.do").then((res) => {
+                    if (res.data.flag) {
+                        this.tableDataSport = res.data.data; //查询运动库信息成功
+                    } else {
+                        this.$message.error(res.data.message);
+                    }
+                });
+            },
+            //建议 确认功能
+            handleAdd() {
+                //发送请求组到后端，把建议信息 饮食库 运动库信息进行保存
+                axios.post("/advice/add.do?foodIds=" + this.foodIds + "&sportIds=" + this.sportIds + "&orderId=" + this.tempOrderId + "&suggestion=" + this.formData.suggestion).then((res => {
+                    this.dialogFormVisible = false;//确认后关闭建议页面 提示信息根据flag标记进行相应提示
+                    if (res.data.flag) {
+                        this.$message.success(res.data.message);
+                    } else {
+                        this.$message().error(res.data.message);
+                    }
+                })).finally(() => { //因为axios是异步请求,必须放在finally中
+                    this.findPage();
+                });
+            },
+            //查看页面 数据回显
+            handUpdate(row) {
+                if (row.orderStatus) {
+                    this.dialogFormVisible = false;
+                    this.$message.error("该会员未到诊，不能更新健康建议");
+                    return;
+                }
+                this.tempOrderId = row.id;//获取预约表中的id值
+                this.dialogFormVisible4Edit = true;//显示跟新页面
+                axios.get("/advice/findHealthMessageById.do?id="  + this.tempOrderId).then((res) => {
+                    if (res.data.flag) {
+                        this.formData = res.data.data;//进行数据回显
+                    } else {
+                        this.$message.error(res.data.message);
+                    }
+                }).catch((r) => {
+                    this.showMessage(r);
+                })
+            },
+            //查看页面 确认功能 ####放弃q
+            /*handleUpdate() {
+                this.handleAdd();//调用  建议的确认方法
+            },*/
+            //查询条件清除
+            clearCondition() {
+                this.pagination.queryString = null;
+                this.pagination.queryOrderStatus = null;
+                this.pagination.queryOrderType = null;
+                this.pagination.queryDate = null;
+            },
+
+            //switch开关编辑预约状态
+  /*          statusEdit(row) {
+                //把当前状态拿到
+                var orderStatusStr = row.orderStatus ? "未到诊" : "已到诊";
+                axios.post("/booking/statusEdit.do", {
+                    //将手机号码和预约状态作为参数
+                    orderStatus: orderStatusStr,
+                    id: row.id
+                }).then(res => {
+                    if (res.data.flag) {
+                        //编辑预约状态成功提示
+                        this.$message.success(res.data.message);
+                        //查询页面
+                        // this.findPage()
+                    }
+                })
+            },*/
+            //编辑 到诊状态
+            statusEdit(row) {
+                //把当前状态拿到
+                this.tempOrderId = row.orderId;//获取预约表中的id值
+                var orderStatusStr = row.orderStatus ? "未到诊" : "已到诊";
+                if (row.orderStatus){
+                    // statue = 1;
+                    this.$message.error("该会员已到诊，不能更改就诊状态");
+                    this.findPage();//重新分页查询
+                    return;
+                }else {
+                    statue = 0;
+                }
+                // alert(orderStatusStr);
+                axios.post("/booking/statusEdit.do?orderStatusId="+statue+"&orderId=" + this.tempOrderId).then(res => {
+                    if (res.data.flag) {
+                        //编辑预约状态成功提示
+                        this.$message.success(res.data.message);
+                        //查询页面
+                        this.findPage()
+                    }
+                })
+            },
+            showName(orderStatus) {
+                //把未到诊和已到诊和true false 对应起来
+                return orderStatus ? "未到诊" : "已到诊";
+            },
+            //解决单选框问题
+            changeCheck(cid) {
+                if (this.setmealIds.length > 1) {
+                    for (let i = 0; i < this.setmealIds.length; i++) {
+                        let setmentId = this.setmealIds[i];
+                        if (setmentId != cid) {
+                            this.setmealIds[i] = "";
+                        }
+                    }
+                }
+            },
+            //分页查询
+            findPage() {
+                //发送ajax请求,给dataList写回数据
+                axios.post("/order/findByPageAndCondition.do", this.pagination).then(res => {
+                    if (res.data.flag) {
+                        //数据给dataList
+                        this.dataList = res.data.data.rows;
+                        console.log(res.data.data.rows);
+                        //对dataList中的预约状态对应转化为true false
+                        for (var i = 0; i < this.dataList.length; i++) {
+                            if (this.dataList[i].orderStatus === "未到诊") {
+                                this.dataList[i].orderStatus = true;
+                            } else {
+                                this.dataList[i].orderStatus = false;
+                            }
+                        }
+                        //数据总数给pagination
+                        this.pagination.total = res.data.data.total;
+                        /*//查询数据成功提示
+                        this.$message.success(res.data.message)*/
+                    } else {
+                        //查询数据错误提示
+                        this.$message.error(res.data.message)
+                    }
+                });
+            },
+            // 重置表单
+            resetForm() {
+                this.formData = {};
+            },
+            //切换页码
+            handleCurrentChange(currentPage) {
+                this.pagination.currentPage = currentPage;
+                this.findPage();
+            },
+        }
+    });
+</script>
+</html>

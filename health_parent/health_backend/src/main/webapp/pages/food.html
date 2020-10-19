@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>传智健康</title>
+    <meta name="description" content="传智健康">
+    <meta name="keywords" content="传智健康">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../plugins/elementui/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- 引入组件库 -->
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="../plugins/elementui/index.js"></script>
+    <script src="../js/axios-0.18.0.js"></script>
+    <style>
+        .avatar-uploader .el-upload {
+            border: 1px dashed #d9d9d9;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar-uploader .el-upload:hover {
+            border-color: #409EFF;
+        }
+
+        .avatar-uploader-icon {
+            font-size: 28px;
+            color: #8c939d;
+            width: 178px;
+            height: 178px;
+            line-height: 178px;
+            text-align: center;
+        }
+
+        .avatar {
+            width: 178px;
+            height: 178px;
+            display: block;
+        }
+
+        .datatable {
+            position: relative;
+            box-sizing: border-box;
+            -webkit-box-flex: 1;
+            width: 100%;
+            max-width: 100%;
+            font-size: 14px;
+            color: rgb(96, 98, 102);
+            overflow: hidden;
+            flex: 1 1 0%;
+        }
+
+        .datatable td, .datatable th {
+            padding: 12px 0;
+            min-width: 0;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+            position: relative;
+            text-align: left;
+        }
+    </style>
+</head>
+<body class="hold-transition">
+<div id="app">
+    <div class="content-header">
+        <h1>知识库
+            <small>饮食库</small>
+        </h1>
+        <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>知识库</el-breadcrumb-item>
+            <el-breadcrumb-item>饮食库</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+    <div class="app-container">
+
+        <div class="boxMain">
+            <el-button style="margin-bottom: 20px;margin-right: 20px" type="primary"
+                       @click="downloadTemplate()" v-if="permission.FOOD_DOWN">模板下载
+            </el-button>
+            <el-upload action="/food/upload.do"
+                       name="excelFile"
+                       :show-file-list="false"
+                       :on-success="handleSuccess"
+                       :before-upload="beforeUpload">
+                <el-button type="primary" v-if="permission.FOOD_UPLOAD">上传文件</el-button>
+            </el-upload>
+        </div>
+        <div class="box">
+            <div class="filter-container">
+                <el-input placeholder="名称" v-model="pagination.queryString" style="width: 200px;" class="filter-item"
+                          @keyup.enter.native="handleFilter"></el-input>
+                <el-button @click="findPageByInfo()" class="dalfBut" v-if="permission.FOOD_QUERY">查询</el-button>
+                <el-button type="primary" class="butT" @click="handleCreate()" v-if="permission.FOOD_ADD">新增</el-button>
+            </div>
+            <el-table size="small" current-row-key="id" :data="dataList" stripe highlight-current-row>
+                <el-table-column type="index" align="center" label="序号"></el-table-column>
+                <el-table-column prop="foodname" label="食物名称" align="center"></el-table-column>
+                <el-table-column prop="kind" label="所属类型" align="center"></el-table-column>
+                <el-table-column prop="size" label="食用尺寸" align="center"></el-table-column>
+                <el-table-column prop="age" label="年龄区间" align="center"></el-table-column>
+                <el-table-column label="操作" align="center">
+                    <template slot-scope="scope">
+                        <el-button type="primary" size="mini" @click="handleUpdate(scope.row)" v-if="permission.FOOD_EDIT">编辑</el-button>
+                        <el-button size="mini" type="danger" @click="handleDelete(scope.row)" v-if="permission.FOOD_DELETE">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <div class="pagination-container">
+                <el-pagination
+                        class="pagiantion"
+                        @current-change="handleCurrentChange"
+                        :current-page="pagination.currentPage"
+                        :page-size="pagination.pageSize"
+                        layout="total, prev, pager, next, jumper"
+                        :total="pagination.total">
+                </el-pagination>
+            </div>
+        </div>
+        <!-- 新增标签弹层 -->
+        <div class="add-form">
+            <el-dialog title="新增食物" :visible.sync="dialogFormVisible">
+                <template>
+                    <el-tabs v-model="activeName" type="card">
+                        <el-tab-pane label="基本信息" name="first">
+                            <el-form ref="dataAddForm" :model="formData" :rules="rules" label-position="right"
+                                     label-width="120px">
+                                <el-row>
+                                    <el-col :span="12">
+                                        <el-form-item label="食物名称" prop="foodname">
+                                            <el-input v-model="formData.foodname"/>
+                                        </el-form-item>
+                                    </el-col>
+                                    <el-col :span="12">
+                                        <el-form-item label="所属类型" prop="kind">
+                                            <el-select v-model="formData.kind">
+                                                <el-option label="谷薯类及杂豆" value="谷薯类及杂豆"></el-option>
+                                                <el-option label="大豆类" value="大豆类"></el-option>
+                                                <el-option label="蔬菜类" value="蔬菜类"></el-option>
+                                                <el-option label="水果类" value="水果类"></el-option>
+                                                <el-option label="坚果,种子类" value="坚果,种子类"></el-option>
+                                                <el-option label="畜肉禽肉鱼虾蟹贝类" value="畜肉禽肉鱼虾蟹贝类"></el-option>
+                                                <el-option label="奶类" value="奶类"></el-option>
+                                                <el-option label="蛋类" value="蛋类"></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                    </el-col>
+                                </el-row>
+                                <el-row>
+                                    <el-col :span="12">
+                                        <el-form-item label="食用尺寸" prop="size">
+                                            <el-select v-model="formData.size">
+                                                <el-option label="块" value="块"></el-option>
+                                                <el-option label="个" value="个"></el-option>
+                                                <el-option label="千克" value="千克"></el-option>
+                                                <el-option label="克" value="克"></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                    </el-col>
+                                    <el-col :span="12">
+                                        <el-form-item label="年龄区间" prop="age">
+                                            <el-input v-model="formData.age"></el-input>
+                                        </el-form-item>
+                                    </el-col>
+                                </el-row>
+                            </el-form>
+                        </el-tab-pane>
+                    </el-tabs>
+                </template>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="dialogFormVisible = false">取消</el-button>
+                    <el-button type="primary" @click="handleAdd()">确定</el-button>
+                </div>
+            </el-dialog>
+        </div>
+        <!--编辑页面-->
+        <div class="add-form">
+            <el-dialog title="编辑食物" :visible.sync="dialogFormVisible4Edit">
+                <template>
+                    <el-tabs v-model="activeName" type="card">
+                        <el-form ref="dataEditForm" :model="formData" :rules="rules" label-position="right"
+                                 label-width="120px">
+                            <el-row>
+                                <el-col :span="12">
+                                    <el-form-item label="食物名称" prop="foodname">
+                                        <el-input v-model="formData.foodname"/>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-form-item label="所属类型" prop="kind">
+                                        <el-select v-model="formData.kind">
+                                            <el-option label="谷薯类及杂豆" value="谷薯类及杂豆"></el-option>
+                                            <el-option label="大豆类" value="大豆类"></el-option>
+                                            <el-option label="蔬菜类" value="蔬菜类"></el-option>
+                                            <el-option label="水果类" value="水果类"></el-option>
+                                            <el-option label="坚果,种子类" value="坚果,种子类"></el-option>
+                                            <el-option label="畜肉禽肉鱼虾蟹贝类" value="畜肉禽肉鱼虾蟹贝类"></el-option>
+                                            <el-option label="奶类" value="奶类"></el-option>
+                                            <el-option label="蛋类" value="蛋类"></el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="12">
+                                    <el-form-item label="食用尺寸" prop="size">
+                                        <el-select v-model="formData.size">
+                                            <el-option label="块" value="块"></el-option>
+                                            <el-option label="个" value="个"></el-option>
+                                            <el-option label="千克" value="千克"></el-option>
+                                            <el-option label="克" value="克"></el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-form-item label="年龄区间" prop="age">
+                                        <el-input v-model="formData.age"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                        </el-form>
+                    </el-tabs>
+                </template>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="dialogFormVisible4Edit = false">取消</el-button>
+                    <el-button type="primary" @click="handleEdit()">确定</el-button>
+                </div>
+            </el-dialog>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+
+<script>
+    var vue = new Vue({
+        el: '#app',
+        data: {
+            //本页面按钮显示需要的权限
+            permission:{
+            },
+
+            activeName: 'first',//添加/编辑窗口Tab标签名称
+            pagination: {//分页相关属性
+                currentPage: 1,//当前页码
+                pageSize: 10,//每页显示条目数
+                total: 100,//总计显示多少条
+                queryString: null,//查询条件
+            },
+            dataList: [],//列表数据
+            formData: {},//表单数据
+            tableData: [],//新增和编辑表单中对应的检查项列表数据
+            checkitemIds: [],//新增和编辑表单中检查项对应的复选框，基于双向绑定可以进行回显和数据提交
+            dialogFormVisible: false,//控制添加窗口显示/隐藏
+            dialogFormVisible4Edit: false,//控制编辑窗口显示/隐藏
+            rules: {//校验规则
+                foodname: [{required: true, message: '食物名称为必填项', trigger: 'blur'}],
+                kind: [{required: true, message: '所属类型为必填项', trigger: 'blur'}],
+                size: [{required: true, message: '尺寸为必填项', trigger: 'blur'}],
+                age: [{required: true, message: '年龄区间为必填项', trigger: 'blur'}]
+            }
+        },
+        //钩子函数：
+        created() {
+            //发送ajax请求向后端获取到该用户拥有的权限
+            axios.post("/permissionserver/findAllPermission.do").then((res) => {
+                this.permission = res.data;
+            });
+
+            this.findPage();
+        },
+        methods: {
+            //分页查询
+            findPage() {
+                //分页参数
+                var param = {
+                    currentPage: this.pagination.currentPage,//页码
+                    pageSize: this.pagination.pageSize,//每页显示的记录数
+                    queryString: this.pagination.queryString//查询条件
+                };
+                //请求后台
+                axios.post("/food/findPage.do", param).then((response) => {
+                    //为模型数据赋值，基于VUE的双向绑定展示到页面
+                    this.dataList = response.data.rows;
+                    this.pagination.total = response.data.total;
+                });
+            },
+            //删除
+            handleDelete(row) { //row其实是一个json
+                this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    axios.get("/food/delete.do?id=" + row.id).then((res)=>{
+                        if(res.data.flag) {
+                            this.$message({
+                                type:'success',
+                                message:res.data.message
+                            });
+                            // this.$message().success(res.data.message);
+                            this.findPage();
+                        }else {
+                            this.$message.error(res.data.message);
+                        }
+                    }).catch((r)=>{
+                        this.showMessage(r);
+                    })
+                }).catch(() => {
+                    this.$message('已取消删除');
+                });
+            },
+            // 编辑窗口-实现数据回显
+            handleUpdate(row) {
+                //弹出编辑窗口
+                this.dialogFormVisible4Edit = true;
+                axios.get("/food/findFoodById.do?id=" + row.id).then((res) => {
+                    /*
+                    *  private boolean flag;//执行结果，true为执行成功 false为执行失败
+                       private String message;//返回结果信息，主要用于页面提示信息
+                          private Object data;//返回数据
+                      */
+                    if (res.data.flag) {
+                        this.formData = res.data.data; //进行数据的回显，基于vue的数据绑定
+                    } else {
+                        this.$message.error(res.data.message);
+                    }
+                }).catch((r) => {
+                    this.showMessage(r)
+                })
+            },
+            //编辑功能-确认
+            handleEdit() {
+                this.$refs['dataEditForm'].validate((valid)=>{ //实现表单的校验
+                    if (valid) {
+                        axios.post("/food/edit.do", this.formData).then((res)=>{
+                            if (res.data.flag) {
+                                this.$message({
+                                    type: 'success',
+                                    message: res.data.message
+                                });
+                            } else {
+                                this.$message.error(res.data.message);
+                            }
+                        }).finally(()=>{  //ajax是异步请求，所有findPage()必须放在finally执行
+                            this.findPage(); //不论成功还是失败都会执行分页查询操作
+                            this.dialogFormVisible4Edit = false;  //编辑完成后隐藏编辑窗口
+                        })
+                    } else {
+                        this.$message.error("表单数据校验失败");
+                        return false;  //如果后面有代码也不会执行
+                    }
+                });
+            },
+            //添加
+            handleAdd() {
+                console.log(this.formData);
+                this.$refs['dataAddForm'].validate((valid) => {
+                    if (valid) {
+                        //发送ajax请求，将表单数据（套餐基本信息）提交到后台进行处理
+                        axios.post("/food/addFood.do", this.formData).then((res) => {
+                            //关闭新增窗口
+                            this.dialogFormVisible = false;
+                            if (res.data.flag) {
+                                //执行成功
+                                this.$message.success(res.data.message);
+                            } else {
+                                //执行失败
+                                this.$message.error(res.data.message);
+                            }
+                            this.findPage();
+                        })
+                    } else {
+                        //校验不通过
+                        this.$message.error("数据校验不通过，请重新输入");
+                        return false;
+                    }
+                })
+            },
+            //根据查询条件查询
+            findPageByInfo() {
+                //查询功能
+                this.pagination.currentPage = 1;
+                this.findPage();
+            },
+            // 重置表单
+            resetForm() {
+                this.formData = {};
+                this.activeName = 'first';
+            },
+            // 弹出新增页面
+            handleCreate() {
+                this.resetForm(); //重置新增表单
+                this.dialogFormVisible = true;//显示新增页面
+
+            },
+            //分页页码切换
+            handleCurrentChange(currentPage) {
+                this.pagination.currentPage = currentPage;
+                this.findPage();
+            },
+            //模板下载
+            downloadTemplate() {
+                //下载模板的位置
+                window.location.href = "../template/food_template.xlsx";
+            },
+            //上传成功
+            handleSuccess(response, file) {
+                if (response.flag) {
+                    this.$message.success(response.message);
+                    this.findPage();
+                } else {
+                    this.$message.error(response.message);
+                }
+                console.log(response, file, fileList);
+            },
+            //上传之前进行文件格式校验
+            beforeUpload(file) {
+                const isXLS = file.type === 'application/vnd.ms-excel';
+                if (isXLS) {
+                    return true;
+                }
+                const isXLSX = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+                if (isXLSX) {
+                    return true;
+                }
+                this.$message.error('上传文件只能是xls或者xlsx格式');
+                return false;
+            }
+        }
+    })
+</script>
+</html>

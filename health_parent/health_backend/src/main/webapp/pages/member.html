@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>传智健康</title>
+    <meta name="description" content="传智健康">
+    <meta name="keywords" content="传智健康">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../plugins/elementui/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="hold-transition">
+<div id="app">
+    <div class="content-header">
+        <h1>会员管理
+            <small>会员信息</small>
+        </h1>
+        <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>会员管理</el-breadcrumb-item>
+            <el-breadcrumb-item>会员信息</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+    <div class="app-container">
+        <div class="box">
+            <div class="filter-container">
+                <el-input placeholder="档案号/姓名/手机号" v-model="pagination.queryString" style="width: 200px;"
+                          class="filter-item"></el-input>
+                <el-button @click="handleCurrentChange(1)" class="dalfBut" v-if="permission.MEMBER_QUERY">查询</el-button>
+                <el-button type="primary" class="butT" @click="handleCreate()" v-if="permission.MEMBER_ADD">新建</el-button>
+            </div>
+            <el-row>
+                <el-button @click="exportExcel()" v-if="permission.MEMBER_DOWN">批量导出Excel</el-button>
+            </el-row>
+            <el-table ref="multipleTable" :data="dataList" tooltip-effect="dark" style="width: 100%"
+                      @selection-change="handleSelectionChange">
+
+                <el-table-column type="selection" width="55" prop="id"></el-table-column>
+                </el-table-column>
+                <el-table-column prop="fileNumber" label="档案号" align="center"></el-table-column>
+                <el-table-column prop="name" label="姓名" align="center"></el-table-column>
+                <el-table-column label="性别" align="center">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.sex == '0' ? '不限' : scope.row.sex == '1' ? '男' : '女'}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="age" label="年龄" align="center"></el-table-column>
+                <el-table-column prop="healthmanager" label="健康管理师" align="center"></el-table-column>
+                <el-table-column prop="regTime" label="注册时间" align="center"></el-table-column>
+                <el-table-column prop="phoneNumber" label="手机号码" align="center"></el-table-column>
+                <el-table-column label="操作" align="center">
+                    <template slot-scope="scope">
+                        <el-button type="primary" size="mini" @click="handleUpdate(scope.row)" v-if="permission.MEMBER_EDIT">编辑</el-button>
+                        <el-button size="mini" type="danger" @click="handleDelete(scope.row)" v-if="permission.MEMBER_DELETE">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+
+            <!--分页插件-->
+            <div class="pagination-container">
+                <el-pagination
+                        class="pagiantion"
+                        @current-change="handleCurrentChange"
+                        :current-page="pagination.currentPage"
+                        :page-size="pagination.pageSize"
+                        layout="total, prev, pager, next, jumper"
+                        :total="pagination.total">
+                </el-pagination>
+            </div>
+            <!-- 新增标签弹层 -->
+            <div class="add-form">
+                <el-dialog title="新增会员" :visible.sync="dialogFormVisible">
+                    <el-form ref="dataAddForm" :model="formData" :rules="rules" label-position="right"
+                             label-width="100px">
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="姓名" prop="name">
+                                    <el-input v-model="formData.name"/>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="手机号" prop="phoneNumber">
+                                    <el-input v-model="formData.phoneNumber"/>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="性别">
+                                    <el-select v-model="formData.sex">
+                                        <el-option label="不限" value="0"></el-option>
+                                        <el-option label="男" value="1"></el-option>
+                                        <el-option label="女" value="2"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="出生日期">
+                                    <el-date-picker
+                                            type="date" placeholder="选择日期" v-model="formData.birthday"
+                                            style="width: 100%;">
+                                    </el-date-picker>
+                                </el-form-item>
+
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="健康管理师">
+                                    <el-select v-model="formData.healthmanager">
+                                        <!--发送ajax查询-->
+                                        <el-option v-for="item in healthManager"
+                                                   :key="item.value"
+                                                   :label="item.label"
+                                                   :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="身份证号码">
+                                    <el-input v-model="formData.idCard"/>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="档案号">
+                                    <el-input v-model="formData.fileNumber"/>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="24">
+                                <el-form-item label="项目说明">
+                                    <el-input v-model="formData.remark" type="textarea"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="dialogFormVisible = false">取消</el-button>
+                        <el-button type="primary" @click="handleAdd()">确定</el-button>
+                    </div>
+                </el-dialog>
+            </div>
+            <!-- 编辑标签弹层 -->
+            <div class="add-form">
+                <el-dialog title="编辑会员" :visible.sync="dialogFormVisible4Edit">
+                    <el-form ref="dataEditForm" :model="editFormData" :rules="rules" label-position="right"
+                             label-width="100px">
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="姓名" prop="name">
+                                    <el-input v-model=" editFormData.name"/>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="手机号" prop="phoneNumber">
+                                    <el-input v-model=" editFormData.phoneNumber"/>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="性别">
+                                    <el-select v-model=" editFormData.sex">
+                                        <el-option label="不限" value="0"></el-option>
+                                        <el-option label="男" value="1"></el-option>
+                                        <el-option label="女" value="2"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="出生日期">
+                                    <el-date-picker
+                                            type="date" placeholder="选择日期" v-model=" editFormData.birthday"
+                                            style="width: 100%;">
+                                    </el-date-picker>
+                                </el-form-item>
+
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="健康管理师">
+                                    <el-select v-model=" editFormData.healthmanager">
+                                        <!--发送ajax查询-->
+                                        <el-option v-for="item in healthManager"
+                                                   :key="item.value"
+                                                   :label="item.label"
+                                                   :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="身份证号码">
+                                    <el-input v-model=" editFormData.idCard"/>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="档案号">
+                                    <el-input v-model=" editFormData.fileNumber"/>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="24">
+                                <el-form-item label="项目说明">
+                                    <el-input v-model=" editFormData.remark" type="textarea"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="dialogFormVisible4Edit = false">取消</el-button>
+                        <el-button type="primary" @click="handleEdit()">确定</el-button>
+                    </div>
+                </el-dialog>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+<!-- 引入组件库 -->
+<script src="../js/vue.js"></script>
+<script src="../plugins/elementui/index.js"></script>
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script src="../js/axios-0.18.0.js"></script>
+<script src="../js/healthmobile.js"></script>
+
+
+<script>
+    var vue = new Vue({
+        el: '#app',
+        data: {
+            //本页面按钮显示需要的权限
+            permission:{
+            },
+
+            pagination: {//分页相关模型数据
+                currentPage: 1,//当前页码
+                pageSize: 10,//每页显示的记录数
+                total: 0,//总记录数
+                queryString: null//查询条件
+            },
+            dataList: [],//当前页要展示的分页列表数据
+            healthManager:[],//健康管理师的数据显示
+            formData: {},//表单数据
+            editFormData: {},//编辑表单数据
+            // handleSelectionChange:[],
+            checkmembermessage: [],
+            editphoneNumber:'',// 编辑时零时保存手机号
+            dialogFormVisible: false,//增加表单是否可见
+            dialogFormVisible4Edit: false,//编辑表单是否可见
+            rules: {//校验规则
+                phoneNumber: [{required: true, message: '手机号格式输入不正确', trigger: 'blur'}]
+            },
+
+        },
+        //钩子函数，VUE对象初始化完成后自动执行
+        created() {
+            //发送ajax请求向后端获取到该用户拥有的权限
+            axios.post("/permissionserver/findAllPermission.do").then((res) => {
+                this.permission = res.data;
+            });
+
+            this.findPage();
+        },
+
+
+        methods: {
+
+//====================================================================================//
+            //取得页面会员数据
+            handleSelectionChange(val) {
+                // alert(val);
+                this.checkmembermessage = val;
+
+            },
+//====================================================================================//
+            //导出Excel
+            exportExcel() {
+
+                // let ids = [];
+                // for (let member of this.checkmembermessage) {
+                //     let mid = member.id;
+                //     ids.push(mid);
+                // }
+                //发送ajax请求根据id查询会员信息
+                axios.post("/member/findMemberByIds.do", this.checkmembermessage).then((res) => {
+                    if (res.data.flag) {
+                        //导出文件 url
+                        window.location.href = '/member/exportExcel.do';
+                    }
+                });
+            },
+//====================================================================================//
+            //编辑
+            handleEdit() {
+                //判断数据有没有发生改变，watch中调用方法 判断两者是否完全相等
+                if (!this.formDataChange) {
+                    this.$message("数据没有改变");
+                    return;
+                }
+                //表单校验
+
+               //注意：注意：ajax都是异步操作，所以findPage方法要放finally里面
+                this.$refs['dataEditForm'].validate((valid) => {
+
+                    if (valid) {
+                        if (this.editFormData.phoneNumber.indexOf("*")> 0) {
+                            this.editFormData.phoneNumber=this.editphoneNumber;
+                        }
+
+                        if (!checkTelephone(this.editFormData.phoneNumber)) {
+                            this.$message.error('请输入正确的手机号');
+                            return false;
+                        }
+
+                        //axios发生ajax请求
+                        axios.post("/member/editMember.do", this.editFormData).then((res) => {
+                            if (res.data.flag) {
+                                this.$message.success(res.data.message);
+                            } else {
+                                this.$message.error(res.data.message);
+                            }
+                        }).finally(() => {//不管成功与失败都要进行查询
+                            this.findPage();
+                            this.dialogFormVisible4Edit = false;
+                        });
+                    } else {
+                        this.$message.error("表单数据校验失败");
+
+                    }
+                });
+            },
+//====================================================================================//
+            //添加
+            handleAdd () {
+                /*console.log(this.formData);*/
+                //在进行添加的时候先对，表单进行校验，防止因为不填写数据，直接保存的空数据
+                this.$refs['dataAddForm'].validate((valid) => {
+                    if (valid) {
+                        //隐藏添加的窗口
+                        this.dialogFormVisible = false;
+                        //异步将数据传递
+                        axios.post("/member/addMember.do", this.formData).then((res) => {
+                            if (res.data.flag) {
+                                this.findPage();
+                                /*this.$message({
+                                    message: res.data.message,
+                                    type: 'success'
+                                })*/
+                                this.$message.success(res.data.message)
+                            } else {//执行失败
+                                this.$message.error(res.data.message);
+                            }
+                        })
+                    } else {
+                        //校验不通过
+                        this.$message.error("数据校验不通过，请重新输入");
+
+                        return false;
+                    }
+                }).finally(() => {
+                    //最终进行分页查询
+                    this.findPage();
+                });
+
+            },
+
+
+
+//====================================================================================//
+                        //分页查询
+            findPage(){
+                //将分页的参数进行封装
+                var param = {
+                    pageSize: this.pagination.pageSize,
+                    currentPage: this.pagination.currentPage,
+                    queryString: this.pagination.queryString
+                };
+
+                //post异步将数据传到controller
+                axios.post("/member/findPage.do", param).then((res) => {
+                    //获取服务器响应的数据，封装了 总条数，数据的集合
+                    this.pagination.total = res.data.total;
+                    this.dataList = res.data.rows;
+                    for (let member of  this.dataList) {
+                        if (member.phoneNumber != null) {
+                            member.phoneNumber = member.phoneNumber.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2' );
+                        }
+                        // console.log(member.phoneNumber);
+                    }
+
+
+                })
+
+            },
+//====================================================================================//
+            // 重置表单
+            resetForm() {
+                this.$nextTick(()=>{
+                    this.$refs['dataAddForm'].clearValidate()
+                });//清除表格的校验提示
+                this.formData = {};
+            },
+//====================================================================================//
+            // 弹出添加窗口
+            handleCreate() {
+                this.resetForm();
+                this.dialogFormVisible = true;
+                //调用查询健康管理师方法
+                this.findHealthManager();
+            },
+//====================================================================================//
+            //查询健康管理师
+            findHealthManager() {
+                axios.get("/member/findHealthManager.do").then((res) => {
+                    console.log(res.data.data);
+                    if(res.data.flag){
+                        this.healthManager=res.data.data;
+                    }else{
+                        this.$message.error(res.data.message);
+                    }
+                });
+
+            },
+
+//====================================================================================//
+            // 弹出编辑窗口
+            handleUpdate(row) {
+                // alert(row.id);
+                //弹出编辑窗口
+                this.dialogFormVisible4Edit = true;
+                //将编辑editFormData中的数据清空
+                this.editFormData = {};
+                //查询健康管理师
+                this.findHealthManager();
+                //发送ajax数据进行回显
+                axios.post("/member/findMemberById.do?memberId=" + row.id)
+                    .then((res) => {
+                        if (res.data.flag) {
+                            this.editFormData = res.data.data;
+                            this.editphoneNumber= this.editFormData.phoneNumber
+                            this.editFormData.phoneNumber=   this.editFormData.phoneNumber.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2' )
+                        } else {
+                            this.$message.error(res.data.message)
+                        }
+
+                    });
+            },
+            //深拷贝
+            deepClone(obj) {
+                /*  let target = {};
+                for (let key in obj) {
+                    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                        if (typeof obj[key] === 'object') {
+                            target[key] = this.deepClone(obj[key]);
+                        } else {
+                                target[key] = obj[key];
+                        }
+                    }
+                }
+                return target;
+*/
+                if (obj === null) return null;
+                if (typeof obj != 'object') return obj;
+                if (obj.constructor === Date) return new Date(obj);
+                let target = new obj.constructor();
+                for (let key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                        let val = obj[key];
+                        target[key] = typeof val === 'object' ? arguments.callee(val) : val;
+                    }
+                }
+                return target;
+                /* return JSON.parse(JSON.stringify(obj));*/
+                //这样的意思是，将obj进行序列化，保存到磁盘上，ran后通过反序列化，再获取到该对象，该对象将是个新对象，并不会影响到原来的
+                // 这样写也是有问题的，
+                // 1.如果有时间对象，时间对象会被转换成一个字符串
+                //2.如果有正则表达式，或者error对象，序列化会为空
+                //3.如果对象中有循环引用无法实现正常拷贝
+            },
+            //切换页码
+            handleCurrentChange(currentPage) {
+                this.pagination.currentPage = currentPage;
+                this.findPage();
+            },
+
+
+            showMessage(r) {
+                if (r == 'Error: Request failed with status code 403') {
+                    //权限不足
+                    this.$message.error('无访问权限');
+                    return;
+                } else {
+                    this.$message.error('未知错误');
+                    return;
+                }
+            },
+
+            // 删除
+            handleDelete(row) {
+
+                this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    axios.get("/member/deleteMember.do?id=" + row.id).then((res) => {
+                        if (res.data.flag) {
+                            this.$message.success(res.data.message)
+                        } else {
+                            this.$message.error(res.data.message);
+                        }
+                    }).catch((r) => { //axios对象请求的catch， 网络请求不是2xx
+                        this.showMessage(r);
+                    }).finally(() => {
+                        this.findPage();
+                    })
+                }).catch(() => {
+                    /*this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });*/
+                    this.$message.info("已取消删除")
+                });
+            },
+            //判断对象值是否相等
+            isObjectValueEqual(x, y) {
+                var i, l, leftChain, rightChain;
+
+                function compare2Objects(x, y) {
+                    var p;
+
+                    // remember that NaN === NaN returns false
+                    // and isNaN(undefined) returns true
+                    if (isNaN(x) && isNaN(y) && typeof x === 'number' && typeof y === 'number') {
+                        return true;
+                    }
+
+                    // Compare primitives and functions.
+                    // Check if both arguments link to the same object.
+                    // Especially useful on the step where we compare prototypes
+                    if (x === y) {
+                        return true;
+                    }
+
+                    // Works in case when functions are created in constructor.
+                    // Comparing dates is a common scenario. Another built-ins?
+                    // We can even handle functions passed across iframes
+                    if ((typeof x === 'function' && typeof y === 'function') ||
+                        (x instanceof Date && y instanceof Date) ||
+                        (x instanceof RegExp && y instanceof RegExp) ||
+                        (x instanceof String && y instanceof String) ||
+                        (x instanceof Number && y instanceof Number)) {
+                        return x.toString() === y.toString();
+                    }
+
+                    // At last checking prototypes as good as we can
+                    if (!(x instanceof Object && y instanceof Object)) {
+                        return false;
+                    }
+
+                    if (x.isPrototypeOf(y) || y.isPrototypeOf(x)) {
+                        return false;
+                    }
+
+                    if (x.constructor !== y.constructor) {
+                        return false;
+                    }
+
+                    if (x.prototype !== y.prototype) {
+                        return false;
+                    }
+
+                    // Check for infinitive linking loops
+                    if (leftChain.indexOf(x) > -1 || rightChain.indexOf(y) > -1) {
+                        return false;
+                    }
+
+                    // Quick checking of one object being a subset of another.
+                    // todo: cache the structure of arguments[0] for performance
+                    for (p in y) {
+                        if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
+                            return false;
+                        } else if (typeof y[p] !== typeof x[p]) {
+                            return false;
+                        }
+                    }
+
+                    for (p in x) {
+                        if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
+                            return false;
+                        } else if (typeof y[p] !== typeof x[p]) {
+                            return false;
+                        }
+
+                        switch (typeof (x[p])) {
+                            case 'object':
+                            case 'function':
+
+                                leftChain.push(x);
+                                rightChain.push(y);
+
+                                if (!compare2Objects(x[p], y[p])) {
+                                    return false;
+                                }
+
+                                leftChain.pop();
+                                rightChain.pop();
+                                break;
+
+                            default:
+                                if (x[p] !== y[p]) {
+                                    return false;
+                                }
+                                break;
+                        }
+                    }
+
+                    return true;
+                }
+
+                if (arguments.length < 1) {
+                    return true; //Die silently? Don't know how to handle such case, please help...
+                    // throw "Need two or more arguments to compare";
+                }
+
+                for (i = 1, l = arguments.length; i < l; i++) {
+
+                    leftChain = []; //Todo: this can be cached
+                    rightChain = [];
+
+                    if (!compare2Objects(arguments[0], arguments[i])) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        },
+        watch: {//监听器 当指定的数据发生改变时 记录 第一次不记录
+            editFormData: {
+                deep: true,//深度监听 当为复杂的对象时，比如user 当username发生改变时，也能监听到
+                handler: function (newVal, oldVal) {
+                    if (this.openEdit) {
+                        this.openEdit = false;
+                        return;
+                    }
+                    this.formDataChange = !this.isObjectValueEqual(newVal, this.deepCloneObj);
+                }
+            }
+        }
+    })
+</script>
+</html>
+
+

@@ -1,102 +1,232 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0,user-scalable=no,minimal-ui">
-        <meta name="description" content="">
-        <meta name="author" content="">
-        <link rel="icon" href="../img/asset-favico.ico">
-        <title>登录</title>
-        <link rel="stylesheet" href="../css/page-health-login.css" />
-        <link rel="stylesheet" href="../plugins/elementui/index.css" />
-        <script src="../plugins/jquery/dist/jquery.min.js"></script>
-        <script src="../plugins/healthmobile.js"></script>
-        <script src="../plugins/vue/vue.js"></script>
-        <script src="../plugins/vue/axios-0.18.0.js"></script>
-        <script src="../plugins/elementui/index.js"></script>
-    </head>
-    <body data-spy="scroll" data-target="#myNavbar" data-offset="150">
-    <div class="app" id="app">
-        <!-- 页面头部 -->
-        <div class="top-header">
-            <span class="f-left"><i class="icon-back"></i></span>
-            <span class="center">传智健康</span>
-            <span class="f-right"><i class="icon-more"></i></span>
-        </div>
-        <div style="margin-left: 20px">手机快速登录</div>
-        <!-- 页面内容 -->
-        <div class="contentBox">
-            <div class="login">
-                <form id='login-form'>
-                    <div class="input-row">
-                        <label>手机号</label>
-                        <div class="loginInput">
-                            <input v-model="loginInfo.telephone" id='account' type="text" placeholder="请输入手机号">
-                            <input id="validateCodeButton" @click="sendValidateCode()" type="button" style="font-size: 12px" value="获取验证码">
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>翻转式用户登录注册界面设计</title>
+    <link rel="stylesheet" type="text/css" href="../css/styles.css">
+    <!--[if IE]>
+    <script src="http://libs.baidu.com/html5shiv/3.7/html5shiv.min.js"></script>
+    <![endif]-->
+    <link rel="icon" href="../img/asset-favico.ico">
+    <link rel="stylesheet" href="../css/page-health-login.css"/>
+    <link rel="stylesheet" href="../plugins/elementui/index.css"/>
+    <script src="../plugins/jquery/dist/jquery.min.js"></script>
+    <script src="../plugins/healthmobile.js"></script>
+    <script src="../plugins/vue/vue.js"></script>
+    <script src="../plugins/vue/axios-0.18.0.js"></script>
+    <script src="../plugins/elementui/index.js"></script>
+</head>
+<body>
+<div id="app" class="jq22-container" style="padding-top:100px">
+    <div class="login-wrap">
+        <div class="login-html">
+            <input id="tab-1" type="radio" name="tab" class="sign-in" checked><label for="tab-1"
+                                                                                     class="tab">验证码登录</label>
+            <input id="tab-2" type="radio" name="tab" class="sign-up"><label for="tab-2" class="tab">密码登录</label>
+            <div class="login-form">
+                <div class="sign-in-htm">
+                    <div class="group">
+                        <label for="telephone" class="label">手机号</label>
+                        <input id="telephone" type="text" class="input" v-model="loginInfo.telephone"
+                               placeholder="请输入手机号">
+                        <br/>
+                        <div align="right">
+                            <input id="validateCodeButton" @click="sendValidateCode()" type="button"
+                                   style="font-size: 20px;background: #2D64B3"
+                                   value="获取验证码">
                         </div>
                     </div>
-                    <div class="input-row">
-                        <label>验证码</label>
-                        <div class="loginInput">
-                            <input v-model="loginInfo.validateCode" style="width:80%" id='password' type="password" placeholder="请输入验证码">
-                        </div>
+                    <div class="group">
+                        <label for="validateCode" class="label">验证码</label>
+                        <input id="validateCode" type="text" class="input" data-type="text"
+                               v-model="loginInfo.validateCode" placeholder="请输入验证码">
                     </div>
-                    <div class="input-row" style="font-size: 12px">
-                        <input type="checkbox" checked>
-                        阅读并同意《传智健康用户协议》《传智健康隐私条款》
+                    <div class="group">
+                        <input type="submit" class="button" value="登录" @click="login4ValidateCode()">
                     </div>
-<!--                    <div class="btn yes-btn">
-                        <button @click="login()" type="button">登录</button>
+                    <div class="hr"></div>
+                    <!--忘记密码-->
+                    <!--<div class="foot-lnk">
+                        <a href="#forgot">Forgot Password?</a>
                     </div>-->
-                    <div class="btn yes-btn"><a @click="login()" href="#">登录</a></div>
-                </form>
+                </div>
+                <div class="sign-up-htm">
+                    <div class="group">
+                        <label for="email" class="label">邮箱</label>
+                        <input id="email" type="text" class="input" v-model="loginInfo.email"
+                               placeholder="请输入邮箱">
+                    </div>
+                    <div class="group">
+                        <label for="password" class="label">密码</label>
+                        <input id="password" type="password" class="input" data-type="password"
+                               v-model="loginInfo.password" placeholder="请输入密码">
+                    </div>
+                    <div class="group">
+                        <input type="submit" class="button" value="登录" @click="login4EmailAndPwd()">
+                    </div>
+                    <div class="hr"></div>
+                </div>
+            </div>
+
+            <!--飞猪健康的协议-->
+            <div class="input-row" style="font-size: 16px">
+                <input id="choose" type="checkbox" checked>
+                阅读并同意《飞猪健康用户协议》《飞猪健康隐私条款》
             </div>
         </div>
     </div>
-    </body>
-    <script>
-        var vue = new Vue({
-            el:'#app',
-            data:{
-                loginInfo:{}//登录信息
+</div>
+
+</body>
+<script>
+    var vue = new Vue({
+        el: '#app',
+        data: {
+            loginInfo: {}//登录信息,里面存储有邮箱，密码/手机号，验证码
+        },
+        methods: {
+            //判断健康协议的多选框是否是选中状态
+            //选中返回true，没有选中返回false
+            isChoose() {
+                let checkBox = document.getElementById("choose");
+                return checkBox.checked;
             },
-            methods:{
-                //发送验证码
-                sendValidateCode(){
-                    var telephone = this.loginInfo.telephone;
-                    if (!checkTelephone(telephone)) {
-                        this.$message.error('请输入正确的手机号');
+
+            //判断邮箱或密码是否为空,
+            // 全部通过返回true
+            // 有一个不通过返回false并给出提示信息
+            isEmailOrPwdEmpty() {
+                if (this.loginInfo.email != null && this.loginInfo.email.length > 0) {
+                    if (this.loginInfo.password != null && this.loginInfo.password.length > 0) {
+                        return true;
+                    } else {
+                        this.$message.error('密码不能为空');
                         return false;
                     }
-                    validateCodeButton = $("#validateCodeButton")[0];
-                    clock = window.setInterval(doLoop, 1000); //一秒执行一次
-                    axios.post("/validateCode/send4Login.do?telephone=" + telephone).then((response) => {
-                        if(!response.data.flag){
-                            //验证码发送失败
-                            this.$message.error('验证码发送失败，请检查手机号输入是否正确');
-                        }
-                    });
-                },
-                //登录
-                login(){
-                    var telephone = this.loginInfo.telephone;
-                    if (!checkTelephone(telephone)) {
-                        this.$message.error('请输入正确的手机号');
-                        return false;
-                    }
-                    axios.post("/member/login.do",this.loginInfo).then((response) => {
-                        if(response.data.flag){
-                            //登录成功,跳转到index.html
-                            window.location.href="index.html";
-                        }else{
-                            //失败，提示失败信息
-                            this.$message.error(response.data.message);
-                        }
-                    });
+                } else {
+                    this.$message.error('邮箱不能为空');
+                    return false;
                 }
+            },
+
+            //发送验证码
+            sendValidateCode() {
+                var telephone = this.loginInfo.telephone;
+                if (!checkTelephone(telephone)) {
+                    this.$message.error('请输入正确的手机号');
+                    return false;
+                }
+                validateCodeButton = $("#validateCodeButton")[0];
+                clock = window.setInterval(doLoop, 1000); //一秒执行一次
+                axios.post("/validateCode/send4Login.do?telephone=" + telephone).then((response) => {
+                    if (!response.data.flag) {
+                        //验证码发送失败
+                        this.$message.error('验证码发送失败，请检查手机号输入是否正确');
+                    }
+                });
+            },
+
+            //验证码登录
+            login4ValidateCode() {
+                //判断协议有没有勾选
+                if (!this.isChoose()) {
+                    this.$message.error('请勾选飞猪健康用户协议和飞猪健康隐私条款');
+                    return;
+                }
+
+                //校验手机号是否正确
+                var telephone = this.loginInfo.telephone;
+                if (!checkTelephone(telephone)) {
+                    this.$message.error('请输入正确的手机号');
+                    return false;
+                }
+
+                axios.post("/member/login4ValidateCode.do", this.loginInfo).then((response) => {
+                    if (response.data.flag) {
+                        //登录成功,跳转到index.html
+                        window.location.href = "/pages/index.html";
+                    } else {
+                        //失败，提示失败信息
+                        this.$message.error(response.data.message);
+                    }
+                });
+            },
+
+            //通过邮箱和密码登录
+            login4EmailAndPwd() {
+                //判断邮箱密码校验是否通过,不通过直接返回
+                if (!this.isEmailOrPwdEmpty()) {
+                    return;
+                }
+
+                //判断协议有没有勾选
+                if (!this.isChoose()) {
+                    this.$message.error('请勾选飞猪健康用户协议和飞猪健康隐私条款');
+                    return;
+                }
+
+                //进行登录请求
+                axios.post("/member/login4EmailAndPwd.do", this.loginInfo).then((response) => {
+                    if (response.data.flag) {
+                        //登录成功,跳转到index.html
+                        window.location.href = "/pages/index.html";
+                    } else {
+                        //失败，提示失败信息
+                        this.$message.error(response.data.message);
+                    }
+                });
             }
-        });
-    </script>
+        },
+
+        //初始化
+        created() {
+            //如果是退出之后跳转到登录界面的请求会携带邮箱密码要进行邮箱密码的回显
+            //获取请求路径中的邮箱和密码
+            let email = getUrlParam("email");
+            let password = getUrlParam("password");
+            if (email != null && email.length > 0 && password != null && password.length > 0) {
+                //把邮箱和密码进行回显
+                this.loginInfo.email = email;
+                this.loginInfo.password = password;
+
+                return;
+            }
+
+            //如果是修改密码之后跳转到的登录界面
+            //要对邮箱进行回显
+            if (email != null && email.length > 0) {
+                //对邮箱进行回显
+                this.loginInfo.email = email;
+                return;
+            }
+
+            axios.get("/member/init.do").then((response) => {
+                //如果找到了设置手机号时写到浏览器的cookie，把手机号同步到输入框
+                if (response.data.flag) {
+                    //用户上一次是输入了用户名密码登录的，这次直接跳转到主界面
+                    if (response.data.data === "toIndex") {
+                        window.location.href = "/pages/index.html";
+                        return;
+                    }
+
+                    //单独用双向绑定没有数据回显
+                    //单独用jquery点击验证码输入框回显的手机号消失
+                    //两个一起用解决问题
+                    this.loginInfo.telephone = response.data.data;
+
+                    //用jquery的语法来进行赋值
+                    //取到输入手机号的输入框
+                    $("#telephone")[0].value = response.data.data;
+                } else {
+                    //失败，提示失败信息
+                    if (response.data.message != null && response.data.message.length > 0) {
+                        this.$message.error(response.data.message);
+                    }
+                }
+            });
+        }
+    });
+</script>
 </html>

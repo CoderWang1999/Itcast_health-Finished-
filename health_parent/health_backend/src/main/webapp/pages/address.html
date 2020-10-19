@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>传智健康</title>
+    <meta name="description" content="传智健康">
+    <meta name="keywords" content="传智健康">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../plugins/elementui/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- 引入组件库 -->
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="../plugins/elementui/index.js"></script>
+    <script src="../js/axios-0.18.0.js"></script>
+    <script type="text/javascript" src="//api.map.baidu.com/api?v=2.0&ak=XlUIMSlX8Q05eRr0ISMd0lQ7Xzbjp66U"></script>
+    <style>
+        .avatar-uploader .el-upload {
+            border: 1px dashed #d9d9d9;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar-uploader .el-upload:hover {
+            border-color: #409EFF;
+        }
+
+        .avatar-uploader-icon {
+            font-size: 28px;
+            color: #8c939d;
+            width: 178px;
+            height: 178px;
+            line-height: 178px;
+            text-align: center;
+        }
+
+        .avatar {
+            width: 178px;
+            height: 178px;
+            display: block;
+        }
+
+        .datatable {
+            position: relative;
+            box-sizing: border-box;
+            -webkit-box-flex: 1;
+            width: 100%;
+            max-width: 100%;
+            font-size: 14px;
+            color: rgb(96, 98, 102);
+            overflow: hidden;
+            flex: 1 1 0%;
+        }
+
+        .datatable td, .datatable th {
+            padding: 12px 0;
+            min-width: 0;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+            position: relative;
+            text-align: left;
+        }
+    </style>
+</head>
+<body class="hold-transition">
+<div id="app">
+    <div class="content-header">
+        <h1>体检机构管理
+            <small>体检机构地址管理</small>
+        </h1>
+        <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>体检机构管理</el-breadcrumb-item>
+            <el-breadcrumb-item>体检机构地址管理</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+    <div class="app-container">
+        <div class="box">
+            <div class="filter-container">
+                <el-input placeholder="体检机构名/体检机构" v-model="pagination.queryString" style="width: 200px;"
+                          class="filter-item" @keyup.enter.native="handleFilter"></el-input>
+                <el-button @click="findByCondition()" class="dalfBut" v-if="permission.ADDRESS_QUERY">查询</el-button>
+                <el-button type="primary" class="butT" @click="handleCreate()" v-if="permission.ADDRESS_ADD">新建</el-button>
+            </div>
+            <el-table size="small" current-row-key="id" :data="dataList" stripe highlight-current-row>
+                <el-table-column type="index" align="center" label="序号"></el-table-column>
+                <el-table-column prop="addressName" label="体检机构名" align="center"></el-table-column>
+                <el-table-column prop="telephone" label="联系电话" align="center"></el-table-column>
+                <el-table-column prop="lngAndLat" label="经纬度" align="center"></el-table-column>
+                <el-table-column label="机构图片" align="center">
+                    <template width="90" slot-scope="scope">
+
+                        <img style="width:80px;height:80px;border:none;" :src="'http://qgi2e8sac.hd-bkt.clouddn.com/'+scope.row.img">
+
+                    </template>
+                </el-table-column>
+                <el-table-column prop="detailaddress" label="详细地址" align="center"></el-table-column>
+                <el-table-column label="操作" align="center">
+                    <template slot-scope="scope">
+                        <el-button type="primary" size="mini" @click="handleUpdate(scope.row)" v-if="permission.ADDRESS_EDIT">编辑</el-button>
+                        <el-button size="mini" type="danger" @click="handleDelete(scope.row)" v-if="permission.ADDRESS_DELETE">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <div class="pagination-container">
+                <el-pagination
+                        class="pagiantion"
+                        @current-change="handleCurrentChange"
+                        :current-page="pagination.currentPage"
+                        :page-size="pagination.pageSize"
+                        layout="total, prev, pager, next, jumper"
+                        :total="pagination.total">
+                </el-pagination>
+            </div>
+            <!-- 新增标签弹层 -->
+            <div class="add-form">
+                <el-dialog title="新增体检机构地址" :visible.sync="dialogFormVisible" width="80%">
+                    <template>
+                        <el-form ref="dataAddForm" :model="formData" :rules="rules" label-position="right"
+                                 label-width="100px">
+                            <el-row>
+                                <el-col :span="12">
+                                    <el-form-item label="体检机构名" prop="addressName">
+                                        <el-input v-model="formData.addressName"/>
+                                    </el-form-item>
+                                </el-col>
+
+                                <el-col :span="12">
+                                    <el-form-item label="联系电话" prop="telephone">
+                                        <el-input v-model="formData.telephone"/>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+
+                            <el-row>
+                                <el-col :span="24">
+                                    <el-form-item label="上传体检机构地址图片">
+                                        <el-upload
+                                                class="avatar-uploader"
+                                                action="/address/upload.do"
+                                                :auto-upload="autoUpload"
+                                                name="imgFile"
+                                                :show-file-list="false"
+                                                :on-success="handleAvatarSuccess"
+                                                :before-upload="beforeAvatarUpload">
+                                            <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                        </el-upload>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+
+                            <el-row>
+                                <el-col :span="12">
+                                    <el-form-item label="经纬度">
+                                        <el-input id="lngAndLat1" v-model="formData.lngAndLat"/>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+
+                            <el-row>
+                                <el-col :span="12">
+                                    <el-form-item label="详细地址">
+                                        <el-input id="address1" v-model="formData.detailaddress"/>
+                                    </el-form-item>
+                                </el-col>
+
+                                <el-col :span="4">
+                                    <el-button type="primary" @click="setLocation1()" icon="el-icon-location" round>
+                                        位置定位
+                                    </el-button>
+                                </el-col>
+                                <!--                   <el-col :span="4">
+                                                       <el-button type="primary" icon="el-icon-location" style="display: inline"
+                                                                  @click="sear1()">
+                                                           按地址搜索
+                                                       </el-button>
+                                                   </el-col>-->
+                            </el-row>
+                            <el-row>
+                                <el-col :span="24">
+                                    <div style="display: none;width: 100%;height: 340px" id="map1"></div>
+                                </el-col>
+                            </el-row>
+                        </el-form>
+                    </template>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="dialogFormVisible = false">取消</el-button>
+                        <el-button type="primary" @click="handleAdd()">确定</el-button>
+                    </div>
+                </el-dialog>
+            </div>
+
+            <!-- 新增编辑标签弹层 -->
+            <div class="add-form">
+                <el-dialog title="编辑体检机构地址" :visible.sync="dialogFormVisible4Edit" width="80%">
+                    <template>
+                        <el-form ref="dataEditForm" :model="formData" :rules="rules" label-position="right"
+                                 label-width="100px">
+                            <el-row>
+                                <el-col :span="12">
+                                    <el-form-item label="体检机构名" prop="addressName">
+                                        <el-input v-model="formData.addressName"/>
+                                    </el-form-item>
+                                </el-col>
+
+                                <el-col :span="12">
+                                    <el-form-item label="联系电话" prop="telephone">
+                                        <el-input v-model="formData.telephone"/>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+
+                            <el-row>
+                                <el-col :span="24">
+                                    <el-form-item label="上传体检机构地址图片">
+                                        <el-upload
+                                                class="avatar-uploader"
+                                                action="/address/upload.do"
+                                                :auto-upload="autoUpload"
+                                                name="imgFile"
+                                                :show-file-list="false"
+                                                :on-success="handleAvatarSuccess"
+                                                :before-upload="beforeAvatarUpload">
+                                            <img v-if="imageUrl" :src="imageUrl" class="avatar"
+                                                 style="height: 160px;width: 160px;">
+                                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                        </el-upload>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+
+                            <el-row>
+                                <el-col :span="12">
+                                    <el-form-item label="经纬度">
+                                        <el-input id="lngAndLat2" v-model="formData.lngAndLat"/>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+
+                            <el-row>
+                                <el-col :span="12">
+                                    <el-form-item label="详细地址">
+                                        <el-input id="address2" v-model="formData.detailaddress"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="4">
+                                    <el-button type="primary" @click="setLocation2()" icon="el-icon-location" round>
+                                        <span style="font-size: 10px">位置定位</span>
+                                    </el-button>
+                                </el-col>
+                                <!--
+                                                                <el-col :span="4">
+                                                                    <el-button type="primary" icon="el-icon-location" style="display: inline"
+                                                                               @click="sear2()">
+                                                                        <span style="font-size: 10px">按地址搜索</span>
+                                                                    </el-button>
+                                                                </el-col>-->
+                            </el-row>
+
+                            <el-row>
+                                <el-col :span="24">
+                                    <div style="padding-left:150px;display: none;width: 650px;height: 400px"
+                                         id="map2"></div>
+                                </el-col>
+                            </el-row>
+                        </el-form>
+                    </template>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="dialogFormVisible4Edit = false">取消</el-button>
+                        <el-button type="primary" @click="handleEdit()">确定</el-button>
+                    </div>
+                </el-dialog>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
+    var vue = new Vue({
+        el: '#app',
+        data: {
+            //本页面按钮显示需要的权限
+            permission:{
+            },
+
+            pagination: {           //分页相关属性
+                currentPage: 1,//当前页码
+                pageSize: 10,//每页显示的记录数
+                total: 0,//总记录数
+                queryString: null//查询条件
+            },
+            is_empty: 0,
+            imageUrl: "",
+            autoUpload: true,
+            dataList: [],//列表数据
+            formData: {},//表单数据
+            dialogFormVisible: false,//控制添加窗口显示/隐藏
+            dialogFormVisible4Edit: false,//控制编辑窗口显示/隐藏
+            lng: 117.335663,
+            lat: 31.866924,
+            rules: {//校验规则
+                addressName: [{required: true, message: '体检机构名为必填项', trigger: 'blur'}],
+            }
+        },
+        created() {
+            //发送ajax请求向后端获取到该用户拥有的权限
+            axios.post("/permissionserver/findAllPermission.do").then((res) => {
+                this.permission = res.data;
+            });
+
+            this.findPage();
+        },
+
+
+
+
+        methods: {
+            //文件上传成功后的钩子，response为服务端返回的值，file为当前上传的文件封装成的js对象
+            handleAvatarSuccess(response, file) { //http 200
+                this.imageUrl = "http://qgi2e8sac.hd-bkt.clouddn.com/" + response.data;
+                this.$message({
+                    type: response.flag ? 'success' : 'error',
+                    message: response.message
+                });
+                //设置模型数据（图片名称），后续提交ajax请求时会提交到后台最终保存到数据库
+                this.formData.img = response.data;
+            },
+
+            //上传图片之前执行
+            beforeAvatarUpload(file) {
+                const isJpg = file.type === 'image/jpeg';
+                const isLt2M = file.size / 1024 / 1024 < 2;
+                if (!isJpg) {
+                    this.$message.error('上传套餐图片只能是 JPG 格式!');
+                }
+
+                if (!isLt2M) {
+                    this.$message.error('上传套餐图片大小不能超过 2MB!');
+                }
+                return isJpg && isLt2M;
+            },
+
+
+
+            
+            //设置定位
+            setLocation1() {
+                $("#map1").show();                                  //显示地图div
+                //百度地图api,创建地图
+                var map = new BMap.Map("map1");
+                var point = new BMap.Point(this.lng, this.lat);
+                map.centerAndZoom(point, 12);
+                var marker = new BMap.Marker(point);  // 创建标注
+                // map.addOverlay(marker);               // 将标注添加到地图中
+                marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+                var geolocation = new BMap.Geolocation();
+                var gc = new BMap.Geocoder();
+
+
+
+
+
+                // 添加带有定位的导航控件
+                var navigationControl = new BMap.NavigationControl({
+                    // 靠左上角位置
+                    anchor: BMAP_ANCHOR_TOP_LEFT,
+                    // LARGE类型
+                    type: BMAP_NAVIGATION_CONTROL_LARGE,
+                    // 启用显示定位
+                    enableGeolocation: true
+                });
+                map.addControl(navigationControl);
+
+
+
+
+
+                //如果当前页面的经纬度标签值为0,则需要进行定位获取位置
+                if (this.is_empty == 0) {
+
+                    findMe();
+                }
+
+                map.addEventListener("click", function (e) {      //地图单击事件
+                    var geocoder = new BMap.Geocoder();
+                    var point = new BMap.Point(e.point.lng, e.point.lat);
+                    map.centerAndZoom(point, 15);
+                    var marker = new BMap.Marker(point);  // 创建标注
+
+                    geocoder.getLocation(point, function (geocoderResult, LocationOptions) {
+                        map.clearOverlays();
+
+                        //定位成功
+                        var address = geocoderResult.address;
+
+                        map.addOverlay(marker);               // 将标注添加到地图中
+                        marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+                        $("#address1").val(address);
+                    });
+                    $("#lngAndLat1").val(e.point.lng + "," + e.point.lat);
+                });
+
+                //获取当前位置坐标
+                function findMe() {
+                    geolocation.getCurrentPosition(function (r) {
+                        if (this.getStatus() == BMAP_STATUS_SUCCESS) {
+                            var pt = r.point;
+                            var mk = new BMap.Marker(pt);
+                            map.addOverlay(mk);
+                            mk.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+
+                            map.panTo(pt);
+
+                            gc.getLocation(pt, function (rs) {
+                                //获取地图的省市街道
+                                var addComp = rs.addressComponents;
+                                var city_name = addComp.province + addComp.city + addComp.district;
+                                //点击设置定位后就自动定位当前地址,并给经纬度和详细地址文本域赋值
+                                $("#address1").val(city_name);
+                                $("#lngAndLat1").val(r.point.lng + "," + r.point.lat);
+                            });
+                            // var addComp = r.address;
+
+                        } else {
+                            console.log('获取失败');
+                        }
+                    }, {enableHighAccuracy: true});
+                }
+
+                map.enableScrollWheelZoom(true);
+                return map;
+            },
+
+
+            //分页查询
+            findPage() {
+                let params = {
+                    currentPage: this.pagination.currentPage,
+                    pageSize: this.pagination.pageSize,
+                    queryString: this.pagination.queryString
+                };
+
+                axios.post("/address/findPage.do", params).then(resp => {
+                    this.dataList = resp.data.rows;
+                    this.pagination.total = resp.data.total;
+                })
+
+            },
+
+            //条件查询
+            findByCondition() {
+                //把当前页设置成第一页
+                this.pagination.currentPage = 1;
+                this.findPage();
+            },
+
+            // 重置表单
+            resetForm() {
+                this.imageUrl = null;
+                this.formData = {};
+                //经纬度以及详细地址置空
+                $("#lngAndLat1").val('');
+                $("#address1").val('');
+                $("#map1").hide();  //隐藏地图div
+                this.imageUrl = null;
+                if (this.$refs['dataAddForm'] !== undefined) {
+                    this.$refs['dataAddForm'].clearValidate();
+                }
+            },
+            // 弹出添加窗口
+            handleCreate() {
+                this.dialogFormVisible = true;
+                this.resetForm();
+            },
+            // 弹出编辑窗口
+            handleUpdate(row) {
+                this.resetForm();
+                this.dialogFormVisible4Edit = true;
+
+      /*          this.formData = this.deepClone(row);
+                this.is_empty = 1;
+                this.imageUrl = "http://qgg5hsnp8.hd-bkt.clouddn.com/" + this.formData.img;
+                // 用经纬度设置地图中心点,获取表单数据经纬度的值并分割
+                this.lng = this.formData.lngAndLat.split(",")[0];
+                this.lat = this.formData.lngAndLat.split(",")[1];
+                this.setLocation2();*/
+
+
+                axios.get("/address/findUpdate.do?id=" + row.id).then(resp => {
+                    this.formData = resp.data.data;
+                    this.imageUrl = "http://qgi2e8sac.hd-bkt.clouddn.com/" + resp.data.data.img;
+                    if (resp.data.data.lngAndLat != null) {
+                        this.is_empty = 1;
+                    }
+
+                    // 用经纬度设置地图中心点,获取表单数据经纬度的值并分割
+                    this.lng = resp.data.data.lngAndLat.split(",")[0];
+                    this.lat = resp.data.data.lngAndLat.split(",")[1];
+                    this.setLocation2();
+                });
+            },
+
+            //深拷贝
+            deepClone(row) {
+                return JSON.parse(JSON.stringify(row));
+            },
+
+
+            //修改界面回显地图数据
+            //设置定位
+            setLocation2() {
+                $("#map2").show();                                  //显示地图div
+                //百度地图api,创建地图
+                var map = new BMap.Map("map2");
+                var point = new BMap.Point(this.lng, this.lat);
+                map.centerAndZoom(point, 15);
+
+                //设置地图的标记
+                var marker = new BMap.Marker(point);
+                map.addOverlay(marker);
+                marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+                marker.setLabel(this.formData.detailaddress, {offset: new BMap.Size(20, -10)});
+
+                //如果当前页面的经纬度标签值为0,则需要进行定位获取位置
+                if (this.is_empty == 0) {
+                    findMe(map);
+                }
+
+                map.addEventListener("click", function (e) {      //地图单击事件
+                    var geocoder = new BMap.Geocoder();
+                    var point = new BMap.Point(e.point.lng, e.point.lat);
+                    geocoder.getLocation(point, function (geocoderResult, LocationOptions) {
+                        map.clearOverlays();
+
+                        //定位成功
+                        var address = geocoderResult.address;
+                        $("#address2").val(address);
+                    });
+                    $("#lngAndLat2").val(e.point.lng + "," + e.point.lat);
+                });
+
+                function findMe(map) {
+                    var geolocation = new BMap.Geolocation();
+                    geolocation.getCurrentPosition(function (r) {
+                        if (this.getStatus() == BMAP_STATUS_SUCCESS) {
+                            var mk = new BMap.Marker(r.point);
+                            map.addOverlay(mk);
+                            mk.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+                            map.panTo(r.point);
+
+                            //获取地图的省市街道
+                            var addComp = r.addressComponents;
+                            var city_name = addComp.province + addComp.city + addComp.district;
+
+
+                            //点击设置定位后就自动定位当前地址,并给经纬度和详细地址文本域赋值
+                            $("#address2").val(city_name);
+                            //document.getElementById("where").value = city_name
+                            $("#lngAndLat2").val(r.point.lng + "," + r.point.lat);
+                        } else {
+                            console.log('获取失败');
+                        }
+                    }, {enableHighAccuracy: true});
+                }
+
+                map.enableScrollWheelZoom(true);
+                return map;
+            },
+
+
+
+
+
+            //修改功能
+            handleEdit() {
+                this.$refs['dataEditForm'].validate((valid) => {
+                    if (valid) {
+                        //对经纬度以及详细地址用地图自动获取的数据赋值
+                        this.formData.lngAndLat = $("#lngAndLat2").val();
+                        this.formData.detailaddress = $("#address2").val();
+                        axios.post("/address/edit.do", this.formData).then(resp => {
+                            if (resp.data.flag) {
+                                this.$message.success(resp.data.message);
+                            } else {
+                                this.$message.error(resp.data.message);
+                            }
+                        }).finally(() => {
+                            //无论添加操作是否成功,都执行分页查询操作
+                            this.findPage();
+                            this.is_empty = 0;
+                            //隐藏编辑窗口
+                            this.dialogFormVisible4Edit = false;
+                        })
+                    } else {
+                        //表示校验失败
+                        this.$message.error("数据校验失败,请检出您输入是否合法!")
+                    }
+                });
+            },
+
+            showMessage(r) {
+                if (r == 'Error: Request failed with status code 403') {
+                    //权限不足
+                    this.$message.error('无访问权限');
+                    return;
+                } else {
+                    this.$message.error('未知错误');
+                    return;
+                }
+            },
+            //切换页码
+            handleCurrentChange(currentPage) {
+                this.pagination.currentPage = currentPage;
+                this.findPage();
+            },
+
+            // 删除
+            handleDelete(row) {
+                this.$confirm("您确定要删除此记录吗?", "提示", {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    axios.get("/address/delete.do?id=" + row.id).then(resp => {
+                        if (resp.data.flag) {
+                            this.$message.success(resp.data.message);
+                        } else {
+                            this.$message.error(resp.data.message);
+                        }
+                    }).catch((r) => {
+                        this.showMessage(r);
+                    }).finally(() => {
+                        this.findPage();
+                    }).catch(() => {
+                        this.$message('已取消删除');
+                    });
+                });
+            },
+
+            //添加
+            handleAdd() {
+                //进行表单校验
+                this.$refs['dataAddForm'].validate((valid) => {
+                    if (valid) {
+                        //对经纬度以及详细地址用地图自动获取的数据赋值
+                        this.formData.lngAndLat = $("#lngAndLat1").val();
+                        this.formData.detailaddress = $("#address1").val();
+                        //发送ajax请求,将表单数据提交给后台进行处理
+                        axios.post("/address/add.do", this.formData).then((resp) => {
+                            if (resp.data.flag) {
+                                //表示添加成功
+                                this.$message.success(resp.data.message);
+                            } else {
+                                //表示添加失败
+                                this.$message.error(resp.data.message);
+                            }
+                        }).finally(() => {
+                            //无论添加操作是否成功,都执行分页查询操作
+                            this.findPage();
+                            //隐藏新增窗口
+                            this.dialogFormVisible = false;
+                        });
+                    } else {
+                        //表示校验失败
+                        this.$message.error("数据校验失败,请检测您输入是否合法!")
+                    }
+                });
+            },
+        }
+    })
+</script>
+</html>

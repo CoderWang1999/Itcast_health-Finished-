@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>传智健康</title>
+    <meta name="description" content="传智健康">
+    <meta name="keywords" content="传智健康">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../plugins/elementui/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="hold-transition">
+<div id="app">
+    <div class="content-header">
+        <h1>健康干预
+            <small>人群分类</small>
+        </h1>
+        <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>健康干预</el-breadcrumb-item>
+            <el-breadcrumb-item>人群分类</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+    <div class="app-container">
+        <div class="box">
+            <div class="filter-container">
+                <el-input placeholder="档案号/姓名" v-model="pagination.queryString" style="width: 200px;"
+                          class="filter-item"></el-input>
+                <!--                    <el-button @click="handleCurrentChange(1)" class="butT">查询</el-button>-->
+                <el-button type="primary" class="butT" @click="handleCurrentChange(1)">查询</el-button>
+<!--                <el-button type="primary" class="butT" @click="handleCreate()">新增干预人</el-button>-->
+                <el-table size="small" current-row-key="id" :data="dataList" stripe highlight-current-row>
+                    <!--                    <el-table-column type="index" align="center" label="序号"></el-table-column>-->
+                    <el-table-column prop="fileNumber" label="档案号" align="center"></el-table-column>
+                    <el-table-column prop="name" label="姓名" align="center"></el-table-column>
+<!--                    <el-table-column prop="setmeal" label="体检套餐" align="center"></el-table-column>-->
+                    <el-table-column label="性别" align="center">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.sex == '0' ? '不限' : scope.row.sex == '1' ? '男' : '女'}}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="age" label="年龄" align="center"></el-table-column>
+                    <el-table-column prop="statue" label="状态" align="center"></el-table-column>
+                    <el-table-column prop="people" label="人群分类" align="center"></el-table-column>
+                    <el-table-column prop="healthmanager" label="健康管理师" align="center"></el-table-column>
+                    <el-table-column label="操作" align="center">
+                        <template slot-scope="scope">
+                            <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">确认分类</el-button>
+                            <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <div class="pagination-container">
+                    <el-pagination
+                            class="pagiantion"
+                            @current-change="handleCurrentChange"
+                            :current-page="pagination.currentPage"
+                            :page-size="pagination.pageSize"
+                            layout="total, prev, pager, next, jumper"
+                            :total="pagination.total">
+                    </el-pagination>
+                </div>
+                <!-- 新增标签弹层 -->
+         <!--       <div class="add-form">
+                    <el-dialog title="新增干预" :visible.sync="dialogFormVisible">
+                        <template>
+                            <el-tabs v-model="activeName" type="card">
+                                <el-tab-pane label="基本信息" name="first">
+                                    <el-form ref="dataAddForm" :model="formData" :rules="rules" label-position="right"
+                                             label-width="120px">
+                                        <el-row>
+                                            <el-col :span="12">
+                                                <el-form-item label="姓名" prop="name">
+                                                    <el-input v-model="editFormData.name"/>
+                                                </el-form-item>
+                                            </el-col>
+                                        </el-row>
+                                        <el-row>
+                                            <el-col :span="12">
+                                                <el-form-item label="体检套餐" prop="name">
+                                                    <el-input v-model="editFormData.name"/>
+                                                </el-form-item>
+                                            </el-col>
+                                        </el-row>
+                                        <el-row>
+                                            <el-col :span="12">
+                                                <el-form-item label="状态">
+                                                    <el-select v-model="editFormData.statue">
+                                                        <el-option label="系统预分类" value="1"></el-option>
+                                                        <el-option label="健康管理师分类" value="2"></el-option>
+                                                    </el-select>
+                                                </el-form-item>
+                                            </el-col>
+                                        </el-row>
+                                        <el-row>
+                                            <el-col :span="12">
+                                                <el-form-item label="人群分类">
+                                                    <el-input v-model="editFormData.remarks"/>
+                                                </el-form-item>
+                                            </el-col>
+                                        </el-row>
+                                        <el-row>
+                                            <el-col :span="12">
+                                                <el-form-item label="健康管理师">
+                                                    <el-input v-model="editFormData.remarks"/>
+                                                </el-form-item>
+                                            </el-col>
+                                        </el-row>
+                                    </el-form>
+                                </el-tab-pane>
+                            </el-tabs>
+                        </template>
+                        <div slot="footer" class="dialog-footer">
+                            <el-button @click="dialogFormVisible = false">取消</el-button>
+                            <el-button type="primary" @click="handleAdd()">确定</el-button>
+                        </div>
+                    </el-dialog>
+                </div>-->
+                <!-- 确认分类标签弹层 -->
+                <div class="add-form">
+                    <el-dialog title="确认分类" :visible.sync="dialogFormVisible4Edit">
+                        <el-form ref="dataEditForm" :model="editFormData" :rules="rules" label-position="right"
+                                 label-width="100px">
+                            <el-row>
+                                <el-col :span="12">
+                                    <el-form-item label="状态">
+                                        <el-select v-model="editFormData.statue">
+                                            <el-option label="系统预分类" value="1"></el-option>
+                                            <el-option label="健康管理师分类" value="2"></el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="12">
+                                    <el-form-item label="人群分类">
+                                        <el-input v-model="editFormData.remarks"/>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="12">
+                                    <el-form-item label="健康管理师">
+                                        <el-input v-model="editFormData.remarks"/>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                        </el-form>
+                        <div slot="footer" class="dialog-footer">
+                            <el-button @click="dialogFormVisible4Edit = false">取消</el-button>
+                            <el-button type="primary" @click="handleEdit()">确定</el-button>
+                        </div>
+                    </el-dialog>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<!-- 引入组件库 -->
+<script src="../js/vue.js"></script>
+<script src="../plugins/elementui/index.js"></script>
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script src="../js/axios-0.18.0.js"></script>
+<script>
+    let vue = new Vue({
+        el: '#app',
+        data: {
+            pagination: {//分页相关模型数据
+                currentPage: 1,//当前页码
+                pageSize: 10,//每页显示的记录数
+                total: 0,//总记录数
+                queryString: null//查询条件
+            },
+            dataList: [],//当前页要展示的分页列表数据
+            formData: {},//表单数据
+            editFormData: {},//编辑表单数据
+            dialogFormVisible: false,//增加表单是否可见
+            dialogFormVisible4Edit: false,//编辑表单是否可见
+            rules: {//校验规则
+                code: [{required: true, message: '项目编码为必填项', trigger: 'blur'}],
+                name: [{required: true, message: '项目名称为必填项', trigger: 'blur'}]
+            },
+            openEdit: false,//一个标志变量,标记为是否打开编辑表单
+            formDataChange: false,//一个标志变量,标记编辑表单中的数据是否发生改变
+            formDataContain: {},//创建一个容器,用于存储编辑表单的数据回显
+            deepCloneObj: {}//创建一个容器,用于深拷贝一份编辑表单数据回显的数据
+        },
+        //钩子函数，VUE对象初始化完成后自动执行
+        created() {
+            this.findPage();
+        },
+        methods: {
+            //分页查询
+            findPage() {
+                var param = {
+                    pageSize: this.pagination.pageSize,
+                    currentPage: this.pagination.currentPage,
+                    queryString: this.pagination.queryString
+                };
+                axios.post("/peopleclass/findPage.do", param).then((res) => {
+                    this.pagination.total = res.data.total;
+                    this.dataList = res.data.rows;
+                })
+            },
+            // 弹出编辑窗口
+            handleUpdate(row) {
+                //把编辑窗口设为可见
+                this.dialogFormVisible4Edit = true;
+                //清空上次编辑时回显的数据
+                this.editFormData = {};
+                this.openEdit = true;
+                this.editFormData = this.deepClone(row);
+                this.deepCloneObj = this.deepClone(row);
+                this.formDataChange = false;
+                axios.get("/peopleclass/findById.do?id=" + row.id).then((res)=>{
+                    if (res.data.flag) {
+                        this.formData = res.data.data;
+                    } else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            //编辑的确认功能
+            handleEdit() {
+                if (!this.formDataChange) {
+                    this.$message("数据没有改变");
+                    return;
+                }
+                this.$refs['dataEditForm'].validate((valid) => {
+                    if (valid) {
+                        axios.post("/peopleclass/update.do", this.editFormData).then((res) => {
+                            if (res.data.flag) {
+                                this.$message({
+                                    type: 'success',
+                                    message: res.data.message
+                                });
+                            } else {
+                                this.$message.error(res.data.message);
+                            }
+                        }).finally(() => {
+                            this.findPage();
+                            this.dialogFormVisible4Edit = false;
+                        })
+                    } else {
+                        this.$message.error("表单数据校验失败");
+                    }
+                });
+            },
+            //添加
+           /* handleAdd: function () {
+                // console.log(this.formData);
+                this.$refs['dataAddForm'].validate((valid) => {
+                    if (valid) {
+                        this.dialogFormVisible = false;
+                        axios.post("/checkitem/save.do", this.formData).then((res) => {
+
+                            if (res.data.flag) {
+                                this.findPage();
+                                this.$message({
+                                    message: res.data.message,
+                                    type: 'success'
+                                })
+                            } else {//执行失败
+                                this.$message.error(res.data.message);
+                            }
+                        })
+                    } else {
+                        //校验不通过
+                        this.$message.error("数据校验不通过，请重新输入");
+                        return false;
+                    }
+                });
+
+            },*/
+            // 重置表单
+            resetForm() {
+                this.formData = {};
+            },
+            // 弹出添加窗口
+           /* handleCreate() {
+                this.dialogFormVisible = true;
+                this.resetForm();
+            },
+*/
+            //深拷贝
+            deepClone(obj) {
+                return JSON.parse(JSON.stringify(obj));
+            },
+            //页码切换
+            handleCurrentChange(currentPage) {
+                this.pagination.currentPage = currentPage;
+                this.findPage();
+            },
+            showMessage(r) {
+                if (r == 'Error: Request failed with status code 403') {
+                    //权限不足
+                    this.$message.error('无访问权限');
+                    return;
+                } else {
+                    this.$message.error('未知错误');
+                    return;
+                }
+            },
+
+            // 删除
+            handleDelete(row) {
+                this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    axios.get("/peopleclass/delete.do?id=" + row.id).then((res) => {
+                        if (res.data.flag) {
+                            this.$message({
+                                message: res.data.message,
+                                type: 'success'
+                            });
+                            this.findPage();
+                        } else {
+                            this.$message.error(res.data.message);
+                        }
+                    }).catch((r) => { //axios对象请求的catch， 网络请求不是2xx
+                        this.showMessage(r);
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+            },
+            //判断对象值是否相等
+            isObjectValueEqual(x, y) {
+                let i, l, leftChain, rightChain;
+
+                function compare2Objects(x, y) {
+                    let p;
+
+                    // remember that NaN === NaN returns false
+                    // and isNaN(undefined) returns true
+                    if (isNaN(x) && isNaN(y) && typeof x === 'number' && typeof y === 'number') {
+                        return true;
+                    }
+
+                    // Compare primitives and functions.
+                    // Check if both arguments link to the same object.
+                    // Especially useful on the step where we compare prototypes
+                    if (x === y) {
+                        return true;
+                    }
+
+                    // Works in case when functions are created in constructor.
+                    // Comparing dates is a common scenario. Another built-ins?
+                    // We can even handle functions passed across iframes
+                    if ((typeof x === 'function' && typeof y === 'function') ||
+                        (x instanceof Date && y instanceof Date) ||
+                        (x instanceof RegExp && y instanceof RegExp) ||
+                        (x instanceof String && y instanceof String) ||
+                        (x instanceof Number && y instanceof Number)) {
+                        return x.toString() === y.toString();
+                    }
+
+                    // At last checking prototypes as good as we can
+                    if (!(x instanceof Object && y instanceof Object)) {
+                        return false;
+                    }
+
+                    if (x.isPrototypeOf(y) || y.isPrototypeOf(x)) {
+                        return false;
+                    }
+
+                    if (x.constructor !== y.constructor) {
+                        return false;
+                    }
+
+                    if (x.prototype !== y.prototype) {
+                        return false;
+                    }
+
+                    // Check for infinitive linking loops
+                    if (leftChain.indexOf(x) > -1 || rightChain.indexOf(y) > -1) {
+                        return false;
+                    }
+
+                    // Quick checking of one object being a subset of another.
+                    // todo: cache the structure of arguments[0] for performance
+                    for (p in y) {
+                        if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
+                            return false;
+                        } else if (typeof y[p] !== typeof x[p]) {
+                            return false;
+                        }
+                    }
+
+                    for (p in x) {
+                        if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
+                            return false;
+                        } else if (typeof y[p] !== typeof x[p]) {
+                            return false;
+                        }
+
+                        switch (typeof (x[p])) {
+                            case 'object':
+                            case 'function':
+
+                                leftChain.push(x);
+                                rightChain.push(y);
+
+                                if (!compare2Objects(x[p], y[p])) {
+                                    return false;
+                                }
+
+                                leftChain.pop();
+                                rightChain.pop();
+                                break;
+
+                            default:
+                                if (x[p] !== y[p]) {
+                                    return false;
+                                }
+                                break;
+                        }
+                    }
+
+                    return true;
+                }
+
+                if (arguments.length < 1) {
+                    return true; //Die silently? Don't know how to handle such case, please help...
+                    // throw "Need two or more arguments to compare";
+                }
+
+                for (i = 1, l = arguments.length; i < l; i++) {
+
+                    leftChain = []; //Todo: this can be cached
+                    rightChain = [];
+
+                    if (!compare2Objects(arguments[0], arguments[i])) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        },
+        watch: {
+            editFormData: {
+                deep: true,
+                handler: function (newVal, oldVal) {
+                    if (this.openEdit) {
+                        this.openEdit = false;
+                        return;
+                    }
+                    this.formDataChange = !this.isObjectValueEqual(newVal, this.deepCloneObj);
+                }
+            }
+        }
+    })
+</script>
+</html>

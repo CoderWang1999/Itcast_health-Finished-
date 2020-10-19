@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0,user-scalable=no,minimal-ui">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../img/asset-favico.ico">
+    <title>编辑信息</title>
+    <link rel="stylesheet" href="../css/page-health-orderInfo.css"/>
+    <link rel="stylesheet" href="../plugins/elementui/index.css"/>
+    <script src="../plugins/jquery/dist/jquery.min.js"></script>
+    <script src="../plugins/healthmobile.js"></script>
+    <script src="../plugins/datapicker/datePicker.js"></script>
+    <script src="../plugins/vue/vue.js"></script>
+    <script src="../plugins/vue/axios-0.18.0.js"></script>
+    <script src="../plugins/elementui/index.js"></script>
+    <script>
+        var id = getUrlParam("id");
+    </script>
+</head>
+<body data-spy="scroll" data-target="#myNavbar" data-offset="150">
+<div id="app" class="app">
+    <!-- 页面头部 -->
+    <div class="top-header">
+        <span class="f-left"><i class="icon-back" onclick="history.go(-1)"></i></span>
+        <span class="center">信息详情</span>
+        <span class="f-right"><i class="icon-more"></i></span>
+    </div>
+    <!-- 页面内容 -->
+    <div class="contentBox">
+        <div class="form-info">
+            <div class="info-title">
+                <span class="name">您的个人信息:</span>
+            </div>
+            <form class="info-form">
+                <div class="input-row">
+                    <label>用户名</label>
+                    <input v-model="member.name" type="text" class="input-clear" placeholder="未设置">
+                </div>
+                <div class="input-row single-radio">
+                    <label class="radio-title">性别</label>
+                    <div class="radio-list">
+                        <div class="radio">
+                            <input v-model="member.sex" id="item1" type="radio" name="sex" value="1" checked>
+                            <label for="item1"></label>
+                            <span>男</span>
+                        </div>
+                        <div class="radio">
+                            <input v-model="member.sex" id="item2" type="radio" name="sex" value="2">
+                            <label for="item2"></label>
+                            <span>女</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-row">
+                    <label>手机号</label>
+                    <input v-model="hidePhoneNumber" type="text" class="input-clear" placeholder="未设置" readonly>
+                    <el-button type="warning" @click="editPhoneNumber">修改手机号</el-button>
+                    <!--<input style="font-size: x-small;" id="validateCodeButton" @click="sendValidateCode()" type="button"
+                           value="发送验证码">-->
+                </div>
+                <div class="input-row">
+                    <label>身份证号码</label>
+                    <input v-model="hideIdCard" type="text" class="input-clear" placeholder="未设置" readonly>
+                </div>
+                <div class="input-row">
+                    <label>生日</label>
+                    <input v-model="member.birthday" type="text" class="picktime" readonly>
+                    <i class="icon-date" class="picktime"></i>
+                </div>
+                <div class="input-row">
+                    <label>邮箱</label>
+                    <input v-model="hideEmail" type="text" class="input-clear" placeholder="未设置" readonly>
+                    <el-button type="warning" @click="editEmail">修改邮箱</el-button>
+                </div>
+                <div class="date">
+                    <label>注册日期</label>
+                    <input v-model="member.regTime" type="text" class="input-clear" readonly>
+                </div>
+            </form>
+            <div class="box-button">
+                <button @click="editMember()" type="button" class="btn order-btn">修改个人信息</button>
+            </div>
+            <br>
+            <div class="box-button">
+                <button @click="editPassword()" type="button" class="btn order-btn" style="background: orange">修改密码
+                </button>
+            </div>
+            <br>
+            <div class="box-button">
+                <button @click="logout()" type="button" class="btn order-btn" style="background: red">退出登录</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    var vue = new Vue({
+        el: '#app',
+        data: {
+            member: {
+                //没有设置性别的话默认性别是男
+                sex: '1'
+
+            },//预约信息
+
+            //隐藏的电话号码，用于电话号码的回显，保护隐私
+            hidePhoneNumber: "",
+            //隐藏的身份证号码，用于身份证号码的回显,保护隐私
+            hideIdCard: "",
+            //隐藏的邮箱，用于邮箱的回显，保护隐私
+            hideEmail: ""
+        },
+        methods: {
+            //点击修改邮箱按钮的触发函数
+            editEmail() {
+                if (this.member.email != null && this.member.email.length > 0) {
+                    //当前用户已经设置了邮箱
+
+                    //向原来的邮箱发送验证码
+                    axios.post("/validateCode/send4EditEmail.do?oldEmail=" + this.member.email).then((response) => {
+                        //发送验证码成功
+                        if (response.data.flag) {
+                            //弹出发送验证码成功提示
+                            this.$message({
+                                type: 'success',
+                                message: response.data.message
+                            });
+
+                            //弹出输入修改邮箱的验证码的弹框
+                            this.openEditEmailBox4ValidateCode();
+
+                        } else {
+                            //弹出验证码发送失败提示
+                            this.$message.error(response.data.message);
+                        }
+                    });
+                } else {
+                    //当前用户没有设置邮箱
+
+                    //弹出新增邮箱的弹框
+                    this.$prompt('请输入邮箱', '绑定邮箱', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        inputPattern: /[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?/,
+                        inputErrorMessage: '邮箱格式不正确'
+                    }).then(({value}) => {
+                        //用户输入的邮箱格式正确且点击了确定
+
+                        //把用户输入的邮箱暂时保存起来
+                        let tempEmail = value;
+
+                        //向用户输入的邮箱中发送验证码
+                        axios.post("/validateCode/send4EditEmail.do?oldEmail=" + tempEmail).then((response) => {
+                            //发送验证码成功
+                            if (response.data.flag) {
+                                //弹出发送验证码成功提示
+                                this.$message({
+                                    type: 'success',
+                                    message: response.data.message
+                                });
+
+                                //弹出输入验证码的弹框
+                                this.$prompt('时效时效五分钟!', '验证码', {
+                                    confirmButtonText: '确定',
+                                    cancelButtonText: '取消',
+                                }).then(({value}) => {
+                                    //用户点击了确定之后的操作
+                                    //向后端发送请求校验输入的验证码是否正确
+                                    axios.post("/validateCode/checkValidateCodeForEditEmail.do?validateCode=" + value + "&oldEmail=" + tempEmail).then((response) => {
+                                        if (response.data.flag) {
+                                            //验证码输入正确
+
+                                            //为用户绑定这个邮箱
+                                            axios.post("/member/editEmail.do?newEmail=" + tempEmail, this.member).then((response) => {
+                                                //邮箱修改成功
+                                                if (response.data.flag) {
+                                                    //回显修改后的member
+                                                    this.member = response.data.data;
+                                                    //进行隐私处理
+                                                    this.processCode();
+
+                                                    //邮箱修改成功
+                                                    this.$message({
+                                                        type: 'success',
+                                                        message: response.data.message
+                                                    });
+                                                } else {
+                                                    //邮箱修改失败
+                                                    this.$message.error(response.data.message);
+                                                }
+                                            });
+                                        } else {
+                                            //验证码输入错误或后端发生了异常
+                                            this.$message.error(response.data.message);
+                                        }
+                                    });
+
+                                }).catch(() => {
+                                    this.$message({
+                                        type: 'info',
+                                        message: '取消修改邮箱'
+                                    });
+                                });
+
+                            } else {
+                                //弹出验证码发送失败提示
+                                this.$message.error(response.data.message);
+                            }
+                        });
+
+                    }).catch(() => {
+                        this.$message({
+                            type: 'info',
+                            message: '取消修改邮箱'
+                        });
+                    });
+                }
+            },
+
+            //弹出输入修改邮箱的验证码的弹框
+            openEditEmailBox4ValidateCode() {
+                this.$prompt('时效时效五分钟!', '验证码', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                }).then(({value}) => {
+                    //用户点击了确定之后的操作
+                    //向后端发送请求校验输入的验证码是否正确
+                    axios.post("/validateCode/checkValidateCodeForEditEmail.do?validateCode=" + value + "&oldEmail=" + this.member.email).then((response) => {
+                        if (response.data.flag) {
+                            //验证码输入正确
+                            //用户进行修改邮箱并提交的操作
+                            this.openEmailBox();
+                        } else {
+                            //验证码输入错误或后端发生了异常
+                            this.$message.error(response.data.message);
+                        }
+                    });
+
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '取消修改邮箱'
+                    });
+                });
+            },
+
+            //弹出修改邮箱的弹框
+            openEmailBox() {
+                this.$prompt('请输入邮箱', '修改邮箱', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    inputPattern: /[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?/,
+                    inputErrorMessage: '邮箱格式不正确'
+                }).then(({value}) => {
+                    //用户输入了邮箱之后，邮箱格式校验通过，并且点击了确认操作
+
+                    //把新输入的邮箱暂存起来
+                    let tempNewEmail = value;
+
+                    //向新的邮箱发送验证码
+                    axios.post("/validateCode/send4EditEmail.do?oldEmail=" + tempNewEmail).then((response) => {
+                        //发送验证码成功
+
+                        //弹出输入验证码的弹框
+                        this.$prompt('时效时效五分钟!', '新邮箱的验证码', {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                        }).then(({value}) => {
+                            //用户点击了确定之后的操作
+                            //向后端发送请求校验输入的验证码是否正确
+                            axios.post("/validateCode/checkValidateCodeForEditEmail.do?validateCode=" + value + "&oldEmail=" + tempNewEmail).then((response) => {
+                                if (response.data.flag) {
+                                    //验证码输入正确
+
+                                    //进行修改邮箱的操作
+                                    axios.post("/member/editEmail.do?newEmail=" + tempNewEmail, this.member).then((response) => {
+                                        //邮箱修改成功
+                                        if (response.data.flag) {
+                                            //回显修改后的member
+                                            this.member = response.data.data;
+                                            //进行隐私处理
+                                            this.processCode();
+
+                                            //邮箱修改成功
+                                            this.$message({
+                                                type: 'success',
+                                                message: response.data.message
+                                            });
+                                        } else {
+                                            //邮箱修改失败
+                                            this.$message.error(response.data.message);
+                                        }
+                                    });
+
+                                } else {
+                                    //验证码输入错误或后端发生了异常
+                                    this.$message.error(response.data.message);
+                                }
+                            });
+
+                        }).catch(() => {
+                            this.$message({
+                                type: 'info',
+                                message: '取消修改邮箱'
+                            });
+                        });
+                    });
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '取消修改邮箱'
+                    });
+                });
+            },
+
+            //点击修改手机号按钮的触发函数
+            editPhoneNumber() {
+                //向原来的手机号发送验证码
+                axios.post("/validateCode/send4EditPhoneNumber.do?oldPhoneNumber=" + this.member.phoneNumber).then((response) => {
+                    //发送验证码成功
+                    if (response.data.flag) {
+                        //弹出发送验证码成功提示
+                        this.$message({
+                            type: 'success',
+                            message: response.data.message
+                        });
+
+                        //弹出输入修改手机号的验证码的弹框
+                        this.openEditPhoneNumberBox4ValidateCode();
+
+                    } else {
+                        //弹出验证码发送失败提示
+                        this.$message.error(response.data.message);
+                    }
+                });
+            },
+
+            //弹出输入修改电话号码验证码的弹框
+            openEditPhoneNumberBox4ValidateCode() {
+                this.$prompt('时效时效五分钟!', '验证码', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                }).then(({value}) => {
+                    //用户点击了确定之后的操作
+                    //向后端发送请求校验输入的验证码是否正确
+                    axios.post("/validateCode/checkValidateCodeForEditPhoneNumber.do?validateCode=" + value + "&oldPhoneNumber=" + this.member.phoneNumber).then((response) => {
+                        if (response.data.flag) {
+                            //验证码输入正确
+                            //用户进行修改手机号并提交的操作
+                            this.openPhoneNumberBox();
+                        } else {
+                            //验证码输入错误或后端发生了异常
+                            this.$message.error(response.data.message);
+                        }
+                    });
+
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '取消修改手机号'
+                    });
+                });
+            },
+
+            //弹出修改手机号的弹框
+            openPhoneNumberBox() {
+                this.$prompt('请输入手机号', '修改手机号', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    inputPattern: /^[1][3,4,5,7,8][0-9]{9}?/,
+                    inputErrorMessage: '手机号格式不正确'
+                }).then(({value}) => {
+                    //用户输入了手机号之后，手机号格式校验通过,并且点击了确定操作
+
+                    //把新输入的手机号暂存起来
+                    let tempPhoneNumber = value;
+
+                    //向新的手机号发送验证码
+                    axios.post("/validateCode/send4EditPhoneNumber.do?oldPhoneNumber=" + tempPhoneNumber).then((response) => {
+                        //发送验证码成功
+
+                        //弹出输入验证码的弹框
+                        this.$prompt('时效时效五分钟!', '新手机号的验证码', {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                        }).then(({value}) => {
+                            //用户点击了确定之后的操作
+                            //向后端发送请求校验输入的验证码是否正确
+                            axios.post("/validateCode/checkValidateCodeForEditPhoneNumber.do?validateCode=" + value + "&oldPhoneNumber=" + tempPhoneNumber).then((response) => {
+                                if (response.data.flag) {
+                                    //验证码输入正确
+
+                                    //进行修改手机号码的操作
+                                    axios.post("/member/editPhoneNumber.do?newPhoneNumber=" + tempPhoneNumber, this.member).then((response) => {
+                                        //手机号码修改成功
+                                        if (response.data.flag) {
+                                            //回显修改后的member
+                                            this.member = response.data.data;
+                                            //进行隐私处理
+                                            this.processCode();
+
+                                            //手机号修改成功
+                                            this.$message({
+                                                type: 'success',
+                                                message: response.data.message
+                                            });
+                                        } else {
+                                            //手机号修改失败
+                                            this.$message.error(response.data.message);
+                                        }
+                                    });
+                                } else {
+                                    //验证码输入错误或后端发生了异常
+                                    this.$message.error(response.data.message);
+                                }
+                            });
+                        }).catch(() => {
+                            this.$message({
+                                type: 'info',
+                                message: '取消修改手机号'
+                            });
+                        });
+
+                    });
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '取消修改手机号'
+                    });
+                });
+            },
+
+            //处理回显后的电话号码，身份证号码，邮箱
+            processCode() {
+                //处理电话号码
+                if (this.member.phoneNumber != null && this.member.phoneNumber.length > 0) {
+                    //把后端返回的电话号码赋值给一个临时变量，防止把回显的数据给改了
+                    let s = "";
+                    s = s + this.member.phoneNumber;
+
+                    //对电话号码进行隐藏处理
+                    this.hidePhoneNumber = s.substr(0, 3) + "****" + s.substr(s.length - 4, s.length - 1);
+                }
+
+                //处理身份证号码
+                if (this.member.idCard != null && this.member.idCard.length > 0) {
+                    //把后端返回的身份证赋值给一个临时变量，防止把回显的数据给改了
+                    let s = "";
+                    s = s + this.member.idCard;
+
+                    //对身份证进行隐藏处理
+                    this.hideIdCard = s.substr(0, 6) + "****" + s.substr(s.length - 4, s.length - 1);
+
+                }
+
+                //处理邮箱
+                if (this.member.email != null && this.member.email.length > 0) {
+                    //把后端返回的邮箱赋值给一个临时变量，防止把回显的数据给改了
+                    let s = "";
+                    s = s + this.member.email;
+
+                    //对邮箱进行隐藏处理
+                    this.hideEmail = s.substr(0, 3) + "****" + s.split("@")[1];
+                }
+            },
+
+            //发送验证码
+            sendValidateCode() {
+                //获取用户输入的手机号(输入框中的双向绑定)
+                let telephone = this.member.telephone;
+                //校验手机号输入是否正确
+                if (!checkTelephone(telephone)) {
+                    this.$message.error('请输入正确的手机号');
+                    return false;
+                }
+
+                //校验通过
+                //id选择器，得到的是一个数组
+                validateCodeButton = $("#validateCodeButton")[0];
+                clock = window.setInterval(doLoop, 1000); //一秒执行一次
+
+
+                axios.post("/validateCode/send4Order.do?telephone=" +
+                    telephone).then((response) => {
+                    if (!response.data.flag) {
+                        //验证码发送失败
+                        this.$message.error('验证码发送失败，请检查手机号输入是否正确');
+                    }
+                });
+            },
+
+
+            //修改个人信息
+            submitOrder() {
+                //校验手机号输入是否正确
+                if (!checkTelephone(this.member.telephone)) {
+                    this.$message.error('请输入正确的手机号');
+                    return false;
+                }
+
+                //校验身份证号格式
+                if (!checkIdCard(this.member.idCard)) {
+                    this.$message.error('身份证号码输入错误，请重新输入');
+                    return;
+                }
+
+                //校验邮箱格式
+                if (!checkEmail(this.member.email)) {
+                    this.$message.error('邮箱格式输入错误，请重新输入');
+                    return;
+                }
+
+                //向后端提交数据
+                axios.post("/order/submit.do", this.member).then((response) => {
+                    if (response.data.flag) {
+                        //预约成功，跳转到预约成功页面
+                        window.location.href = "orderSuccess.html?orderId=" + response.data.data;
+                    } else {
+                        //预约失败，提示预约失败信息
+                        this.$message.error(response.data.message);
+                    }
+                });
+
+            },
+
+            //退出登录
+            logout() {
+                axios.post("/member/logout.do").then((response) => {
+                    if (response.data.message === "forward_without_param") {
+                        window.location.href = "/pages/login.html";
+                    } else {
+                        window.location.href = "/pages/login.html?email=" + response.data.email + "&password=" + response.data.password;
+                    }
+                });
+            },
+
+            //点击修改密码按钮的触发函数
+            editPassword() {
+                if (this.member.email != null && this.member.email.length > 0) {
+                    //如果用户当前已经绑定了邮箱，向当前邮箱发送验证码
+                    //这里向后端请求的这个方法是可以的
+                    axios.post("/validateCode/send4EditEmail.do?oldEmail=" + this.member.email).then((response) => {
+                        //发送验证码成功
+                        if (response.data.flag) {
+                            //弹出发送验证码成功提示
+                            this.$message({
+                                type: 'success',
+                                message: response.data.message
+                            });
+
+                            //弹出输入验证码的弹框
+                            this.$prompt('时效时效五分钟!', this.hideEmail + '的验证码', {
+                                confirmButtonText: '确定',
+                                cancelButtonText: '取消',
+                            }).then(({value}) => {
+                                //用户点击了确定之后的操作
+                                //向后端发送请求校验输入的验证码是否正确
+                                axios.post("/validateCode/checkValidateCodeForEditEmail.do?validateCode=" + value + "&oldEmail=" + this.member.email).then((response) => {
+                                    if (response.data.flag) {
+                                        //验证码输入正确
+
+                                        //用户进行修改密码的操作
+                                        window.location.href = "/pages/editPassword.html?memberId=" + this.member.id;
+
+                                    } else {
+                                        //验证码输入错误或后端发生了异常
+                                        this.$message.error(response.data.message);
+                                    }
+                                });
+                            }).catch(() => {
+                                this.$message({
+                                    type: 'info',
+                                    message: '取消修改密码'
+                                });
+                            });
+                        } else {
+                            //弹出验证码发送失败提示
+                            this.$message.error(response.data.message);
+                        }
+                    });
+                } else {
+                    this.$alert('请先注册邮箱', '提示', {
+                        confirmButtonText: '确定',
+                        callback: action => {
+                            this.$message({
+                                type: 'success',
+                                message: `注册下邮箱哦`
+                            });
+                        }
+                    });
+                }
+            },
+
+            //修改个人信息（用户名，性别，生日）
+            //点击修改个人信息的触发函数
+            editMember() {
+                //向后端发送修改个人信息的请求
+                axios.post("/member/editMember.do", this.member).then((response) => {
+                    if (response.data.flag) {
+                        //修改成功
+
+                        //弹出修改成功的提示
+                        this.$message({
+                            type: 'success',
+                            message: `修改信息成功`
+                        });
+
+                        //进行数据的回显
+                        this.member = response.data.data;
+
+                        //进行隐私处理
+                        this.processCode();
+                    } else {
+                        //修改失败
+                        this.$message.error("修改失败");
+                    }
+                }).catch(() => {
+                    this.$message.error("服务器异常，请联系管理员");
+                });
+            }
+        },
+
+        //回显会员信息
+        mounted() {
+            axios.post("/member/playBackMemberMessage.do").then((response) => {
+                this.member = response.data;
+
+                //对隐私数据进行隐藏处理
+                this.processCode();
+            });
+        }
+    });
+</script>
+<script>
+    //日期控件
+    //datePicker是日期控件提供的
+    var calendar = new datePicker();
+    calendar.init({
+        'trigger': '.picktime',/*按钮选择器，用于触发弹出插件*/
+        'type': 'date',/*模式：date日期；datetime日期时间；time时间；ym年月；*/
+        'minDate': getSpecifiedDate(new Date(), 1),/*最小日期*/
+        'maxDate': getSpecifiedDate(new Date(), 30),/*最大日期*/
+        'onSubmit': function () { /*确认时触发事件*/
+            //var theSelectData = calendar.value;
+        },
+        'onClose': function () { /*取消时触发事件*/
+        }
+    });
+</script>
+</body>
+</html>

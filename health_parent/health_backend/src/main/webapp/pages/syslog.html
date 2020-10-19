@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>传智健康</title>
+    <meta name="description" content="传智健康">
+    <meta name="keywords" content="传智健康">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../plugins/elementui/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="hold-transition">
+<div id="app">
+    <div class="content-header">
+        <h1>系统日志
+            <small>系统日志管理</small>
+        </h1>
+        <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>预约管理</el-breadcrumb-item>
+            <el-breadcrumb-item>系统日志</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+    <div class="app-container">
+        <div class="box">
+            <div class="filter-container">
+                <!--<el-input placeholder="服务器名称" v-model="pagination.queryString" style="width: 200px;"
+                          class="filter-item"></el-input>
+                <el-input placeholder="用户名" v-model="pagination.queryString" style="width: 200px;"
+                          class="filter-item"></el-input>
+                <el-date-picker v-model="value1" type="daterange" range-separator="至"
+                                start-placeholder="开始日期" end-placeholder="结束日期">
+                </el-date-picker>
+                <el-button @click="handleCurrentChange(1)" class="dalfBut">查询</el-button>-->
+
+                <div style="margin-top: 20px">
+                   <span>
+                    <el-button @click="delArray()" type="danger">批量删除</el-button>
+                    <el-button @click="toggleSelection()">取消所有</el-button>
+                </span>
+                </div>
+
+            </div>
+            <el-table size="small" current-row-key="id" :data="dataList"
+                      ref="multipleTable"
+                      @selection-change="handleSelectionChange"
+                      stripe highlight-current-row>
+                <el-table-column type="selection" width="55"></el-table-column>
+                <el-table-column prop="consumerName" label="服务器" align="center"></el-table-column>
+                <el-table-column prop="username" label="用户名称" align="center"></el-table-column>
+                <el-table-column prop="ip" label="ip" align="center"></el-table-column>
+                <el-table-column prop="url" label="路径名" align="center"></el-table-column>
+                <el-table-column prop="executionTime" label="执行时间/ms" align="center"></el-table-column>
+                <el-table-column prop="method" label="方法" align="center"></el-table-column>
+                <el-table-column prop="visitTime" label="访问时间" align="center"></el-table-column>
+                </el-table-column>
+               <!-- <el-table-column label="操作" align="center">
+                    <template slot-scope="scope">
+                        <el-button size="mini" type="danger" @click="handleDelete(row)">删除</el-button>
+                    </template>
+                </el-table-column>-->
+
+            </el-table>
+
+            <div class="pagination-container">
+                <el-pagination
+                        class="pagiantion"
+                        @current-change="handleCurrentChange"
+                        :current-page="pagination.currentPage"
+                        :page-size="pagination.pageSize"
+                        layout="total, prev, pager, next, jumper"
+                        :total="pagination.total">
+                </el-pagination>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<!-- 引入组件库 -->
+<script src="../js/vue.js"></script>
+<script src="../plugins/elementui/index.js"></script>
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script src="../js/axios-0.18.0.js"></script>
+
+<script>
+    var vue = new Vue({
+        el: '#app',
+        data: {
+            pagination: {//分页相关模型数据
+                currentPage: 1,//当前页码
+                pageSize: 20,//每页显示的记录数
+                total: 0,//总记录数
+                queryString: null//查询条件
+            },
+            dataList: [{
+                id: 1, consumerName: 110,
+                username: 120, ip: 159,
+                url: 123, executionTime: 110,
+                method: "123", visitTime: 2020 - 9 - 3
+
+            }],//当前页要展示的分页列表数据
+            checkIds: [],
+            multipleSelection: []
+
+        },
+        //钩子函数，VUE对象初始化完成后自动执行
+        created() {
+            this.findPage();
+        },
+        methods: {
+            //分页查询
+            findPage() {
+                var param = {
+                    pageSize: this.pagination.pageSize,
+                    currentPage: this.pagination.currentPage,
+                    queryString: this.pagination.queryString
+                };
+                axios.post("/spuLog/findAll.do", param).then((res) => {
+                    this.pagination.total = res.data.total;
+                    this.dataList = res.data.rows;
+                })
+
+            },
+
+            toggleSelection(rows) {
+                this.checkIds = [];
+                if (rows) {
+                    rows.forEach(row => {
+                        this.$refs.multipleTable.toggleRowSelection(row);
+                    });
+                } else {
+                    this.$refs.multipleTable.clearSelection();
+                }
+               // alert(this.checkIds)
+            },
+            handleSelectionChange(selection) {
+
+                this.multipleSelection = selection;
+              // alert(this.multipleSelection)
+                this.checkIds=[];
+                for (let i = 0; i < selection.length; i++) {
+                    this.checkIds.push(selection[i].id)
+                }
+
+            },
+
+
+
+
+
+
+
+            //切换页码
+            handleCurrentChange(currentPage) {
+                this.pagination.currentPage = currentPage;
+                this.findPage();
+            },
+            //删除所有
+            delArray() {
+                /*this.dataList = this.multipleSelection;
+
+                alert(JSON.stringify(this.dataList));*/
+                // alert(this.checkIds)
+                this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+
+
+                    axios.post("/spuLog/deleteByIds.do?",this.checkIds).then((res) => {
+                        if (res.data.flag) {
+                            this.$message({
+                                message: res.data.message,
+                                type: 'success'
+                            });
+                            this.findPage();
+                        } else {
+                            this.$message.error(res.data.message);
+                        }
+                    }).catch((r) => { //axios对象请求的catch， 网络请求不是2xx
+                        this.showMessage(r);
+                    })
+                }).catch(() => {
+                    this.$message({
+
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                    this.toggleSelection();
+                });
+            },
+            // 删除
+            handleDelete(row) {
+               // alert(this.checkIds);
+                alert(JSON.stringify(row));
+                alert(row.id);
+
+                this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    axios.get("/syslog/deleteById.do?id=" + row.id).then((res) => {
+                        if (res.data.flag) {
+                            this.$message({
+                                message: res.data.message,
+                                type: 'success'
+                            });
+                            this.findPage();
+                        } else {
+                            this.$message.error(res.data.message);
+                        }
+                    }).catch((r) => { //axios对象请求的catch， 网络请求不是2xx
+                        this.showMessage(r);
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+            }
+        },
+
+    })
+</script>
+</html>

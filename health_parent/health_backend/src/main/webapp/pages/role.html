@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>传智健康</title>
+    <meta name="description" content="传智健康">
+    <meta name="keywords" content="传智健康">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../plugins/elementui/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- 引入组件库 -->
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="../plugins/elementui/index.js"></script>
+    <script src="../js/axios-0.18.0.js"></script>
+    <style>
+        .datatable4permission {
+            position: relative;
+            box-sizing: border-box;
+            -webkit-box-flex: 1;
+            width: 100%;
+            max-width: 100%;
+            font-size: 14px;
+            color: rgb(96, 98, 102);
+            overflow: hidden;
+            flex: 1 1 0%;
+        }
+
+        .datatable4permission td, .datatable4permission th {
+            padding: 12px 0;
+            min-width: 0;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+            position: relative;
+            text-align: left;
+        }
+
+        .datatable4menu {
+            position: relative;
+            box-sizing: border-box;
+            -webkit-box-flex: 1;
+            width: 100%;
+            max-width: 100%;
+            font-size: 14px;
+            color: rgb(96, 98, 102);
+            overflow: hidden;
+            flex: 1 1 0%;
+        }
+
+        .datatable4menu td, .datatable4menu th {
+            padding: 12px 0;
+            min-width: 0;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+            position: relative;
+            text-align: left;
+        }
+    </style>
+</head>
+<body class="hold-transition">
+<div id="app">
+    <div class="content-header">
+        <h1>系统管理
+            <small>角色管理</small>
+        </h1>
+        <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>系统管理</el-breadcrumb-item>
+            <el-breadcrumb-item>角色管理</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+    <div class="app-container">
+        <div class="box">
+            <div class="filter-container">
+                <el-input placeholder="角色名" v-model="pagination.queryString" style="width: 200px;"
+                          class="filter-item"></el-input>
+                <el-button @click="handleCurrentChange(1)" class="dalfBut" v-if="permission.ROLE_QUERY">查询</el-button>
+                <el-button type="primary" class="butT" @click="handleCreate()" v-if="permission.ROLE_ADD">新建</el-button>
+            </div>
+            <el-table ref="singleTable" :data="dataList" highlight-current-row
+                      style="width: 100%" current-row-key="id">
+                <el-table-column label="序号" type="index" width="50">
+                </el-table-column>
+                <el-table-column prop="name" label="角色名" align="center"></el-table-column>
+                <el-table-column prop="keyword" label="关键字" align="center"></el-table-column>
+
+                <el-table-column prop="description" label="描述" align="center"></el-table-column>
+
+                <el-table-column label="操作" align="center">
+                    <template slot-scope="scope">
+                        <el-button type="primary" size="mini" @click="handleUpdate(scope.row)" v-if="permission.ROLE_EDIT">编辑</el-button>
+                        <el-button size="mini" type="danger" @click="handleDelete(scope.row)" v-if="permission.ROLE_DELETE">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+
+            <!--分页插件-->
+            <div class="pagination-container">
+                <el-pagination
+                        class="pagiantion"
+                        @current-change="handleCurrentChange"
+                        :current-page="pagination.currentPage"
+                        :page-size="pagination.pageSize"
+                        layout="total, prev, pager, next, jumper"
+                        :total="pagination.total">
+                </el-pagination>
+            </div>
+
+
+            <!-- 新增角色弹层 -->
+            <div class="add-form">
+                <el-dialog title="新增角色" :visible.sync="dialogFormVisible">
+                    <template>
+                        <el-tabs v-model="activeName" type="card">
+                            <el-tab-pane label="基本信息" name="first">
+                                <el-form ref="dataAddForm" :model="formData"
+                                         label-position="right" label-width="100px"
+                                         :rules="rules">
+                                    <el-row>
+                                        <el-col :span="12">
+                                            <el-form-item label="角色名称" prop="name">
+                                                <el-input v-model="formData.name"/>
+                                            </el-form-item>
+                                        </el-col>
+                                        <el-col :span="12">
+                                            <el-form-item label="关键字" prop="keyword">
+                                                <el-input v-model="formData.keyword"/>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                    <el-row>
+                                        <el-col :span="24">
+                                            <el-form-item label="说明">
+                                                <el-input v-model="formData.description" type="textarea"></el-input>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                </el-form>
+                            </el-tab-pane>
+                            <el-tab-pane label="权限信息" name="second">
+                                <div class="checkScrol">
+                                    <table class="datatable4permission">
+                                        <thead>
+                                        <tr>
+                                            <th>选择</th>
+                                            <th>权限名称</th>
+                                            <th>关键词</th>
+                                            <th>权限说明</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr v-for="b in datatable4permission">
+                                            <td>
+                                                <input :id="b.id" type="checkbox"
+                                                       v-model="permissionIds" :value="b.id">
+                                            </td>
+                                            <td><label :for="b.id">{{b.name}}</label></td>
+                                            <td><label :for="b.id">{{b.keyword}}</label></td>
+                                            <td><label :for="b.id">{{b.description}}</label></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </el-tab-pane>
+                            <el-tab-pane label="菜单信息" name="third">
+                                <div class="checkScrol">
+                                    <table class="datatable4menu">
+                                        <thead>
+                                        <tr>
+                                            <th>选择</th>
+                                            <th>菜单名称</th>
+                                            <th>优先级</th>
+                                            <th>自关联Id</th>
+                                            <th>描述</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr v-for="c in datatable4menu">
+                                            <td>
+                                                <input :id="c.id" type="checkbox"
+                                                       v-model="menuIds" :value="c.id">
+                                            </td>
+                                            <td><label :for="c.id">{{c.name}}</label></td>
+                                            <td><label :for="c.id">{{c.level}}</label></td>
+                                            <td><label :for="c.id">{{c.parentMenuId}}</label></td>
+                                            <td><label :for="c.id">{{c.description}}</label></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </el-tab-pane>
+                        </el-tabs>
+                    </template>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="dialogFormVisible = false">取消</el-button>
+                        <el-button type="primary" @click="handleAdd()">确定</el-button>
+                    </div>
+                </el-dialog>
+            </div>
+            <!-- 编辑角色弹层 -->
+            <div class="edit-form">
+                <el-dialog title="编辑检查组" :visible.sync="dialogFormVisible4Edit">
+                    <template>
+                        <el-tabs v-model="activeName" type="card">
+                            <el-tab-pane label="基本信息" name="first">
+                                <el-form ref="editFormData" :model="editFormData"
+                                         label-position="right" label-width="100px" :rules="rules">
+                                    <el-row>
+                                        <el-col :span="12">
+                                            <el-form-item label="角色名称" prop="name">
+                                                <el-input v-model="editFormData.name"/>
+                                            </el-form-item>
+                                        </el-col>
+                                        <el-col :span="12">
+                                            <el-form-item label="关键字" prop="keyword">
+                                                <el-input v-model="editFormData.keyword"/>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                    <el-row>
+                                        <el-col :span="24">
+                                            <el-form-item label="说明">
+                                                <el-input v-model="editFormData.description" type="textarea"></el-input>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                </el-form>
+                            </el-tab-pane>
+                            <el-tab-pane label="权限信息" name="second">
+                                <div class="checkScrol">
+                                    <table class="datatable4permission">
+                                        <thead>
+                                        <tr>
+                                            <th>选择</th>
+                                            <th>权限名称</th>
+                                            <th>关键词</th>
+                                            <th>权限说明</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr v-for="b in datatable4permission">
+                                            <td>
+                                                <input :id="b.id" type="checkbox"
+                                                       v-model="permissionIds" :value="b.id">
+                                            </td>
+                                            <td><label :for="b.id">{{b.name}}</label></td>
+                                            <td><label :for="b.id">{{b.keyword}}</label></td>
+                                            <td><label :for="b.id">{{b.description}}</label></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </el-tab-pane>
+                            <el-tab-pane label="菜单信息" name="third">
+                                <div class="checkScrol">
+                                    <table class="datatable4menu">
+                                        <thead>
+                                        <tr>
+                                            <th>选择</th>
+                                            <th>菜单名称</th>
+                                            <th>优先级</th>
+                                            <th>自关联Id</th>
+                                            <th>描述</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr v-for="c in datatable4menu">
+                                            <td>
+                                                <input :id="c.id" type="checkbox"
+                                                       v-model="menuIds" :value="c.id">
+                                            </td>
+                                            <td><label :for="c.id">{{c.name}}</label></td>
+                                            <td><label :for="c.id">{{c.priority}}</label></td>
+                                            <td><label :for="c.id">{{c.parentMenuId}}</label></td>
+                                            <td><label :for="c.id">{{c.description}}</label></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </el-tab-pane>
+                        </el-tabs>
+                    </template>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="dialogFormVisible4Edit = false">取消</el-button>
+                        <el-button type="primary" @click="handleEdit()">确定</el-button>
+                    </div>
+                </el-dialog>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+<!-- 引入组件库 -->
+<script src="../js/vue.js"></script>
+<script src="../plugins/elementui/index.js"></script>
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script src="../js/axios-0.18.0.js"></script>
+
+<script>
+    var vue = new Vue({
+        el: '#app',
+
+        data: {
+            //本页面按钮显示需要的权限
+            permission:{
+            },
+
+            pagination: {//分页相关模型数据
+                currentPage: 1,//当前页码
+                pageSize: 10,//每页显示的记录数
+                total: 0,//总记录数
+                queryString: null//查询条件
+            },
+            activeName: 'first',//添加/编辑窗口Tab标签名称
+            dataList: [{
+                id: 1, name: "001", keyword: "张三", description: 1,
+            }],//当前页要展示的分页列表数据
+            formData: {},//新增表单数据
+            permissionIds: [],//新增和编辑表单中权限对应的复选框，基于双向绑定可以进行回显和数据提交
+            menuIds: [],//新增和编辑表单中菜单对应的复选框，基于双向绑定可以进行回显和数据提交
+            datatable4permission: [{id: 1, name: "健康管理师", keyword: "jjj", description: "1111"}],//新增和编辑表单中对应的角色信息
+            datatable4menu: [{id: 1, name: "健康管理师", level: "2", parentMenuId: "1", description: "1111"}],//新增和编辑表单中对应的菜单信息
+            editFormData: {},//编辑表单数据
+            dialogFormVisible: false,//增加表单是否可见
+            dialogFormVisible4Edit: false,//编辑表单是否可见
+            rules: {//校验规则
+                name: [{required: true, message: '角色名为必填项', trigger: 'blur'}],
+                keyword: [{required: true, message: '关键字为必填项', trigger: 'blur'}]
+            },
+            openEdit: false,//一个标志变量,标记为是否打开编辑表单
+            openEdit1: false,//一个标志变量,标记为是否打开编辑表单
+            openEdit2: false,//一个标志变量,标记为是否打开编辑表单
+            formDataChange: false,//一个标志变量,标记编辑表单中的数据是否发生改变
+            permissionIdsChange: false,//一个标志变量,标记编辑表单中复选框数据是否发生改变
+            menuIdsChange: false,//一个标志变量,标记编辑表单中复选框数据是否发生改变
+            formDataContain: {},//创建一个容器,用于存储编辑表单的数据回显
+            deepCloneObj: {},//创建一个容器,用于深拷贝一份编辑表单数据回显的数据
+            deepCloneObj2: [],//创建一个容器,用于深拷贝一份编辑表单权限复选框数据回显的数据
+            deepCloneObj3: []//创建一个容器,用于深拷贝一份编辑表单菜单复选框数据回显的数据
+        },
+        //钩子函数，VUE对象初始化完成后自动执行
+        created() {
+            //发送ajax请求向后端获取到该用户拥有的权限
+            axios.post("/permissionserver/findAllPermission.do").then((res) => {
+                this.permission = res.data;
+            })
+                this.findPage();
+
+        },
+        methods: {
+            //分页查询
+            findPage() {
+                //将分页的参数进行封装
+                let param = {
+                    pageSize: this.pagination.pageSize,
+                    currentPage: this.pagination.currentPage,
+                    queryString: this.pagination.queryString
+                };
+                //post异步将数据传到controller
+                axios.post("/role/findPage.do", param).then((res) => {
+                    //获取服务器响应的数据，封装了 总条数，数据的集合
+                    this.pagination.total = res.data.total;
+                    this.dataList = res.data.rows;
+                })
+
+            },
+            // 重置表单
+            resetForm() {
+
+                this.formData = {};
+            },
+            // 弹出添加窗口
+            handleCreate() {
+                this.dialogFormVisible = true;
+                this.resetForm();
+                this.activeName = 'first';
+                this.permissionIds = [];
+                this.menuIds = [];
+                this.datatable4permission = [];
+                this.datatable4menu = [];
+                axios.get("/role/findAllPermission.do").then((res) => {
+                    if (res.data.flag) {
+                        //查询角色数据成功
+                        this.datatable4permission = res.data.data;
+                    } else {
+                        //查询角色数据失败
+                        this.$message.error(res.data.message);
+                    }
+                });
+                axios.get("/role/findAllMenus.do").then((res) => {
+                    if (res.data.flag) {
+                        //查询角色数据成功
+                        this.datatable4menu = res.data.data;
+                        console.log(this.datatable4menu);
+                    } else {
+                        //查询角色数据失败
+                        this.$message.error(res.data.message);
+                    }
+                });
+                this.$refs['dataAddForm'].clearValidate();//清除表格的校验提示
+            },
+            //添加
+            handleAdd: function () {
+                /*console.log(this.formData);*/
+                //在进行添加的时候先对，表单进行校验，防止因为不填写数据，直接保存的空数据
+                this.$refs['dataAddForm'].validate((valid) => {
+                    if (valid) {
+                        //隐藏添加的窗口
+                        this.dialogFormVisible = false;
+                        //异步将数据传递
+                        axios.post("/role/add.do?permissionIds=" + this.permissionIds + "&menuIds=" + this.menuIds, this.formData).then((res) => {
+
+                            if (res.data.flag) {
+                                this.findPage();
+                                /*this.$message({
+                                    message: res.data.message,
+                                    type: 'success'
+                                })*/
+                                this.$message.success(res.data.message)
+                            } else {//执行失败
+                                this.$message.error(res.data.message);
+                            }
+                        })
+                    } else {
+                        //校验不通过
+                        this.$message.error("数据校验不通过，请重新输入");
+
+                        return false;
+                    }
+                });
+
+            },
+            // 弹出编辑窗口
+            handleUpdate(row) {
+                //弹出编辑窗口
+                this.dialogFormVisible4Edit = true;
+                //将编辑editFormData中的数据清空
+                this.editFormData = {};
+                this.activeName = 'first';
+                //判断是否开启编辑窗口
+                this.openEdit = true;
+                //将数据进行深度拷贝，监听器会触发 watch
+                this.editFormData = this.deepClone(row);
+                //将数据进行深度拷贝，监听器会触发 watch
+                this.deepCloneObj = this.deepClone(row);
+                //这里可以不写
+                this.formDataChange = false;
+                axios.get("/role/findAllPermission.do").then((res) => {
+                    if (res.data.flag) {
+                        //查询所有权限数据成功
+                        this.datatable4permission = res.data.data;
+
+                        //发送ajax请求，根据用户ID查询当前角色包含的角色ID，用于页面复选框回显
+                        axios.get("/role/findPermissionIdByrid.do?rId=" + row.id).then((res) => {
+                            if (res.data.flag) {
+                                this.permissionIds = res.data.data;
+                                //对该权限进行排序，拥有权限的放在最前面
+                                this.datatable4permission = this.preProcessing(this.datatable4permission, res.data.data);
+                                axios.get("/role/findAllMenus.do").then((res) => {
+                                    if (res.data.flag) {
+                                        //查询角色数据成功
+                                        this.datatable4menu = res.data.data;
+                                        //发送ajax请求，根据用户ID查询当前角色包含的角色ID，用于页面复选框回显
+                                        axios.get("/role/findMenuIdByrid.do?rId=" + row.id).then((res) => {
+                                            if (res.data.flag) {
+                                                this.menuIds = res.data.data;
+                                                //对该权限进行排序，拥有权限的放在最前面
+                                                this.datatable4menu = this.preProcessing(this.datatable4menu, res.data.data);
+
+                                            } else {
+                                                this.$message.error(res.data.message);
+                                            }
+                                            //判断是否开启编辑窗口
+                                            this.openEdit2 = true;
+                                            //将数据进行深度拷贝，监听器会触发 watch
+                                            this.deepCloneObj2 = this.deepClone(this.menuIds);
+                                            //这里可以不写
+                                            this.menuIdsChange = false;
+                                        });
+
+                                    } else {
+                                        //查询角色数据失败
+                                        this.$message.error(res.data.message);
+                                    }
+                                });
+
+                            } else {
+                                this.$message.error(res.data.message);
+                            }
+                            //判断是否开启编辑窗口
+                            this.openEdit1 = true;
+                            //将数据进行深度拷贝，监听器会触发 watch
+                            this.deepCloneObj1 = this.deepClone(this.permissionIds);
+                            //这里可以不写
+                            this.permissionIdsChange = false;
+                        });
+                    } else {
+                        //查询角色数据失败
+                        this.$message.error(res.data.message);
+                    }
+                });
+
+
+            },
+
+            //前置处理,obj0是所有检查项集合，obj1是该检查组的检查项的id组成的集合
+            preProcessing(obj0, obj1) {
+                let tempTableData = obj0;
+
+                //定义一个指针，用于指向下次被交换的元素
+                let point = 0;
+
+                //遍历该检查组的检查项集合
+                for (let j = 0; j < obj1.length; j++) {
+                    //遍历所有检查项集合
+                    for (let i = 0; i < obj0.length; i++) {
+                        if (obj1[j] === obj0[i].id) {
+                            let tempCheckItem = obj0[point];
+                            obj0[point] = obj0[i];
+                            obj0[i] = tempCheckItem;
+                            point = point + 1;
+                        }
+                    }
+                }
+                //对没有被勾选的检查项按照项目编码排序---->obj0[i].code
+                //有需求你就排序，这里可以排序，但是没必要.
+                return tempTableData;
+            },
+            //编辑
+            handleEdit() {
+
+                //判断数据有没有发生改变，watch中调用方法 判断两者是否完全相等
+                if (!this.formDataChange && !this.permissionIdsChange && !this.menuIdsChange) {
+                    this.$message("数据没有改变");
+                    return;
+                }
+                //表单校验
+                //注意：注意：ajax都是异步操作，所以findPage方法要放finally里面
+                this.$refs['editFormData'].validate((valid) => {
+                    if (valid) {
+                        //axios发生ajax请求
+                        axios.post("/role/edit.do?permissionIds=" + this.permissionIds + "&menuIds=" + this.menuIds,
+                            this.editFormData).then((res) => {
+                            if (res.data.flag) {
+                                this.$message.success(res.data.message);
+                            } else {
+                                this.$message.error(res.data.message);
+                            }
+                        }).finally(() => {//不管成功与失败都要进行查询
+                            this.findPage();
+                            this.dialogFormVisible4Edit = false;
+                        })
+                    } else {
+                        this.$message.error("表单数据校验失败");
+                    }
+                });
+            },
+            // 删除
+            handleDelete(row) {
+                this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    //查找所有有关联的用户
+                    axios.post("/role/findUsById.do?id=" + row.id).then((res) => {
+
+                        if (res.data.flag) {
+                            this.$confirm('此角色数据关联' + res.data.message + '删除可能造成用户功能缺失, 是否继续?', '提示', {
+                                confirmButtonText: '确定',
+                                cancelButtonText: '取消',
+                                type: 'warning'
+                            }).then(() => {
+                                //确认删除调用删除用户权限方法
+                                this.deleterole(row);
+                            }).catch(() => {
+
+                                this.$message.info("已取消删除")
+                            });
+                        } else {
+                            //如果没有与之关联的菜单或者权限直接删除
+                            this.deleterole(row);
+                        }
+                    });
+
+
+                }).catch(() => {
+                    /*this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });*/
+                    this.$message.info("已取消删除")
+                });
+            },
+            //删除角色
+            deleterole(row) {
+                axios.get("/role/deleterole.do?id=" + row.id).then((res) => {
+                    if (res.data.flag) {
+                        this.$message.success(res.data.message)
+                    } else {
+                        this.$message.error(res.data.message);
+                    }
+                }).catch((r) => { //axios对象请求的catch， 网络请求不是2xx
+                    this.showMessage(r);
+                }).finally(() => {
+                    this.findPage();
+                })
+            },
+
+            //深拷贝
+            deepClone(obj) {
+                /*  let target = {};
+                for (let key in obj) {
+                    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                        if (typeof obj[key] === 'object') {
+                            target[key] = this.deepClone(obj[key]);
+                        } else {
+                                target[key] = obj[key];
+                        }
+                    }
+                }
+                return target;
+*/
+                if (obj === null) return null;
+                if (typeof obj != 'object') return obj;
+                if (obj.constructor === Date) return new Date(obj);
+                let target = new obj.constructor();
+                for (let key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                        let val = obj[key];
+                        target[key] = typeof val === 'object' ? arguments.callee(val) : val;
+                    }
+                }
+                return target;
+                /* return JSON.parse(JSON.stringify(obj));*/
+                //这样的意思是，将obj进行序列化，保存到磁盘上，ran后通过反序列化，再获取到该对象，该对象将是个新对象，并不会影响到原来的
+                // 这样写也是有问题的，
+                // 1.如果有时间对象，时间对象会被转换成一个字符串
+                //2.如果有正则表达式，或者error对象，序列化会为空
+                //3.如果对象中有循环引用无法实现正常拷贝
+            },
+            //切换页码
+            handleCurrentChange(currentPage) {
+                this.pagination.currentPage = currentPage;
+                this.findPage();
+            },
+
+            showMessage(r) {
+                if (r === 'Error: Request failed with status code 403') {
+                    //权限不足
+                    this.$message.error('无访问权限');
+                    return;
+                } else {
+                    this.$message.error('未知错误');
+                    return;
+                }
+            },
+
+
+            //判断对象值是否相等
+            isObjectValueEqual(x, y) {
+                var i, l, leftChain, rightChain;
+
+                function compare2Objects(x, y) {
+                    var p;
+
+                    // remember that NaN === NaN returns false
+                    // and isNaN(undefined) returns true
+                    if (isNaN(x) && isNaN(y) && typeof x === 'number' && typeof y === 'number') {
+                        return true;
+                    }
+
+                    // Compare primitives and functions.
+                    // Check if both arguments link to the same object.
+                    // Especially useful on the step where we compare prototypes
+                    if (x === y) {
+                        return true;
+                    }
+
+                    // Works in case when functions are created in constructor.
+                    // Comparing dates is a common scenario. Another built-ins?
+                    // We can even handle functions passed across iframes
+                    if ((typeof x === 'function' && typeof y === 'function') ||
+                        (x instanceof Date && y instanceof Date) ||
+                        (x instanceof RegExp && y instanceof RegExp) ||
+                        (x instanceof String && y instanceof String) ||
+                        (x instanceof Number && y instanceof Number)) {
+                        return x.toString() === y.toString();
+                    }
+
+                    // At last checking prototypes as good as we can
+                    if (!(x instanceof Object && y instanceof Object)) {
+                        return false;
+                    }
+
+                    if (x.isPrototypeOf(y) || y.isPrototypeOf(x)) {
+                        return false;
+                    }
+
+                    if (x.constructor !== y.constructor) {
+                        return false;
+                    }
+
+                    if (x.prototype !== y.prototype) {
+                        return false;
+                    }
+
+                    // Check for infinitive linking loops
+                    if (leftChain.indexOf(x) > -1 || rightChain.indexOf(y) > -1) {
+                        return false;
+                    }
+
+                    // Quick checking of one object being a subset of another.
+                    // todo: cache the structure of arguments[0] for performance
+                    for (p in y) {
+                        if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
+                            return false;
+                        } else if (typeof y[p] !== typeof x[p]) {
+                            return false;
+                        }
+                    }
+
+                    for (p in x) {
+                        if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
+                            return false;
+                        } else if (typeof y[p] !== typeof x[p]) {
+                            return false;
+                        }
+
+                        switch (typeof (x[p])) {
+                            case 'object':
+                            case 'function':
+
+                                leftChain.push(x);
+                                rightChain.push(y);
+
+                                if (!compare2Objects(x[p], y[p])) {
+                                    return false;
+                                }
+
+                                leftChain.pop();
+                                rightChain.pop();
+                                break;
+
+                            default:
+                                if (x[p] !== y[p]) {
+                                    return false;
+                                }
+                                break;
+                        }
+                    }
+
+                    return true;
+                }
+
+                if (arguments.length < 1) {
+                    return true; //Die silently? Don't know how to handle such case, please help...
+                    // throw "Need two or more arguments to compare";
+                }
+
+                for (i = 1, l = arguments.length; i < l; i++) {
+
+                    leftChain = []; //Todo: this can be cached
+                    rightChain = [];
+
+                    if (!compare2Objects(arguments[0], arguments[i])) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        },
+        watch: {//监听器 当指定的数据发生改变时 记录 第一次不记录
+            editFormData: {
+                deep: true,//深度监听 当为复杂的对象时，比如user 当username发生改变时，也能监听到
+                handler: function (newVal, oldVal) {
+                    if (this.openEdit) {
+                        this.openEdit = false;
+                        return;
+                    }
+                    this.formDataChange = !this.isObjectValueEqual(newVal, this.deepCloneObj);
+                }
+            },
+            permissionIds: {
+                deep: true,//深度监听 当为复杂的对象时，比如user 当username发生改变时，也能监听到
+                handler: function (newVal, oldVal) {
+                    if (this.openEdit1) {
+                        this.openEdit1 = false;
+                        return;
+                    }
+                    this.permissionIdsChange = !this.isObjectValueEqual(newVal, this.deepCloneObj2);
+                }
+            },
+            menuIds: {
+                deep: true,//深度监听 当为复杂的对象时，比如user 当username发生改变时，也能监听到
+                handler: function (newVal, oldVal) {
+                    if (this.openEdit2) {
+                        this.openEdit2 = false;
+                        return;
+                    }
+                    this.menuIdsChange = !this.isObjectValueEqual(newVal, this.deepCloneObj3);
+                }
+            }
+
+
+        }
+    })
+
+
+</script>
+</html>
+

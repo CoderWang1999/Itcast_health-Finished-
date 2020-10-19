@@ -1,0 +1,61 @@
+{
+	"contentrating" : "Everyone",
+	"description" : "网易云检测不出的 请使用PC最新版 UWP是不支持的\n歌词卡住是小葫芦的问题了 我是没办法解决的 那些音乐播放器也不开个API给我们这些第三方应用调用\n----12/29----\n感谢 @Rain酱 的提醒，BGM插件已更新到3.0，并在下面附上了如何自己修改小葫芦官方BGM插件的方法\n----12/5----\n更新日历样式 更接近原壁纸\n----12/4----\n添加实验性的歌曲信息显示(歌曲名/进度条/歌词/中文翻译歌词)\n需要运行一个小葫芦BGM插件控制台来获取信息（http://www.obsapp.com/apps/bgm/ ，非常感谢小葫芦的OBS插件！）\n需要在设置里开启，说明在设置内。\n----放学之后----\n添加禁用日历选项,禁用后频谱会回到日历上\n(打算添加歌名显示功能 会需要一个backend后台运行)\n----几分钟之后----\n补上了闰年的2月份天数检测\n----12/03----\n1.映评论区要求添加了日历\n2.频谱往前捎了捎（日历弟弟你往后稍稍）\n----12/01----\nbugfix\n---- 11/30日更新 ----\n映评论区要求添加了:\n1.夜间模式（我不是原画师啊你叫我弄个夜间和黄昏模式我很蛋疼的啊啊啊啊）\n2.超宽屏自动缩放功能\n3.手机上的文字可以修改了(JSON格式 建议外部编辑好再复制回来) \n默认手机文字: \n[code][{\"time\":0,\"text\":\"凌晨啦!\"},{\"time\":6,\"text\":\"早上好!\"},{\"time\":8,\"text\":\"上午好!\"},{\"time\":11,\"text\":\"你吃了吗\"},{\"time\":13,\"text\":\"下午好鸭!\"},{\"time\":16,\"text\":\"傍晚咯!\"},{\"time\":19,\"text\":\"晚安!\"}][/code]\n注:time对应的是时间(小时) 可以自己增加。\n\n--------------------\nemmm 无聊做的\n原静态壁纸地址: https://h.bilibili.com/17869\n有频谱显示\n----附录----\n- 如何自己手动更新小葫芦BGM插件？ (仅限对.NET有认识的人 不然做不了第四步)\n1.首先下载并安装小葫芦插件\n2.从OBS的plugins目录下将bgm目录拷贝出来\n3.使用De4Dot反混淆:  .\\de4dot.exe -r BGM -roBGM\\cleaned\n4.使用dnSpy修改代码:\n[code]\n#region 插入新类\nusing System;\nusing System.IO;\nusing System.Net;\nusing System.Runtime.InteropServices;\nusing System.Text;\nusing System.Threading;\nusing BGM;\nusing CalabashFont;\nusing CalabashTools;\nusing Microsoft.Win32;\n\ninternal class BGMJsonRPC\n{\n\t[DllImport(\"user32\")]\n\tprivate static extern int GetWindowThreadProcessId(IntPtr intptr_0, out int int_3);\n\n\tprivate string FormatTime(double double_, double double_2)\n\t{\n\t\tif (double_ > 0.0 && double_2 >= 0.0)\n\t\t{\n\t\t\tdouble_ /= 1000.0;\n\t\t\tdouble_2 /= 1000.0;\n\t\t\tint num = (int)double_ / 60;\n\t\t\tint num2 = (int)double_ % 60;\n\t\t\tint num3 = (int)double_2 / 60;\n\t\t\tint num4 = (int)double_2 % 60;\n\t\t\treturn string.Format(\"({0}:{1}/{2}:{3})\", new object[]\n\t\t\t{\n\t\t\t\tnum3,\n\t\t\t\tnum4,\n\t\t\t\tnum,\n\t\t\t\tnum2\n\t\t\t});\n\t\t}\n\t\treturn null;\n\t}\n\n\tprivate void updateShit()\n\t{\n\t\ttry\n\t\t{\n\t\t\tstring text = this.MainWindow.gclass8_0.method_3();\n\t\t\tstring title = this.MainWindow.gclass8_0.method_1();\n\t\t\tif (string.IsNullOrEmpty(text))\n\t\t\t{\n\t\t\t\tthis.Title = \"\";\n\t\t\t}\n\t\t\telse\n\t\t\t{\n\t\t\t\tthis.AppName = text;\n\t\t\t\tthis.Title = title;\n\t\t\t\tif (this.MainWindow.gclass9_0 != null)\n\t\t\t\t{\n\t\t\t\t\tthis.ChineseLryic = this.MainWindow.gclass9_0.vmethod_1(ref this.Lryic, ref this.AllTime, ref this.Now);\n\t\t\t\t\tif (this.Now <= 0.0)\n\t\t\t\t\t{\n\t\t\t\t\t\tthis.Now = this.NowBak;\n\t\t\t\t\t}\n\t\t\t\t\tif (this.AllTime <= 0.0)\n\t\t\t\t\t{\n\t\t\t\t\t\tthis.AllTime = this.AllTimeBak;\n\t\t\t\t\t}\n\t\t\t\t\tthis.NowBak = this.Now;\n\t\t\t\t\tthis.AllTimeBak = this.AllTime;\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\tcatch\n\t\t{\n\t\t\tthis.Title = \"\";\n\t\t\tthis.AppName = \"\";\n\t\t\tthis.Lryic = \"\";\n\t\t\tthis.ChineseLryic = \"\";\n\t\t\tthis.AllTime = this.AllTimeBak;\n\t\t\tthis.Now = this.NowBak;\n\t\t}\n\t}\n\n\tprivate void TaskProc(object o)\n\t{\n\t\tHttpListenerContext httpListenerContext = (HttpListenerContext)o;\n\t\thttpListenerContext.Response.StatusCode = 200;\n\t\thttpListenerContext.Response.Headers.Add(\"Access-Control-Allow-Origin\", \"*\");\n\t\thttpListenerContext.Response.Headers.Add(\"Access-Control-Allow-Headers\", \"Origin, X-Requested-With, Content-Type, Accept\");\n\t\tPath.GetFileName(httpListenerContext.Request.RawUrl);\n\t\tnew StreamReader(httpListenerContext.Request.InputStream, Encoding.UTF8).ReadToEnd();\n\t\tusing (StreamWriter streamWriter = new StreamWriter(httpListenerContext.Response.OutputStream, Encoding.UTF8))\n\t\t{\n\t\t\tstreamWriter.Write(string.Format(\"{{ \\\"AppName\\\":\\\"{0}\\\", \\\"Title\\\":\\\"{1}\\\", \\\"AllTime\\\":\\\"{2}\\\", \\\"Now\\\":\\\"{3}\\\", \\\"ChineseLryic\\\":\\\"{4}\\\", \\\"Lryic\\\":\\\"{5}\\\", \\\"FormattedTime\\\":\\\"{6}\\\"}}\", new object[]\n\t\t\t{\n\t\t\t\tthis.AppName,\n\t\t\t\tthis.Title,\n\t\t\t\tthis.AllTime,\n\t\t\t\tthis.Now,\n\t\t\t\tthis.Lryic,\n\t\t\t\tthis.ChineseLryic,\n\t\t\t\tthis.FormatTime(this.AllTime, this.Now)\n\t\t\t}));\n\t\t\tstreamWriter.Close();\n\t\t\thttpListenerContext.Response.Close();\n\t\t}\n\t}\n\n\tpublic void main(GClass6 mainwindow)\n\t{\n\t\tthis.MainWindow = mainwindow;\n\t\tnew Thread(() =>\n\t\t{\n\t\t\tHttpListener httpListener = new HttpListener();\n\t\t\ttry\n\t\t\t{\n\t\t\t\thttpListener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;\n\t\t\t\thttpListener.Prefixes.Add(\"http://127.0.0.1:62333/BGMName/\");\n\t\t\t\thttpListener.Start();\n\t\t\t}\n\t\t\tcatch (Exception)\n\t\t\t{\n\t\t\t\treturn;\n\t\t\t}\n\t\t\tint num;\n\t\t\tint num2;\n\t\t\tThreadPool.GetMaxThreads(out num, out num2);\n\t\t\tint num3;\n\t\t\tThreadPool.GetMinThreads(out num3, out num2);\n\t\t\tnew Thread(() =>\n\t\t\t{\n\t\t\t\tfor (;;)\n\t\t\t\t{\n\t\t\t\t\tthis.updateShit();\n\t\t\t\t\tThread.Sleep(500);\n\t\t\t\t}\n\t\t\t}).Start();\n\t\t\tfor (;;)\n\t\t\t{\n\t\t\t\tHttpListenerContext context = httpListener.GetContext();\n\t\t\t\tThreadPool.QueueUserWorkItem(new WaitCallback(this.TaskProc), context);\n\t\t\t}\n\t\t}).Start();\n\t}\n\n\tprivate static object o = new object();\n\n\tprivate string AppName;\n\n\tprivate string Title = \"\";\n\n\tprivate string Lryic = \"\";\n\n\tprivate double AllTime;\n\n\tprivate double Now;\n\n\tprivate string ChineseLryic;\n\n\tprivate GClass6 MainWindow;\n\n\tpublic double NowBak;\n\n\tpublic double AllTimeBak;\n}\n#endregion\n\n#region GClass6\n\npublic void InitializeComponent()\n{\n    // ....\n\tnew BGMJsonRPC().main(this);\n}\n\nprivate void method_18()\n{\n    this.notifyIcon_0.BalloonTipText = \"小葫芦歌曲显示插件(Bilibili壁纸修改版) 已最小化。\";\n\tthis.notifyIcon_0.ShowBalloonTip(2000);\n\tbase.Hide();\n}\n[/code]",
+	"file" : "bb.html",
+	"general" : 
+	{
+		"properties" : 
+		{
+			"disableRili" : 
+			{
+				"order" : 4,
+				"text" : "禁用日历(勾选后频谱将会回到日历上)",
+				"type" : "bool",
+				"value" : false
+			},
+			"phoneText" : 
+			{
+				"order" : 3,
+				"type" : "textinput",
+				"value" : "[{\"time\":0,\"text\":\"凌晨啦!\"},{\"time\":6,\"text\":\"早上好!\"},{\"time\":8,\"text\":\"上午好!\"},{\"time\":11,\"text\":\"你吃了吗\"},{\"time\":13,\"text\":\"下午好鸭!\"},{\"time\":16,\"text\":\"傍晚咯!\"},{\"time\":19,\"text\":\"晚安!\"}]"
+			},
+			"schemecolor" : 
+			{
+				"order" : 0,
+				"text" : "ui_browse_properties_scheme_color",
+				"type" : "color",
+				"value" : "0.25882352941176473 0.8352941176470589 1"
+			},
+			"screenFile" : 
+			{
+				"order" : 1,
+				"text" : "屏幕上的图片",
+				"type" : "file"
+			},
+			"showSongInfo" : 
+			{
+				"order" : 5,
+				"text" : "启用显示歌曲信息(实验性!!!)",
+				"type" : "bool",
+				"value" : false
+			},
+			"showSongInfoDesc" : 
+			{
+				"order" : 6,
+				"text" : "注:需要启动修改版的小葫芦BGM插件控制台；右键该壁纸，点击在\"文件资源管理器中打开\", 进入Backend文件夹，启动BGM.exe即可"
+			},
+			"tip" : 
+			{
+				"order" : 2,
+				"text" : "手机上的文字 (JSON格式 建议外部编辑好再复制回来)"
+			}
+		},
+		"supportsaudioprocessing" : true
+	},
+	"preview" : "preview.gif",
+	"tags" : [ "Anime" ],
+	"title" : "哔哩哔哩音频响应壁纸",
+	"type" : "web",
+	"visibility" : "public",
+	"workshopid" : "1551961057"
+}

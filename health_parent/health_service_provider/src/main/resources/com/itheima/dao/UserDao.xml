@@ -5,4 +5,82 @@
     <select id="findByUsername" parameterType="string" resultType="com.itheima.pojo.User">
         select * from t_user where username=#{username}
     </select>
+    <!--分页查询-->
+    <select id="findPage" parameterType="string" resultType="com.itheima.pojo.User">
+        select * from t_user
+        <if test="value != null and value.length > 0">
+            where username like concat('%',#{value},"%")
+        </if>
+    </select>
+    <!--添加用户-->
+    <!-- 获取自增后的主键并封装到checkgroup的id属性中 -->
+    <insert id="add" parameterType="com.itheima.pojo.User">
+        <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+            select LAST_INSERT_ID()
+        </selectKey>
+        insert into t_user(id,birthday,gender,username,password,remark,station,telephone)
+        values
+        (#{id},#{birthday},#{gender},#{username},#{password},#{remark},#{station},#{telephone})
+    </insert>
+    <!--添加关联-->
+    <insert id="addRoleIdAndUser">
+        insert into t_user_role (user_id,role_id) values (#{lastId},#{roleId})
+    </insert>
+
+    <!--通过角色id修改已有的用户-->
+    <update id="update" parameterType="com.itheima.pojo.User">
+        update t_user
+        <set>
+            <if test="birthday != null">
+                birthday = #{birthday},
+            </if>
+            <if test="gender != null">
+                gender = #{gender},
+            </if>
+            <if test="username != null">
+                username = #{username},
+            </if>
+            <if test="password != null">
+                password = #{password},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+            <if test="station != null">
+                station = #{station},
+            </if>
+            <if test="telephone != null">
+                telephone = #{telephone},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <!--通过角色id删除中间关联表-->
+    <delete id="deleteConnection4roleByUid" parameterType="int">
+        delete from t_user_role where user_id=#{uid}
+    </delete>
+    <!--通过用户id查询所以有关联的角色id-->
+    <select id="findRoleIdByUid" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        SELECT
+            t_user_role.role_id
+        FROM
+            t_user_role
+        WHERE
+            t_user_role.user_id = #{uid}
+    </select>
+
+    <!--通过用户id删除中间关联表-->
+    <delete id="deleteUser" parameterType="int">
+        delete from t_user where id=#{id}
+    </delete>
+
+    <!--通过角色id查询用户-->
+    <select id="findUsByrId" parameterType="int" resultType="com.itheima.pojo.User">
+        select * from t_user where id in (select user_id from t_user_role where role_id = #{id})
+    </select>
+
+    <!--通过用户id查询用户-->
+    <select id="findById" parameterType="int" resultType="com.itheima.pojo.User">
+        select * from t_user where id =#{id}
+    </select>
 </mapper>

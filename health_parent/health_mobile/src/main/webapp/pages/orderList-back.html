@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0,user-scalable=no,minimal-ui">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="stylesheet" href="../css/page-health-orderInfo.css"/>
+    <script src="../plugins/datapicker/datePicker.js"></script>
+    <script src="../plugins/healthmobile.js"></script>
+    <link rel="stylesheet" href="../plugins/elementui/index.css"/>
+    <link rel="icon" href="../img/asset-favico.ico">
+    <title>预约</title>
+    <link rel="stylesheet" href="../css/page-health-order.css"/>
+    <script src="../plugins/jquery/dist/jquery.min.js"></script>
+
+</head>
+<body data-spy="scroll" data-target="#myNavbar" data-offset="150">
+<div class="app" id="app">
+    <!-- 页面头部 -->
+    <div class="top-header">
+        <span class="f-left"><i class="icon-back" onclick="history.go(-1)"></i></span>
+        <span class="center">健康记录</span>
+        <span class="f-right"><i class="icon-more"></i></span>
+    </div>
+    <!-- 页面内容 -->
+    <div class="contentBox">
+        <div class="list-column1">
+
+            <!--模糊查询-->
+            <div class="date">
+                <label>起始时间</label>
+                <i class="icon-date" class="picktime"></i>
+                <input v-model="queryCondition.startTime" type="date" class="picktime" style="font-size: xx-large" readonly placeholder="起始时间">
+            </div>
+
+            <br>
+            <div class="date">
+                <label>结束时间</label>
+                <i class="icon-date" class="picktime"></i>
+                <input v-model="queryCondition.startTime" type="date" class="picktime" style="font-size: xx-large" readonly placeholder="结束时间`">
+            </div>
+
+            <div class="input-row">
+            <label>套餐名称</label>
+                <input v-model="queryCondition.setmealName" type="text" class="input-clear" style="font-size: xx-large" placeholder="套餐名称">
+                <button @click="submitOrder()" type="button" class="btn order-btn" style="font-size: xx-large;background: blue">查询</button>
+            </div>
+
+
+            <ul class="list">
+                <li class="list-item" v-for="order in orderAndSetmealList">
+                    <a class="link-page" :href="'setmeal_detail.html?id='+order.setmealId">
+                        <img class="img-object f-left" :src="'http://qgi2e8sac.hd-bkt.clouddn.com/'+order.setmealImg" alt="">
+                        <div class="item-body">
+                            <h4 class="ellipsis item-title">{{order.setmealName}}</h4>
+                            <p class="ellipsis-more item-desc">{{order.setmealRemark}}</p>
+                            <p class="item-keywords">
+                                <span>{{order.setmealSex == '0' ? '性别不限' : order.setmealSex == '1' ? '男':'女'}}</span>
+                                <span>{{order.setmealAge}}</span>
+                            </p>
+                            <p>{{order.orderDate}}</p>
+                            <p>{{order.orderStatus}}</p>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- 页面 css js -->
+<script src="../plugins/vue/vue.js"></script>
+<script src="../plugins/vue/axios-0.18.0.js"></script>
+<script src="../plugins/elementui/index.js"></script>
+<link rel="stylesheet" href="../plugins/elementui/index.css"/>
+<!--<script src="../js/page-health-order.js"></script>-->
+<script>
+    //定义一个全局变量用于倒计时
+    let second = 3;
+
+    //定义一个定时器变量，这个变量在引入的js文件中已经被定义了
+    // let clock = '';
+
+    //每秒执行一次这个方法
+    function countDown() {
+        second--;
+
+        if (second < 0) {
+            //清除定时器变量
+            clearInterval(clock);
+            //进行跳转页面
+            window.location.href = "/pages/index.html";
+        }
+    }
+
+    var vue = new Vue({
+        el: '#app',
+        data: {
+            //订单和套餐列表
+            orderAndSetmealList: [],
+
+            //查询条件
+            queryCondition:{}
+        },
+
+        //加载页面的钩子函数
+        mounted() {
+            //查询该会员所有的订单，以及每一个订单对应的套餐
+            axios.post("/order/findAll4OrderAndSetmeal.do").then((response) => {
+                if (response.data.flag) {
+                    if (response.data.data!= null && response.data.data.length> 0) {
+                        //该会员有预约
+
+                        //把该会员对应的订单信息回显
+                        this.orderAndSetmealList = response.data.data;
+                    } else {
+                        this.$message.error('您没有预约,3秒后返回主界面');
+
+                        //该会员没有预约
+                        clock = window.setInterval(countDown, 1000); //一秒执行一次
+                    }
+                }
+            });
+        }
+    });
+</script>
+<script>
+    //日期控件
+    //datePicker是日期控件提供的
+    var calendar = new datePicker();
+    calendar.init({
+        'trigger': '.picktime',/*按钮选择器，用于触发弹出插件*/
+        'type': 'date',/*模式：date日期；datetime日期时间；time时间；ym年月；*/
+        'minDate': getSpecifiedDate(new Date(), 1),/*最小日期*/
+        'maxDate': getSpecifiedDate(new Date(), 30),/*最大日期*/
+        'onSubmit': function () { /*确认时触发事件*/
+            //var theSelectData = calendar.value;
+        },
+        'onClose': function () { /*取消时触发事件*/
+        }
+    });
+</script>
+</body>
+</html>

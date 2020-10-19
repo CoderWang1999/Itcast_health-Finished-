@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0,user-scalable=no,minimal-ui">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../img/asset-favico.ico">
+    <title>预约详情</title>
+    <link rel="stylesheet" href="../css/page-health-orderDetail.css"/>
+    <script src="../plugins/vue/vue.js"></script>
+    <script src="../plugins/vue/axios-0.18.0.js"></script>
+    <script src="../plugins/healthmobile.js"></script>
+    <script>
+        var id = getUrlParam("id");
+    </script>
+</head>
+<body data-spy="scroll" data-target="#myNavbar" data-offset="150">
+<div id="app" class="app">
+    <!-- 页面头部 -->
+    <div class="top-header">
+        <span class="f-left"><i class="icon-back" onclick="history.go(-1)"></i></span>
+        <span class="center">传智健康</span>
+        <span class="f-right"><i class="icon-more"></i></span>
+    </div>
+    <!-- 页面内容 -->
+    <div class="contentBox">
+        <div class="card">
+            <div class="project-img">
+                <img width="100%" height="100%" :src="'http://qgi2e8sac.hd-bkt.clouddn.com/'+imgUrl"
+                     alt="">
+            </div>
+            <div class="project-text">
+                <h4 class="tit">{{object.setmealName}}</h4>
+                <p class="subtit">{{object.remark}}</p>
+                <p class="keywords">
+                    <span>{{object.sex == '0' ? '性别不限' : object.sex == '1' ? '男':'女'}}</span>
+                    <span>{{object.age}}</span>
+                </p>
+                <!--体检人-->
+                <p style="font-size: 15px">体检人:{{object.name}}</p>
+                <!--体检日期-->
+                <p style="font-size: 15px">体检日期:{{object.orderDate}}</p>
+            </div>
+            <!--<div class="project-know">
+                <a href="orderNotice.html" class="link-page">
+                    <i class="icon-ask-circle"><span class="path1"></span><span class="path2"></span></i>
+                    <span class="word">预约须知</span>
+                    <span class="arrow"><i class="icon-rit-arrow"></i></span>
+                </a>
+            </div>-->
+        </div>
+        <div class="table-listbox">
+            <div class="box-title">
+                <i class="icon-zhen"><span class="path1"></span><span class="path2"></span></i>
+                <span>健康师建议及诊疗方案</span>
+            </div>
+            <div class="box-table">
+                <div class="table-content">
+                    <ul class="table-list">
+                        <li class="table-item">
+                            <div class="item flex2"><span style="font-size: 20px">健康师姓名</span></div>
+                            <div class="item flex3">
+                                <label>
+                                    <!--这里给健康师姓名-->
+                                    <input style="font-size: 20px;border: white" placeholder="暂无" v-model="object.healthName" readonly>
+                                    <!--<span style="font-size: 20px">{{object.healthName}}</span>-->
+                                </label>
+                            </div>
+                        </li>
+
+                        <li class="table-item">
+                            <div class="item flex2"><span style="font-size: 20px">健康师建议</span></div>
+                            <div class="item flex3">
+                                <label>
+                                    <!--这里给健康师意见-->
+                                    <input style="font-size: 20px;border: white" placeholder="暂无" v-model="object.suggestion" readonly>
+                                    <!--<span style="font-size: 20px">{{object.suggestion}}</span>-->
+                                </label>
+                            </div>
+                        </li>
+
+                        <li class="table-item">
+                            <div class="item flex2"><span style="font-size: 20px">建议运动</span></div>
+                            <div class="item flex3">
+                                <label>
+                                    <!--这里给建议运动-->
+                                    <input style="font-size: 20px;border: white" placeholder="暂无" v-model="object.sport" readonly>
+                                    <!--<span style="font-size: 20px">{{object.sport}}</span>-->
+                                </label>
+                            </div>
+                        </li>
+
+                        <li class="table-item">
+                            <div class="item flex2"><span style="font-size: 20px">建议饮食</span></div>
+                            <div class="item flex3">
+                                <label>
+                                    <!--这里给建议饮食-->
+                                    <input style="font-size: 20px;border: white" placeholder="暂无" v-model="object.food" readonly>
+                                    <!--<span style="font-size: 20px">{{object.food}}</span>-->
+                                </label>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vue = new Vue({
+        el: '#app',
+        data: {
+            imgUrl: null,//套餐对应的图片链接
+            object: {}
+        },
+        methods: {
+            toOrderInfo() {
+                window.location.href = "orderInfo.html?id=" + id;
+            }
+        },
+        mounted() {
+            //获取请求路径中的套餐id
+            let orderId = getUrlParam("orderId");
+
+            //获取该套餐的图片id
+            let setmealImg = getUrlParam("setmealImg");
+
+            //向后端发送请求 获得需要的数据
+            axios.post("/order/findAllDataByOrderId.do?orderId=" + orderId).then((response) => {
+                if (response.data.flag) {
+                    this.object = response.data.data;
+                    this.imgUrl = setmealImg;
+                }
+            });
+        }
+    });
+</script>
+</body>

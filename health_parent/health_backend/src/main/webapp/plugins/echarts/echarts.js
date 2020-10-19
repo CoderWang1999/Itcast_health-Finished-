@@ -48064,7 +48064,7 @@ TreeNode.prototype = {
             options = {order: options};
         }
 
-        var order = options.order || 'preorder';
+        var order = options.ordersettinglist || 'preorder';
         var children = this[options.attr || 'children'];
 
         var suppressVisitSub;

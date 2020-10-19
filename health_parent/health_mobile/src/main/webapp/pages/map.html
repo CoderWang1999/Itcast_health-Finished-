@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <!--<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />-->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <title>传智健康</title>
+    <meta name="description" content="传智健康">
+    <meta name="keywords" content="传智健康">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <style type="text/css">
+        body, html{width: 100%;height: 100%;margin:0;font-family:"微软雅黑";}
+        #l-map{height:540px;width:100%;}
+        #r-result{width:100%; font-size:14px;line-height:20px;}
+
+
+    </style>
+
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../plugins/elementui/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- 引入组件库 -->
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="../plugins/elementui/index.js"></script>
+    <script src="../js/axios-0.18.0.js"></script>
+    <script type="text/javascript" src="//api.map.baidu.com/api?v=2.0&ak=98XNslGfUeI2OoqQTAn7m6oy2BVgVDdQ"></script>
+
+</head>
+
+
+<body class="hold-transition" style="background:#CBE1FF">
+<div id="app">
+    <div class="content-header">
+        <h1>首页
+            <small>公司分布图</small>
+        </h1>
+        <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>公司分布图</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+<div id="l-map"></div>
+
+</div>
+</body>
+</html>
+
+<script>
+    var vue=new Vue({
+        el: '#app',
+        data: {
+            addressList:{},
+            adds:[],
+        },created() {
+
+            axios.get("/address/findAll").then(resp => {
+
+                this.addressList = resp.data.data;
+                var length = this.addressList.length;
+                // var lat= this.addressList[2].lat;
+
+                // 百度地图API功能
+                var map = new BMap.Map("l-map");    // 创建Map实例
+                map.centerAndZoom(new BMap.Point(117.28269909,31.86694226), 13);        // 初始化地图,设置中心点坐标和地图级别
+                map.enableScrollWheelZoom(true);    //开启鼠标滚轮缩放
+
+
+                for (var i = 0; i < length; i++) {
+                    var lat = this.addressList[i].lat;
+                    var lng = this.addressList[i].lng;
+
+                    this.adds[i] = new BMap.Point(lng, lat);
+
+                }
+
+
+
+                for (var i = 0; i < this.adds.length; i++) {
+                    var marker = new BMap.Marker(this.adds[i]);
+                    map.addOverlay(marker);
+                    marker.setLabel(new BMap.Label(this.addressList[i].addressName , {offset: new BMap.Size(20, -10)}));
+                }
+            });
+
+        }
+    })
+
+
+
+</script>
+
+
+
+
