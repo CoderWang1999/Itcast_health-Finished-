@@ -1,6 +1,8 @@
+
 package com.itheima.pojo;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,6 +14,8 @@ public class Permission implements Serializable{
     private String name; // 权限名称
     private String keyword; // 权限关键字，用于权限控制
     private String description; // 描述
+    private Date cretime; //创建时间
+    private String station; //是否禁用 1 表示否 0表示是
     private Set<Role> roles = new HashSet<Role>(0);
 
     public Integer getId() {
@@ -44,6 +48,22 @@ public class Permission implements Serializable{
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Date getCretime() {
+        return cretime;
+    }
+
+    public void setCretime(Date cretime) {
+        this.cretime = cretime;
+    }
+
+    public String getStation() {
+        return station;
+    }
+
+    public void setStation(String station) {
+        this.station = station;
     }
 
     public Set<Role> getRoles() {

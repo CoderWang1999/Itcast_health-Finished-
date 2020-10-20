@@ -100,4 +100,14 @@ public class SetmealController {
         }
         return new Result(true,MessageConstant.DELETE_SETMEAL_SUCCESS);
     }
+    @RequestMapping("/findAllSetmeal")
+    public Result findAllSetmeal() {
+        try {
+            List<Setmeal> list = setmealService.findAllSetmeal();
+            return new Result(true,MessageConstant.QUERY_SETMEALLIST_SUCCESS,list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false,MessageConstant.QUERY_SETMEALLIST_FAIL);
+        }
+    }
 }

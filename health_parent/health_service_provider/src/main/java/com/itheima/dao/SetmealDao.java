@@ -27,4 +27,8 @@ public interface SetmealDao {
     void deleteSetmealAndCheckgroup(Integer setmealId);
     //根据id删除套餐
     void deleteSetmealById(Integer setMealId);
+    //不带分页的查询所有
+    List<Setmeal> findAllSetmeal();
+    //查询套餐名称
+    List<String> findSetmealNameById(Integer setmealId);
 }

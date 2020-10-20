@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 会员
+ * 会员实体类
  */
 public class Member implements Serializable{
     private Integer id;//主键
@@ -18,6 +18,24 @@ public class Member implements Serializable{
     private String email;//邮箱
     private Date birthday;//出生日期
     private String remark;//备注
+    private String healthmanager;//健康管理师
+    private Integer age;
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public String getHealthmanager() {
+        return healthmanager;
+    }
+
+    public void setHealthmanager(String healthmanager) {
+        this.healthmanager = healthmanager;
+    }
 
     public Integer getId() {
         return id;
@@ -106,4 +124,5 @@ public class Member implements Serializable{
     public void setRemark(String remark) {
         this.remark = remark;
     }
+
 }

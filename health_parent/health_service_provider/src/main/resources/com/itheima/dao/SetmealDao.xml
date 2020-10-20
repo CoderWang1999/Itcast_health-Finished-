@@ -84,4 +84,9 @@
     <delete id="deleteSetmealById" parameterType="int">
         delete from t_setmeal where id=#{setMealId}
     </delete>
+    <!--查询所有套餐，用于预约添加回显-->
+    <select id="findAllSetmeal" resultType="com.itheima.pojo.Setmeal">
+        select * from t_setmeal
+    </select>
+
 </mapper>

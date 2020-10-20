@@ -26,4 +26,6 @@ public interface SetmealService {
     void edit(Setmeal setmeal, Integer[] checkgroupIds, String tempImgId);
     //删除套餐
     void delete(Integer setMealId, String imgId);
+    //不带分页的查询所有
+    List<Setmeal> findAllSetmeal();
 }

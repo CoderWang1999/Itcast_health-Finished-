@@ -2,10 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!--映射配置文件：配置statement对象-->
 <mapper namespace="com.itheima.dao.MemberDao">
-    <!--根据手机号查询会员信息-->
-    <select id="findByTelephone" parameterType="string" resultType="com.itheima.pojo.Member">
-        SELECT * FROM t_member WHERE phoneNumber=#{telephone}
+    <select id="findAll" resultType="com.itheima.pojo.Member">
+        select * from t_member
     </select>
+
+    <!--根据条件查询-->
+    <select id="selectByCondition" parameterType="string" resultType="com.itheima.pojo.Member">
+        select * from t_member
+        <if test="value != null and value.length > 0">
+            where fileNumber = #{value} or phoneNumber = #{value} or name = #{value}
+        </if>
+    </select>
+
     <!--新增会员-->
     <insert id="add" parameterType="com.itheima.pojo.Member">
         <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
@@ -15,21 +23,201 @@
         values
         (#{fileNumber},#{name},#{sex},#{idCard},#{phoneNumber},#{regTime},#{password},#{email},#{birthday},#{remark})
     </insert>
-    <!--查询指定月份之前的会员总数-->
+
+    <!--删除会员-->
+    <delete id="deleteById" parameterType="int">
+        delete from t_member where id = #{id}
+    </delete>
+
+    <!--根据id查询会员-->
+    <select id="findById" parameterType="int" resultType="com.itheima.pojo.Member">
+        select * from t_member where id = #{id}
+    </select>
+
+    <!--根据id查询会员-->
+    <select id="findByTelephone" parameterType="string" resultType="com.itheima.pojo.Member">
+        select * from t_member where phoneNumber = #{phoneNumber}
+    </select>
+
+    <!--编辑会员-->
+    <update id="edit" parameterType="com.itheima.pojo.Member">
+        update t_member
+        <set>
+            <if test="fileNumber != null">
+                fileNumber = #{fileNumber},
+            </if>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="sex != null">
+                sex = #{sex},
+            </if>
+            <if test="idCard != null">
+                idCard = #{idCard},
+            </if>
+            <if test="phoneNumber != null">
+                phoneNumber = #{phoneNumber},
+            </if>
+            <if test="regTime != null">
+                regTime = #{regTime},
+            </if>
+            <if test="password != null">
+                password = #{password},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="birthday != null">
+                birthday = #{birthday},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--根据日期统计会员数，统计指定日期之前的会员数-->
     <select id="findMemberCountBeforeDate" parameterType="string" resultType="int">
-        SELECT count(id) FROM t_member WHERE regTime &lt;= #{date}
+        select count(id) from t_member where regTime &lt;= #{value}
     </select>
-    <!--总会员数-->
-    <select id="findMemberTotalCount" resultType="int">
-        select count(id) from t_member
-    </select>
-    <!--根据日期统计会员数，统计指定日期之后的会员数-->
-    <select id="findMemberCountAfterDate" parameterType="string" resultType="int">
-        select count(id) from t_member where regTime &gt;= #{value}
-    </select>
+
     <!--根据日期统计会员数-->
     <select id="findMemberCountByDate" parameterType="string" resultType="int">
         select count(id) from t_member where regTime = #{value}
     </select>
 
+    <!--根据日期统计会员数，统计指定日期之后的会员数-->
+    <select id="findMemberCountAfterDate" parameterType="string" resultType="int">
+        select count(id) from t_member where regTime &gt;= #{value}
+    </select>
+
+    <!--总会员数-->
+    <select id="findMemberTotalCount" resultType="int">
+        select count(id) from t_member
+    </select>
+
+    <!--根据邮箱和密码查询用户-->
+    <select id="findByEmailAndPwd" resultType="com.itheima.pojo.Member">
+        select * from t_member where email=#{email} and password=#{password}
+    </select>
+
+    <!--chenbo-->
+    <!--分页查询-->
+    <select id="findPage" parameterType="string" resultType="com.itheima.pojo.Member">
+        select  * from  t_member
+        <if test="value != null and value.length>0">
+            where fileNumber like concat('%',#{value},'%') or name like concat('%',#{value},'%') or phoneNumber like
+            concat('%',#{value},'%')
+        </if>
+    </select>
+
+
+    <select id="findHealthManager" resultType="string">
+       select a.username from t_user a join t_user_role b on a.id=b.user_id where b.role_id=(select id from t_role where name= '健康管理师' );
+    </select>
+    <!--后台添加会员信息-->
+    <insert id="addMember" parameterType="com.itheima.pojo.Member">
+        <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into t_member
+        (fileNumber,name,sex,idCard,phoneNumber,birthday,remark,healthmanager)
+        values
+        (#{fileNumber},#{name},#{sex},#{idCard},#{phoneNumber},#{birthday},#{remark},#{healthmanager})
+    </insert>
+    <select id="findMemberById" parameterType="int" resultType="com.itheima.pojo.Member">
+    select * from t_member where id=#{id}
+</select>
+
+
+    <update id="editMember" parameterType="com.itheima.pojo.Member">
+        update t_member
+        <set>
+            <if test="fileNumber !=null">
+                fileNumber=#{fileNumber},
+            </if>
+            <if test="name !=null">
+                name=#{name},
+            </if>
+            <if test="sex !=null">
+                sex=#{sex},
+            </if>
+            <if test="idCard !=null">
+                idCard=#{idCard},
+            </if>
+            <if test="phoneNumber !=null">
+                phoneNumber=#{phoneNumber},
+            </if>
+            <if test="regTime !=null">
+                regTime=#{regTime},
+            </if>
+            <if test="password !=null">
+                password=#{password},
+            </if>
+            <if test="email !=null">
+                email=#{email},
+            </if>
+            <if test="birthday !=null">
+                birthday=#{birthday},
+            </if>
+            <if test="remark !=null">
+                remark=#{remark},
+            </if>
+            <if test="healthmanager !=null">
+                healthmanager=#{healthmanager},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+
+
+    <delete id="deleteMember" parameterType="int">
+        delete from t_member where id=#{id}
+    </delete>
+
+
+    <select id="findAllmessageById" resultType="map">
+
+    SELECT
+    t_checkgroup.`name` AS checkgroups,
+    t_checkitem.`name` AS checkitems,
+    t_setmeal.`name` AS setmeal,
+    t_address.`detailaddress` AS address
+    FROM
+    t_checkgroup
+    INNER JOIN t_checkgroup_checkitem ON t_checkgroup_checkitem.checkgroup_id = t_checkgroup.id
+    INNER JOIN t_checkitem ON t_checkgroup_checkitem.checkitem_id = t_checkitem.id
+    INNER JOIN t_setmeal_checkgroup ON t_setmeal_checkgroup.checkgroup_id = t_checkgroup.id
+    INNER JOIN t_setmeal ON t_setmeal_checkgroup.setmeal_id = t_setmeal.id
+    INNER JOIN t_order ON t_order.setmeal_id = t_setmeal.id
+    INNER JOIN t_member ON t_order.member_id = t_member.id
+    INNER JOIN t_address ON t_order.address_id = t_address.id
+    WHERE
+    t_member.id = #{id}
+
+    </select>
+
+    <update id="updateByOrder" parameterType="map">
+        update t_member set name=#{name} where phoneNumber=#{phoneNumber}
+    </update>
+
+
+    <!--################## 干预控制 查询会员信息##########################-->
+    <!--干预控制  根据id查询会员
+    <select id="findMemberById" parameterType="int" resultType="com.itheima.pojo.Member">
+        select fileName,name from t_member where id = #{id}
+    </select>-->
+
+    <!--把管理员添加到会员表中-->
+    <update id="update" >
+        UPDATE  t_member set healthmanager = #{healthName} where id  in  (SELECT t_order.member_id FROM t_order where id = #{id})
+    </update>
+
+
+    <!--修改order中的健康管理师-->
+    <update id="updateOrder" >
+        update t_order set healthName = #{healthName} where member_id =#{id}
+    </update>
 </mapper>

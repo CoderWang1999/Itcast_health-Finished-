@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!--映射配置文件：配置statement对象-->
 <mapper namespace="com.itheima.dao.OrderDao">
-    <!--根据已有条件查询-->
     <resultMap id="baseResultMap" type="com.itheima.pojo.Order">
         <id column="id" property="id"/>
         <result column="member_id" property="memberId"/>
@@ -11,6 +10,7 @@
         <result column="orderStatus" property="orderStatus"/>
         <result column="setmeal_id" property="setmealId"/>
     </resultMap>
+    <!--动态条件查询-->
     <select id="findByCondition" parameterType="com.itheima.pojo.Order" resultMap="baseResultMap">
         select * from t_order
         <where>
@@ -34,15 +34,16 @@
             </if>
         </where>
     </select>
+
     <!--新增-->
     <insert id="add" parameterType="com.itheima.pojo.Order">
         <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
             SELECT LAST_INSERT_ID()
         </selectKey>
         insert into t_order(member_id,orderDate,orderType,orderStatus,setmeal_id)
-        values
-        (#{memberId},#{orderDate},#{orderType},#{orderStatus},#{setmealId})
+        values (#{memberId},#{orderDate},#{orderType},#{orderStatus},#{setmealId})
     </insert>
+
     <!--根据预约id查询预约信息，包括体检人信息、套餐信息-->
     <select id="findById4Detail" parameterType="int" resultType="map">
         select m.name member ,s.name setmeal,o.orderDate orderDate,o.orderType orderType
@@ -52,6 +53,7 @@
           t_setmeal s
         where o.member_id=m.id and o.setmeal_id=s.id and o.id=#{id}
     </select>
+
     <!--根据日期统计预约数-->
     <select id="findOrderCountByDate" parameterType="string" resultType="int">
         select count(id) from t_order where orderDate = #{value}
@@ -72,11 +74,229 @@
         select count(id) from t_order where orderDate &gt;= #{value} and orderStatus = '已到诊'
     </select>
 
-    <!--热门套餐，查询前5条-->
+    <!--热门套餐，查询前4条-->
     <select id="findHotSetmeal" resultType="map">
         select s.name, count(o.id) setmeal_count ,count(o.id)/(select count(id) from t_order) proportion
           from t_order o inner join t_setmeal s on s.id = o.setmeal_id
           group by o.setmeal_id
           order by setmeal_count desc limit 0,4
     </select>
+    <!--===========================================================-->
+    <!--查找预约order信息-->
+    <select id="findOrderById" parameterType="int" resultType="com.itheima.pojo.Order">
+        select * from  t_order where member_id=#{id}
+    </select>
+
+    <select id="findByMemberIdWithCondition" parameterType="int" resultMap="baseResultMap">
+        SELECT
+            *
+        FROM
+            t_order
+        WHERE
+            t_order.member_id=#{memberId}
+        GROUP BY
+            t_order.orderStatus
+        ORDER BY
+            t_order.orderDate DESC
+    </select>
+
+    <!--查询出该会员id对应的预约，一级每一个预约对应的套餐-->
+    <select id="findAll4OrderAndSetmeal" parameterType="int" resultType="map">
+        SELECT
+            t_order.id AS orderId,
+            t_order.orderDate AS orderDate,
+            t_order.orderStatus AS orderStatus,
+            t_setmeal.id AS setmealId,
+            t_setmeal.img AS setmealImg,
+            t_setmeal.name AS setmealName,
+            t_setmeal.remark AS setmealRemark,
+            t_setmeal.sex AS setmealSex,
+            t_setmeal.age AS setmealAge
+        FROM
+            t_order
+        INNER JOIN t_setmeal ON t_order.setmeal_id = t_setmeal.id
+        WHERE
+            t_order.member_id = #{memberId}
+        GROUP BY
+            t_order.orderStatus
+        ORDER BY
+            orderDate DESC
+
+    </select>
+
+    <!--条件查询 起始日期 截止日期 套餐名称非空-->
+    <select id="findSetmealByIdAndDate" resultType="map">
+        SELECT
+            t_order.id AS orderId,
+            t_order.orderDate AS orderDate,
+            t_order.orderStatus AS orderStatus,
+            t_setmeal.id AS setmealId,
+            t_setmeal.img AS setmealImg,
+            t_setmeal.name AS setmealName,
+            t_setmeal.remark AS setmealRemark,
+            t_setmeal.sex AS setmealSex,
+            t_setmeal.age AS setmealAge
+        FROM
+            t_order
+        INNER JOIN t_setmeal ON t_order.setmeal_id = t_setmeal.id
+        WHERE
+            t_order.member_id = #{memberId} AND
+            t_order.orderDate BETWEEN #{startDate} AND #{endDate} AND
+            t_setmeal.name LIKE #{setmealName}
+        GROUP BY
+            t_order.orderStatus
+        ORDER BY
+        orderDate DESC
+    </select>
+
+    <!--条件查询 起始日期 截止日期 套餐名称-->
+    <select id="findSetmealByIdAndDateWithoutName" resultType="map">
+        SELECT
+            t_order.id AS orderId,
+            t_order.orderDate AS orderDate,
+            t_order.orderStatus AS orderStatus,
+            t_setmeal.id AS setmealId,
+            t_setmeal.img AS setmealImg,
+            t_setmeal.name AS setmealName,
+            t_setmeal.remark AS setmealRemark,
+            t_setmeal.sex AS setmealSex,
+            t_setmeal.age AS setmealAge
+        FROM
+            t_order
+        INNER JOIN t_setmeal ON t_order.setmeal_id = t_setmeal.id
+        WHERE
+            t_order.member_id = #{memberId} AND
+            t_order.orderDate BETWEEN #{startDate} AND #{endDate}
+        GROUP BY
+            t_order.orderStatus
+        ORDER BY
+        orderDate DESC
+    </select>
+
+    <!--查询体检人 体检信息 健康师姓名 健康师建议 建议运动 建议饮食-->
+    <select id="findAllDataByOrderId" parameterType="int" resultType="map">
+        SELECT
+            t_order.id AS orderId,
+            t_order.healthName AS healthName,
+            t_order.suggestion AS suggestion,
+            t_order.sport AS sport,
+            t_order.food AS food,
+            t_order.orderDate AS orderDate,
+            t_member.name AS name,
+            t_member.remark AS remark,
+            t_member.sex AS sex,
+            t_setmeal.age AS age,
+            t_setmeal.name AS setmealName
+       FROM
+            t_order
+        INNER JOIN t_member ON t_order.member_id = t_member.id
+        INNER JOIN t_setmeal ON t_order.setmeal_id = t_setmeal.id
+        WHERE
+            t_order.id =#{orderId}
+    </select>
+
+
+    <resultMap id="map" type="com.itheima.pojo.Order">
+        <result column="id" property="id"/>
+        <result column="orderDate" property="orderDate"/>
+        <result column="orderType" property="orderType"/>
+        <result column="orderStatus" property="orderStatus"/>
+
+        <association property="member" javaType="com.itheima.pojo.Member">
+            <result column="memberName" property="name"/>
+            <result column="phoneNumber" property="phoneNumber"/>
+        </association>
+        <association property="setmeal" javaType="com.itheima.pojo.Setmeal">
+            <result column="setmealName" property="name"/>
+        </association>
+    </resultMap>
+    <!--分页查询-->
+    <select id="findByPageAndCondition"  resultMap="map">
+        SELECT
+        m.`name` memberName,
+        m.`phoneNumber` ,
+        o.`orderDate`,
+        o.`id`,
+        o.`orderType`,
+        o.`orderStatus`,
+        s.`name` setmealName
+        FROM
+        t_member m , t_order o , t_setmeal s
+        WHERE
+        o.`setmeal_id` = s.`id`
+        AND
+        m.`id`=o.`member_id`
+        <if test="queryString != null and queryString.length > 0">
+            and (m.name like concat("%",#{queryString},"%")
+            or m.phoneNumber like concat("%",#{queryString},"%"))
+        </if>
+        <if test="startDate != null and endDate != null">
+            and (o.orderDate between #{startDate} and #{endDate})
+        </if>
+        <if test="queryOrderType != null">
+            and o.orderType = #{queryOrderType}
+        </if>
+        <if test="queryOrderStatus != null">
+            and o.orderStatus = #{queryOrderStatus}
+        </if>
+    </select>
+
+    <!--编辑操作，先查询点击对象的id-->
+    <select id="findOrderById1" parameterType="int" resultType="map">
+SELECT
+    m.`name` memberName,
+    m.`phoneNumber` ,
+    o.`orderDate`,
+    o.`id`,
+    o.`orderType`,
+    o.`orderStatus`,
+    s.`name` setmealName
+FROM
+	t_member m , t_order o , t_setmeal s
+WHERE
+	o.`setmeal_id` = s.`id`
+AND
+	m.`id`=o.`member_id`
+AND
+    o.`id` = #{o.id}
+    </select>
+
+    <!--通过订单id查询套餐id-->
+    <select id="findSetmealIdsByOrderId" parameterType="int" resultType="int">
+        select setmeal_id from t_order where id = #{id}
+    </select>
+    <!--删除操作-->
+    <delete id="delete" parameterType="int">
+        delete from t_order where id =#{id}
+    </delete>
+
+    <update id="update" parameterType="com.itheima.pojo.Order">
+        update t_order set orderType=#{orderType},orderStatus=#{orderStatus},orderDate=#{orderDate},setmeal_id=#{setmealId} where id=#{id}
+    </update>
+    <!--通过id查询预约的就诊状态-->
+    <select id="findOrderStatesById" resultType="com.itheima.pojo.Order">
+        select * from t_order where id = #{id}
+    </select>
+    <!--通过开关键修改就诊状态-->
+    <update id="editStatus" parameterType="int">
+        update t_order set orderStatus="未到诊" where id = #{id}
+    </update>
+    <!--通过开关键修改就诊状态-->
+    <update id="editStatusTo" parameterType="int">
+        update t_order set orderStatus="已到诊" where id = #{id}
+    </update>
+
+
+
+    <!--################## 新添加：实现干预信息 建议 饮食 运动的回显#############################-->
+    <!--根据Order表中id值，获取id-->
+    <select id="findHealtMessageById" parameterType="int" resultType="com.itheima.pojo.Order">
+
+        SELECT t_order.food,t_order.sport,t_order.suggestion,t_order.healthName   FROM t_order WHERE id =#{id};
+    </select>
+
+    <!--改变到诊状态  未到诊可以改变状态 已到诊无法改变状态-->
+    <update id="update1">
+        update t_order set orderStatus=#{orderStatus} where id = #{id}
+    </update>
 </mapper>

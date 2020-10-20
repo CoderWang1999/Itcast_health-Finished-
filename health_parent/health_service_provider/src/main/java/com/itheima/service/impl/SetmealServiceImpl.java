@@ -202,4 +202,8 @@ public class SetmealServiceImpl implements SetmealService {
             }
         }
     }
+    //查询所有套餐，用于预约添加回显
+    public List<Setmeal> findAllSetmeal() {
+        return setmealDao.findAllSetmeal();
+    }
 }

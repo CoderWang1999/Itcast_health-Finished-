@@ -20,6 +20,8 @@ public class OrderSetting implements Serializable{
         this.number = number;
     }
 
+
+
     public Integer getId() {
         return id;
     }
