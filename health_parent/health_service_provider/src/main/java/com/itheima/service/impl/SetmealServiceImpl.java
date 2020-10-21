@@ -45,8 +45,10 @@ public class SetmealServiceImpl implements SetmealService {
         this.setSetmealIdAndCheckGroupId(setmealId, checkgroupIds);
         //获取图片名称
         String fileName = setmeal.getImg();
-        //新建套餐成功之后将图片名称存入Redis小集合中
-        jedisPool.getResource().sadd(RedisConstant.SETMEAL_PIC_DB_RESOURCES, fileName);
+        if (fileName!=null&&!fileName.equals("")){
+            //新建套餐成功之后将图片名称存入Redis小集合中
+            jedisPool.getResource().sadd(RedisConstant.SETMEAL_PIC_DB_RESOURCES, fileName);
+        }
         //当添加套餐后需要重新生成静态页面（套餐列表页面、套餐详情页面）
         generateMobileStaticHtml();
     }

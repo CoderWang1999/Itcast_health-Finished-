@@ -133,12 +133,10 @@
                                             </el-form-item>
                                         </el-col>
                                         <el-col :span="12">
-                                            <el-form-item label="状态">
-                                                <!--<el-select v-model="formData.station">
-                                                    <el-option label="未使用" value="0"></el-option>
-                                                </el-select>-->
-                                                <el-input v-model="formData.telephone"/>未使用
-                                            </el-form-item>
+                                            <el-select v-model="editFormData.station">
+                                                <el-option label="未使用" value="0"></el-option>
+                                                <el-option label="登录中" value="1"></el-option>
+                                            </el-select>
                                         </el-col>
                                     </el-row>
                                     <el-row>

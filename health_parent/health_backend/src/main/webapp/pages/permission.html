@@ -201,7 +201,6 @@
             axios.post("/permissionserver/findAllPermission.do").then((res) => {
                 this.permission = res.data;
             });
-
             this.findPage();
         },
         methods: {

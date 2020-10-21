@@ -88,5 +88,7 @@
     <select id="findAllSetmeal" resultType="com.itheima.pojo.Setmeal">
         select * from t_setmeal
     </select>
-
+    <select id="findSetmealNameById" parameterType="int" resultType="String">
+        select name from t_setmeal where id=#{id}
+    </select>
 </mapper>

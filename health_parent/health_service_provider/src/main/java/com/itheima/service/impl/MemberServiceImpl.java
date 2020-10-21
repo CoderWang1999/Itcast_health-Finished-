@@ -122,7 +122,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public void addMember(Member member) {
-        memberDao.addMember( member);
+        memberDao.addMember(member);
     }
     //编辑修改会员信息
     @Override
@@ -137,10 +137,6 @@ public class MemberServiceImpl implements MemberService {
      */
     @Override
     public void editMember(Member member) {
-        //修改手机端显示的管理师
-        if (member.getHealthmanager() != null) {
-            memberDao.updateOrderHealthName(member.getId(),member.getHealthmanager());
-        }
         //修改会员表里的内容
         memberDao.editMember(member);
     }

@@ -1,10 +1,76 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<!--映射配置文件：配置statement对象-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.itheima.dao.PermissionDao">
+
     <select id="findByRoleId" parameterType="int" resultType="com.itheima.pojo.Permission">
-          select p.*
-          from t_permission p,t_role_permission rp
-          where p.id = rp.permission_id and rp.role_id = #{role_id}
+        select p.* from t_permission p , t_role_permission rp
+        where
+         p.id = rp.permission_id and rp.role_id = #{rid}
+    </select>
+
+    <!--分页查询-->
+    <select id="findPage" parameterType="string" resultType="com.itheima.pojo.Permission">
+        select * from t_permission
+        <if test="value != null and value.length > 0">
+            where name like concat('%',#{value},"%")
+        </if>
+    </select>
+
+    <!--通过权限名或者关键字查找权限-->
+    <select id="findByPmName2KeyWord" resultType="com.itheima.pojo.Permission">
+        select * from t_permission where name =#{name} or keyword=#{keyword}
+    </select>
+
+    <!--添加权限-->
+    <insert id="add" parameterType="com.itheima.pojo.Permission">
+        insert into t_permission
+        values
+        (#{id},#{name},#{keyword},#{description},#{cretime},#{station})
+    </insert>
+
+    <!--通过权限id修改已有的权限-->
+    <update id="edit" parameterType="com.itheima.pojo.Permission">
+        update t_permission
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="keyword != null">
+                keyword = #{keyword},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+            <if test="station != null">
+                station = #{station},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过权限id查找角色-->
+    <select id="findRolesByPmId" parameterType="int" resultType="com.itheima.pojo.Role">
+        select r.* from t_role r where
+        r.id in (select role_id from t_role_permission where permission_id = #{id})
+    </select>
+
+    <!--通过权限id删除中间关联表-->
+    <delete id="deleteConnection4roleByPmId" parameterType="int">
+        delete from t_role_permission where permission_id = #{id}
+    </delete>
+    <!--通过权限id删除权限-->
+    <delete id="deleteByPmId" parameterType="int">
+        delete from t_permission where id = #{id}
+    </delete>
+
+    <!--不分页查询所有的权限-->
+    <select id="findAllPermission" resultType="com.itheima.pojo.Permission">
+        select * from t_permission
+    </select>
+
+    <!--不分页查询所有的权限-->
+    <select id="findAllPermissionZF" resultType="com.itheima.pojo.Permission">
+        select * from t_permission
     </select>
 </mapper>

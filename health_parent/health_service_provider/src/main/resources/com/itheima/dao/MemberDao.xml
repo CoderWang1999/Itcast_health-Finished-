@@ -210,7 +210,6 @@
         select fileName,name from t_member where id = #{id}
     </select>-->
 
-    <!--把管理员添加到会员表中-->
     <update id="update" >
         UPDATE  t_member set healthmanager = #{healthName} where id  in  (SELECT t_order.member_id FROM t_order where id = #{id})
     </update>

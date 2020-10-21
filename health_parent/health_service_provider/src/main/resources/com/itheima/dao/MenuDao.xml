@@ -35,7 +35,6 @@
         <if test="value == null">
             m.parentMenuId IS NULL
         </if>
-
         <if test="value != null and value.length > 0">
             m.name like concat('%',#{value},'%') and m.parentMenuId IS NULL
         </if> order by path asc

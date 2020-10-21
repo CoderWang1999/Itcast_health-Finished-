@@ -38,7 +38,4 @@ public interface MemberDao {
     List<Map<String, Object>> findAllmessageById(Integer id);
 
     void update( @Param("id")Integer tempOrderId, @Param("healthName") String username);
-
-    //修改order表中的健康管理师
-    void updateOrderHealthName(@Param("id") Integer id,@Param("healthName") String healthmanager);
 }
