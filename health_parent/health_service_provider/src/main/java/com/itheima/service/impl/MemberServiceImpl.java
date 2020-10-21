@@ -228,4 +228,21 @@ public class MemberServiceImpl implements MemberService {
 
         return list1;
     }
+    @Override
+    public Member findByEmailAndPwd(String email, String md5_password) {
+        return memberDao.findByEmailAndPwd(email,md5_password);
+    }
+    @Override
+    public void editEmail(Member member) {
+        memberDao.editMember(member);
+    }
+
+    @Override
+    public void editPhoneNumber(Member member) {
+        memberDao.editMember(member);
+    }
+    @Override
+    public void editPassword(Member member) {
+        memberDao.editMember(member);
+    }
 }

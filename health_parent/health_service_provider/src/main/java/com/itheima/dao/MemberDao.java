@@ -40,4 +40,6 @@ public interface MemberDao {
     void update( @Param("id")Integer tempOrderId, @Param("healthName") String username);
 
     List<Member> findAll();
+
+    Member findByEmailAndPwd(@Param("email") String email,@Param("password") String md5_password);
 }

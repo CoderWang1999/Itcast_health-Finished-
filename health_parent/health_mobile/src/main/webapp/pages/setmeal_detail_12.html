@@ -4,19 +4,20 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0,user-scalable=no,minimal-ui">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0,user-scalable=no,minimal-ui">
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="icon" href="../img/asset-favico.ico">
     <title>预约详情</title>
-    <link rel="stylesheet" href="../css/page-health-orderDetail.css"/>
+    <link rel="stylesheet" href="../css/page-health-orderDetail.css" />
     <script src="../plugins/vue/vue.js"></script>
     <script src="../plugins/vue/axios-0.18.0.js"></script>
     <script src="../plugins/healthmobile.js"></script>
 </head>
 <body data-spy="scroll" data-target="#myNavbar" data-offset="150">
 <div id="app" class="app">
+    <!--用于解决报空指针的问题-->
+    
     <!-- 页面头部 -->
     <div class="top-header">
         <span class="f-left"><i class="icon-back" onclick="history.go(-1)"></i></span>
@@ -27,17 +28,18 @@
     <div class="contentBox">
         <div class="card">
             <div class="project-img">
-                <img src="http://qh1sg4xnd.hn-bkt.clouddn.com/673a549c-6a81-4114-b187-470e1ce570825.jpg"
-                     width="100%" height="100%"/>
+                    <img class="img-object f-left"
+                         src="http://qgi2e8sac.hd-bkt.clouddn.com/7d784504-bfdd-48da-a758-6c738e3a8327.jpg"
+                         alt="">
             </div>
             <div class="project-text">
-                <h4 class="tit">可孕检测</h4>
-                <p class="subtit">为女性检测能否生育</p>
+                <h4 class="tit">入职无忧体检套餐（男女通用）</h4>
+                <p class="subtit">入职体检套餐</p>
                 <p class="keywords">
                     <span>
-                                女
+							性别不限
                     </span>
-                    <span>20-40</span>
+                    <span>18-60</span>
                 </p>
             </div>
         </div>
@@ -54,6 +56,48 @@
                 </div>
                 <div class="table-content">
                     <ul class="table-list">
+                            <li class="table-item">
+                                <div class="item flex2">一般检查</div>
+                                <div class="item flex3">
+                                        <label>
+                                            身高
+                                        </label>
+                                        <label>
+                                            体重
+                                        </label>
+                                        <label>
+                                            体重指数
+                                        </label>
+                                        <label>
+                                            收缩压
+                                        </label>
+                                        <label>
+                                            舒张压
+                                        </label>
+                                </div>
+                                <div class="item flex3">一般检查</div>
+                            </li>
+                            <li class="table-item">
+                                <div class="item flex2">视力色觉</div>
+                                <div class="item flex3">
+                                        <label>
+                                            裸视力（右）
+                                        </label>
+                                        <label>
+                                            裸视力（左）
+                                        </label>
+                                        <label>
+                                            矫正视力（右）
+                                        </label>
+                                        <label>
+                                            矫正视力（左）
+                                        </label>
+                                        <label>
+                                            色觉
+                                        </label>
+                                </div>
+                                <div class="item flex3">视力色觉</div>
+                            </li>
                             <li class="table-item">
                                 <div class="item flex2">血常规</div>
                                 <div class="item flex3">
@@ -169,6 +213,21 @@
                                 <div class="item flex3">尿常规</div>
                             </li>
                             <li class="table-item">
+                                <div class="item flex2">肝功三项</div>
+                                <div class="item flex3">
+                                        <label>
+                                            丙氨酸氨基转移酶
+                                        </label>
+                                        <label>
+                                            天门冬氨酸氨基转移酶
+                                        </label>
+                                        <label>
+                                            Y-谷氨酰转移酶
+                                        </label>
+                                </div>
+                                <div class="item flex3">肝功三项</div>
+                            </li>
+                            <li class="table-item">
                                 <div class="item flex2">肾功三项</div>
                                 <div class="item flex3">
                                         <label>
@@ -184,31 +243,22 @@
                                 <div class="item flex3">肾功三项</div>
                             </li>
                             <li class="table-item">
-                                <div class="item flex2">子宫附件彩超</div>
+                                <div class="item flex2">血脂四项</div>
                                 <div class="item flex3">
                                         <label>
-                                            子宫
+                                            总胆固醇
                                         </label>
                                         <label>
-                                            附件
+                                            甘油三酯
+                                        </label>
+                                        <label>
+                                            高密度脂蛋白胆固醇
+                                        </label>
+                                        <label>
+                                            低密度脂蛋白胆固醇
                                         </label>
                                 </div>
-                                <div class="item flex3">子宫附件彩超</div>
-                            </li>
-                            <li class="table-item">
-                                <div class="item flex2">胆红素三项</div>
-                                <div class="item flex3">
-                                        <label>
-                                            总胆红素
-                                        </label>
-                                        <label>
-                                            直接胆红素
-                                        </label>
-                                        <label>
-                                            间接胆红素
-                                        </label>
-                                </div>
-                                <div class="item flex3">胆红素三项</div>
+                                <div class="item flex3">血脂四项</div>
                             </li>
                     </ul>
                 </div>
@@ -221,10 +271,10 @@
 </div>
 <script>
     var vue = new Vue({
-        el: '#app',
-        methods: {
-            toOrderInfo() {
-                window.location.href = "../pages/orderInfo.html?id=23";
+        el:'#app',
+        methods:{
+            toOrderInfo(){
+                window.location.href = "orderInfo.html?id=12";
             }
         }
     });

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0,user-scalable=no,minimal-ui">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../img/asset-favico.ico">
+    <title>预约详情</title>
+    <link rel="stylesheet" href="../css/page-health-orderDetail.css" />
+    <script src="../plugins/vue/vue.js"></script>
+    <script src="../plugins/vue/axios-0.18.0.js"></script>
+    <script src="../plugins/healthmobile.js"></script>
+</head>
+<body data-spy="scroll" data-target="#myNavbar" data-offset="150">
+<div id="app" class="app">
+    <!--用于解决报空指针的问题-->
+    
+    <!-- 页面头部 -->
+    <div class="top-header">
+        <span class="f-left"><i class="icon-back" onclick="history.go(-1)"></i></span>
+        <span class="center">传智健康</span>
+        <span class="f-right"><i class="icon-more"></i></span>
+    </div>
+    <!-- 页面内容 -->
+    <div class="contentBox">
+        <div class="card">
+            <div class="project-img">
+                    <img class="img-object f-left"
+                         src="http://qgi2e8sac.hd-bkt.clouddn.com/d32aa308-5158-467b-bc29-ce063c7aec51.jpg"
+                         alt="">
+            </div>
+            <div class="project-text">
+                <h4 class="tit">阳光爸妈升级肿瘤12项筛查（男女单人）体检套餐</h4>
+                <p class="subtit">本套餐主要针对常见肿瘤筛查，肝肾、颈动脉、脑血栓、颅内血流筛查，以及风湿、颈椎、骨密度检查</p>
+                <p class="keywords">
+                    <span>
+							性别不限
+                    </span>
+                    <span>55-100</span>
+                </p>
+            </div>
+        </div>
+        <div class="table-listbox">
+            <div class="box-title">
+                <i class="icon-zhen"><span class="path1"></span><span class="path2"></span></i>
+                <span>套餐详情</span>
+            </div>
+            <div class="box-table">
+                <div class="table-title">
+                    <div class="tit-item flex2">项目名称</div>
+                    <div class="tit-item  flex3">项目内容</div>
+                    <div class="tit-item  flex3">项目解读</div>
+                </div>
+                <div class="table-content">
+                    <ul class="table-list">
+                            <li class="table-item">
+                                <div class="item flex2">肾功三项</div>
+                                <div class="item flex3">
+                                        <label>
+                                            尿素
+                                        </label>
+                                        <label>
+                                            肌酐
+                                        </label>
+                                        <label>
+                                            尿酸
+                                        </label>
+                                </div>
+                                <div class="item flex3">肾功三项</div>
+                            </li>
+                            <li class="table-item">
+                                <div class="item flex2">血脂四项</div>
+                                <div class="item flex3">
+                                        <label>
+                                            总胆固醇
+                                        </label>
+                                        <label>
+                                            甘油三酯
+                                        </label>
+                                        <label>
+                                            高密度脂蛋白胆固醇
+                                        </label>
+                                        <label>
+                                            低密度脂蛋白胆固醇
+                                        </label>
+                                </div>
+                                <div class="item flex3">血脂四项</div>
+                            </li>
+                            <li class="table-item">
+                                <div class="item flex2">心肌酶三项</div>
+                                <div class="item flex3">
+                                        <label>
+                                            磷酸肌酸激酶
+                                        </label>
+                                        <label>
+                                            磷酸肌酸激酶同工酶
+                                        </label>
+                                        <label>
+                                            乳酸脱氢酶
+                                        </label>
+                                </div>
+                                <div class="item flex3">心肌酶三项</div>
+                            </li>
+                            <li class="table-item">
+                                <div class="item flex2">甲功三项</div>
+                                <div class="item flex3">
+                                        <label>
+                                            三碘甲状腺原氨酸
+                                        </label>
+                                        <label>
+                                            甲状腺素
+                                        </label>
+                                        <label>
+                                            促甲状腺激素
+                                        </label>
+                                </div>
+                                <div class="item flex3">甲功三项</div>
+                            </li>
+                    </ul>
+                </div>
+                <div class="box-button">
+                    <a @click="toOrderInfo()" class="order-btn">立即预约</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vue = new Vue({
+        el:'#app',
+        methods:{
+            toOrderInfo(){
+                window.location.href = "orderInfo.html?id=14";
+            }
+        }
+    });
+</script>
+</body>

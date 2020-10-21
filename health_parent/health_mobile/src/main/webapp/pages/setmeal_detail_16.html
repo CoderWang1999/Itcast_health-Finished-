@@ -4,19 +4,20 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0,user-scalable=no,minimal-ui">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0,user-scalable=no,minimal-ui">
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="icon" href="../img/asset-favico.ico">
     <title>预约详情</title>
-    <link rel="stylesheet" href="../css/page-health-orderDetail.css"/>
+    <link rel="stylesheet" href="../css/page-health-orderDetail.css" />
     <script src="../plugins/vue/vue.js"></script>
     <script src="../plugins/vue/axios-0.18.0.js"></script>
     <script src="../plugins/healthmobile.js"></script>
 </head>
 <body data-spy="scroll" data-target="#myNavbar" data-offset="150">
 <div id="app" class="app">
+    <!--用于解决报空指针的问题-->
+    
     <!-- 页面头部 -->
     <div class="top-header">
         <span class="f-left"><i class="icon-back" onclick="history.go(-1)"></i></span>
@@ -27,17 +28,18 @@
     <div class="contentBox">
         <div class="card">
             <div class="project-img">
-                <img src="http://qh1sg4xnd.hn-bkt.clouddn.com/bc184c16-6d15-4002-85aa-c93cf306706d0.jpg"
-                     width="100%" height="100%"/>
+                    <img class="img-object f-left"
+                         src="http://qgi2e8sac.hd-bkt.clouddn.com/88230b68-b3ff-4355-bd0d-370b78ab75c7.jpg"
+                         alt="">
             </div>
             <div class="project-text">
-                <h4 class="tit">老年体检</h4>
-                <p class="subtit">老年人值得关爱</p>
+                <h4 class="tit">豆角肉丝焖面</h4>
+                <p class="subtit">物美价廉</p>
                 <p class="keywords">
                     <span>
-                            性别不限
+							性别不限
                     </span>
-                    <span>60-99</span>
+                    <span>不限</span>
                 </p>
             </div>
         </div>
@@ -54,27 +56,6 @@
                 </div>
                 <div class="table-content">
                     <ul class="table-list">
-                            <li class="table-item">
-                                <div class="item flex2">视力色觉</div>
-                                <div class="item flex3">
-                                        <label>
-                                            裸视力（右）
-                                        </label>
-                                        <label>
-                                            裸视力（左）
-                                        </label>
-                                        <label>
-                                            矫正视力（右）
-                                        </label>
-                                        <label>
-                                            矫正视力（左）
-                                        </label>
-                                        <label>
-                                            色觉
-                                        </label>
-                                </div>
-                                <div class="item flex3">视力色觉</div>
-                            </li>
                             <li class="table-item">
                                 <div class="item flex2">血常规</div>
                                 <div class="item flex3">
@@ -139,57 +120,6 @@
                                 <div class="item flex3">血常规</div>
                             </li>
                             <li class="table-item">
-                                <div class="item flex2">尿常规</div>
-                                <div class="item flex3">
-                                        <label>
-                                            尿比重
-                                        </label>
-                                        <label>
-                                            尿酸碱度
-                                        </label>
-                                        <label>
-                                            尿白细胞
-                                        </label>
-                                        <label>
-                                            尿亚硝酸盐
-                                        </label>
-                                        <label>
-                                            尿蛋白质
-                                        </label>
-                                        <label>
-                                            尿糖
-                                        </label>
-                                        <label>
-                                            尿酮体
-                                        </label>
-                                        <label>
-                                            尿胆原
-                                        </label>
-                                        <label>
-                                            尿胆红素
-                                        </label>
-                                        <label>
-                                            尿隐血
-                                        </label>
-                                        <label>
-                                            尿镜检红细胞
-                                        </label>
-                                        <label>
-                                            尿镜检白细胞
-                                        </label>
-                                        <label>
-                                            上皮细胞
-                                        </label>
-                                        <label>
-                                            无机盐类
-                                        </label>
-                                        <label>
-                                            尿镜检蛋白定性
-                                        </label>
-                                </div>
-                                <div class="item flex3">尿常规</div>
-                            </li>
-                            <li class="table-item">
                                 <div class="item flex2">肝功三项</div>
                                 <div class="item flex3">
                                         <label>
@@ -203,21 +133,6 @@
                                         </label>
                                 </div>
                                 <div class="item flex3">肝功三项</div>
-                            </li>
-                            <li class="table-item">
-                                <div class="item flex2">肾功三项</div>
-                                <div class="item flex3">
-                                        <label>
-                                            尿素
-                                        </label>
-                                        <label>
-                                            肌酐
-                                        </label>
-                                        <label>
-                                            尿酸
-                                        </label>
-                                </div>
-                                <div class="item flex3">肾功三项</div>
                             </li>
                             <li class="table-item">
                                 <div class="item flex2">血脂四项</div>
@@ -238,36 +153,6 @@
                                 <div class="item flex3">血脂四项</div>
                             </li>
                             <li class="table-item">
-                                <div class="item flex2">心肌酶三项</div>
-                                <div class="item flex3">
-                                        <label>
-                                            磷酸肌酸激酶
-                                        </label>
-                                        <label>
-                                            磷酸肌酸激酶同工酶
-                                        </label>
-                                        <label>
-                                            乳酸脱氢酶
-                                        </label>
-                                </div>
-                                <div class="item flex3">心肌酶三项</div>
-                            </li>
-                            <li class="table-item">
-                                <div class="item flex2">甲功三项</div>
-                                <div class="item flex3">
-                                        <label>
-                                            三碘甲状腺原氨酸
-                                        </label>
-                                        <label>
-                                            甲状腺素
-                                        </label>
-                                        <label>
-                                            促甲状腺激素
-                                        </label>
-                                </div>
-                                <div class="item flex3">甲功三项</div>
-                            </li>
-                            <li class="table-item">
                                 <div class="item flex2">子宫附件彩超</div>
                                 <div class="item flex3">
                                         <label>
@@ -278,21 +163,6 @@
                                         </label>
                                 </div>
                                 <div class="item flex3">子宫附件彩超</div>
-                            </li>
-                            <li class="table-item">
-                                <div class="item flex2">胆红素三项</div>
-                                <div class="item flex3">
-                                        <label>
-                                            总胆红素
-                                        </label>
-                                        <label>
-                                            直接胆红素
-                                        </label>
-                                        <label>
-                                            间接胆红素
-                                        </label>
-                                </div>
-                                <div class="item flex3">胆红素三项</div>
                             </li>
                     </ul>
                 </div>
@@ -305,10 +175,10 @@
 </div>
 <script>
     var vue = new Vue({
-        el: '#app',
-        methods: {
-            toOrderInfo() {
-                window.location.href = "../pages/orderInfo.html?id=24";
+        el:'#app',
+        methods:{
+            toOrderInfo(){
+                window.location.href = "orderInfo.html?id=16";
             }
         }
     });

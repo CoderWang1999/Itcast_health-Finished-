@@ -13,12 +13,11 @@
     <script src="../plugins/vue/vue.js"></script>
     <script src="../plugins/vue/axios-0.18.0.js"></script>
     <script src="../plugins/healthmobile.js"></script>
-    <script>
-        var id = getUrlParam("id");
-    </script>
 </head>
 <body data-spy="scroll" data-target="#myNavbar" data-offset="150">
 <div id="app" class="app">
+    <!--用于解决报空指针的问题-->
+    
     <!-- 页面头部 -->
     <div class="top-header">
         <span class="f-left"><i class="icon-back" onclick="history.go(-1)"></i></span>
@@ -29,23 +28,20 @@
     <div class="contentBox">
         <div class="card">
             <div class="project-img">
-                <img :src="imgUrl" width="100%" height="100%" />
+                    <img class="img-object f-left"
+                         src="http://qgi2e8sac.hd-bkt.clouddn.com/f0e49398-d1a8-4db8-9f86-3ff4b300e272.jpg"
+                         alt="">
             </div>
             <div class="project-text">
-                <h4 class="tit">{{setmeal.name}}</h4>
-                <p class="subtit">{{setmeal.remark}}</p>
+                <h4 class="tit">粉红珍爱(女)升级TM12项筛查体检套餐</h4>
+                <p class="subtit">本套餐针对宫颈(TCT检查、HPV乳头瘤病毒筛查）、乳腺（彩超，癌抗125），甲状腺（彩超，甲功验血）以及胸片，血常规肝功等有全面检查，非常适合女性全面疾病筛查使用。</p>
                 <p class="keywords">
-                    <span>{{setmeal.sex == '0' ? '性别不限' : setmeal.sex == '1' ? '男':'女'}}</span>
-                    <span>{{setmeal.age}}</span>
+                    <span>
+								女
+                    </span>
+                    <span>18-60</span>
                 </p>
             </div>
-            <!--<div class="project-know">
-                <a href="orderNotice.html" class="link-page">
-                    <i class="icon-ask-circle"><span class="path1"></span><span class="path2"></span></i>
-                    <span class="word">预约须知</span>
-                    <span class="arrow"><i class="icon-rit-arrow"></i></span>
-                </a>
-            </div>-->
         </div>
         <div class="table-listbox">
             <div class="box-title">
@@ -60,15 +56,33 @@
                 </div>
                 <div class="table-content">
                     <ul class="table-list">
-                        <li class="table-item" v-for="checkgroup in setmeal.checkGroups">
-                            <div class="item flex2">{{checkgroup.name}}</div>
-                            <div class="item flex3">
-                                <label v-for="checkitem in checkgroup.checkItems">
-                                    {{checkitem.name}}
-                                </label>
-                            </div>
-                            <div class="item flex3">{{checkgroup.remark}}</div>
-                        </li>
+                            <li class="table-item">
+                                <div class="item flex2">子宫附件彩超</div>
+                                <div class="item flex3">
+                                        <label>
+                                            子宫
+                                        </label>
+                                        <label>
+                                            附件
+                                        </label>
+                                </div>
+                                <div class="item flex3">子宫附件彩超</div>
+                            </li>
+                            <li class="table-item">
+                                <div class="item flex2">胆红素三项</div>
+                                <div class="item flex3">
+                                        <label>
+                                            总胆红素
+                                        </label>
+                                        <label>
+                                            直接胆红素
+                                        </label>
+                                        <label>
+                                            间接胆红素
+                                        </label>
+                                </div>
+                                <div class="item flex3">胆红素三项</div>
+                            </li>
                     </ul>
                 </div>
                 <div class="box-button">
@@ -81,22 +95,10 @@
 <script>
     var vue = new Vue({
         el:'#app',
-        data:{
-            imgUrl:null,//套餐对应的图片链接
-            setmeal:{}
-        },
         methods:{
             toOrderInfo(){
-                window.location.href = "orderInfo.html?id=" + id;
+                window.location.href = "orderInfo.html?id=13";
             }
-        },
-        mounted(){
-            axios.post("/setmeal/findById.do?id=" + id).then((response) => {
-                if(response.data.flag){
-                    this.setmeal = response.data.data;
-                    this.imgUrl = 'http://qgi2e8sac.hd-bkt.clouddn.com/' + this.setmeal.img;
-                }
-            });
         }
     });
 </script>

@@ -100,6 +100,8 @@
           <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.8" />
           <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.8" />
           <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.8" />
+          <element id="library" level="project" name="Maven: com.sun.mail:javax.mail:1.5.0" />
+          <element id="library" level="project" name="Maven: javax.activation:activation:1.1" />
           <element id="library" level="project" name="Maven: com.github.pagehelper:pagehelper:5.1.8" />
           <element id="library" level="project" name="Maven: com.github.jsqlparser:jsqlparser:1.2" />
         </element>

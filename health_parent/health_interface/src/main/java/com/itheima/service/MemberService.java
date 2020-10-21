@@ -29,4 +29,12 @@ public interface MemberService {
     Result deleteMember(Integer id);
     //根据会员id查询所有关联信息
     List<String> findAllmessageById(Integer id);
+
+    Member findByEmailAndPwd(String email, String md5_password);
+
+    void editEmail(Member member);
+
+    void editPhoneNumber(Member member);
+
+    void editPassword(Member member);
 }
