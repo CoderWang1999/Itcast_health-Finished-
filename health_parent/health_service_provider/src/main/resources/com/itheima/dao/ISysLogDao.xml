@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.ISysLogDao">
+
+
+    <!--从数据库读取数据-->
+    <select id="selectAll" parameterType="string" resultType="com.itheima.pojo.Syslog">
+        select * from t_syslog
+        <if test="value != null and value.length > 0">
+            where username like concat('%',#{value},'%')
+        </if>
+    </select>
+
+
+
+    <!--向数据库添加-->
+    <insert id="insert" parameterType="com.itheima.pojo.Syslog">
+        insert into t_syslog
+        (id,visitTime,visit_timestr,username,ip,url,executionTime,method,consumerName)
+        values
+        (#{id},#{visitTime,jdbcType=DATE},#{visitTimestr},#{username}
+        ,#{ip},#{url},#{executionTime},#{method},#{consumerName})
+    </insert>
+
+    <!--删除数据-->
+    <delete id="deleteById" parameterType="string">
+        delete from t_syslog where id = #{id}
+    </delete>
+
+</mapper>

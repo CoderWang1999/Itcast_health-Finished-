@@ -98,7 +98,7 @@
                 <el-table-column label="机构图片" align="center">
                     <template width="90" slot-scope="scope">
 
-                        <img style="width:80px;height:80px;border:none;" :src="'http://qgi2e8sac.hd-bkt.clouddn.com/'+scope.row.img">
+                        <img style="width:80px;height:80px;border:none;" :src="'http://qh1sg4xnd.hn-bkt.clouddn.com/'+scope.row.img">
 
                     </template>
                 </el-table-column>
@@ -327,7 +327,7 @@
         methods: {
             //文件上传成功后的钩子，response为服务端返回的值，file为当前上传的文件封装成的js对象
             handleAvatarSuccess(response, file) { //http 200
-                this.imageUrl = "http://qgi2e8sac.hd-bkt.clouddn.com/" + response.data;
+                this.imageUrl = "http://qh1sg4xnd.hn-bkt.clouddn.com/" + response.data;
                 this.$message({
                     type: response.flag ? 'success' : 'error',
                     message: response.message
@@ -498,7 +498,7 @@
 
                 axios.get("/address/findUpdate.do?id=" + row.id).then(resp => {
                     this.formData = resp.data.data;
-                    this.imageUrl = "http://qgi2e8sac.hd-bkt.clouddn.com/" + resp.data.data.img;
+                    this.imageUrl = "http://qh1sg4xnd.hn-bkt.clouddn.com/" + resp.data.data.img;
                     if (resp.data.data.lngAndLat != null) {
                         this.is_empty = 1;
                     }

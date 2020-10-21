@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.SportDao">
+
+    <!--根据查询条件查询饮食信息-->
+    <select id="selectByCondition" parameterType="String" resultType="com.itheima.pojo.Sport">
+        select * from t_sport
+        <if test="value !=null and value.length >0">
+            where id like concat('%',#{value},'%') or sportname like concat('%',#{value},'%')
+        </if>
+    </select>
+
+    <!--新增运动管理-->
+    <insert id="add" parameterType="com.itheima.pojo.Sport">
+        insert into t_sport(helpCode,sportname,number,sporttime)
+                      values
+        (#{helpCode},#{sportname},#{number},#{sporttime})
+    </insert>
+
+    <!--根据id查询-实现数据回显-->
+    <select id="findById" resultType="com.itheima.pojo.Sport">
+        select * from t_sport where id=#{id}
+    </select>
+
+    <!--修改检查项信息-->
+    <update id="edit" parameterType="com.itheima.pojo.Sport">
+        update t_sport
+        <set>
+            <if test="helpCode != null">
+                helpCode = #{helpCode},
+            </if>
+            <if test="sportname != null">
+                sportname = #{sportname},
+            </if>
+            <if test="number != null">
+                number = #{number},
+            </if>
+            <if test="sporttime != null">
+                sporttime = #{sporttime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--删除-->
+     <delete id="delete" parameterType="int">
+         delete from t_sport where id=#{id}
+     </delete>
+
+    <!--根据名称查询-->
+    <select id="findCountSportName" parameterType="string" resultType="int">
+        select count(id) from t_sport where sportname = #{sportname}
+    </select>
+    <!--查询所有饮食-->
+    <select id="findAll" resultType="com.itheima.pojo.Sport">
+        select * from t_sport
+    </select>
+
+</mapper>

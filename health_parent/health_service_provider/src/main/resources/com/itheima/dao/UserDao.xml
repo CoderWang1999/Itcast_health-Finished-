@@ -9,7 +9,7 @@
     <select id="findPage" parameterType="string" resultType="com.itheima.pojo.User">
         select * from t_user
         <if test="value != null and value.length > 0">
-            where username like concat('%',#{value},"%")
+            where username like concat('%',#{value},'%')
         </if>
     </select>
     <!--添加用户-->

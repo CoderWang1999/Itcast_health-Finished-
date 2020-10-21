@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.AddressDao">
+
+    <!--分页查询所有体检机构-->
+    <select id="findPage" resultType="com.itheima.pojo.Address">
+        select * from t_address
+    </select>
+
+    <!--条件查询 根据地址名查询-->
+    <select id="findByCondition" parameterType="string" resultType="com.itheima.pojo.Address">
+         select
+            t_address.id,
+            t_address.addressName,
+            t_address.telephone,
+            t_address.lngAndLat,
+            t_address.img,
+            t_address.map,
+            t_address.detailaddress
+        from t_address where addressName like #{value} or detailaddress like #{value}
+    </select>
+
+    <!--新增体检机构信息-->
+    <insert id="add" parameterType="com.itheima.pojo.Address">
+        insert into t_address(addressName,telephone,lngAndLat,img,detailaddress)
+                      values
+        (#{addressName},#{telephone},#{lngAndLat},#{img},#{detailaddress})
+    </insert>
+
+    <!--编辑修改机构信息-->
+    <update id="edit" parameterType="com.itheima.pojo.Address">
+        update t_address
+        <set>
+            <if test="addressName != null">
+                addressName = #{addressName},
+            </if>
+            <if test="telephone != null">
+                telephone = #{telephone},
+            </if>
+            <if test="lngAndLat != null">
+                lngAndLat = #{lngAndLat},
+            </if>
+            <if test="img != null">
+                img = #{img},
+            </if>
+            <if test="detailaddress != null">
+                detailaddress = #{detailaddress},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--根据机构id查询关联表是否存在关联订单-->
+    <select id="findByAddressId" parameterType="int" resultType="long">
+        select count(*)  from   t_order where address_id =#{id}
+    </select>
+
+
+    <!--根据id删除体检机构-->
+    <delete id="delete" parameterType="int">
+        delete from t_address where id=#{id}
+    </delete>
+
+
+    <!--根据id查询体检机构信息回显-->
+    <select id="findUpdate" parameterType="int" resultType="com.itheima.pojo.Address">
+        select *  from  t_address WHERE id=#{id}
+    </select>
+
+    <!--查询所有体检机构信息-->
+    <select id="findAll" resultType="com.itheima.pojo.Address">
+        select *  from  t_address
+    </select>
+
+    <!--根据id查询机构-->
+    <select id="findById" parameterType="int" resultType="com.itheima.pojo.Address">
+        select *  from  t_address where id = #{addressId}
+    </select>
+
+    <!--通过用户id查询关联表获得对应的体检机构-->
+    <!--根据id查询机构-->
+    <select id="getByMemberId" parameterType="int" resultType="com.itheima.pojo.Address">
+        SELECT  a.addressName,a.detailaddress FROM  ( SELECT * FROM t_order WHERE t_order.member_id = #{id} ) o
+	    	    INNER JOIN t_address a ON od.address_id = a.id
+    </select>
+</mapper>

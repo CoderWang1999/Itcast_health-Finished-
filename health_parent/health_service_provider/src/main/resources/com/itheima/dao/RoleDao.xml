@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<!--映射配置文件：配置statement对象-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.itheima.dao.RoleDao">
+
+    <!--根据用户ID查询关联的角色-->
     <select id="findByUserId" parameterType="int" resultType="com.itheima.pojo.Role">
-          select r.*
+        select r.*
           from t_role r,t_user_role ur
-          where r.id = ur.role_id and ur.user_id = #{userId}
+          where r.id = ur.role_id and ur.user_id = #{user_id}
     </select>
+
     <!--查询所有的角色-->
     <select id="findAllRoles" resultType="com.itheima.pojo.Role">
         select * from t_role
@@ -16,7 +19,7 @@
     <select id="findPage" parameterType="string" resultType="com.itheima.pojo.Role">
         select * from t_role
         <if test="value != null and value.length > 0">
-            where name like concat('%',#{value},"%")
+            where name like concat('%',#{value},'%')
         </if>
     </select>
 

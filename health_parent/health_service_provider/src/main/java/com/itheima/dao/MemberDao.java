@@ -38,4 +38,6 @@ public interface MemberDao {
     List<Map<String, Object>> findAllmessageById(Integer id);
 
     void update( @Param("id")Integer tempOrderId, @Param("healthName") String username);
+
+    List<Member> findAll();
 }

@@ -5,6 +5,7 @@ import com.itheima.constant.MessageConstant;
 import com.itheima.entity.Result;
 import com.itheima.service.BusinessReportService;
 import com.itheima.service.MemberService;
+import com.itheima.service.ReportService;
 import com.itheima.service.SetmealService;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
@@ -36,6 +37,20 @@ public class ReportController {
     private SetmealService setmealService;
     @Reference
     private BusinessReportService businessReportService;
+    @Reference
+    private ReportService reportService;
+
+    //会员年龄分布
+    @RequestMapping("/getMemberAgeReport")
+    public Result getMemberAgeReport() {
+        try {
+            Map<String, Object> data = reportService.getMemberAgeReport();
+            return new Result(true, MessageConstant.GET_AGE_LIST_SUCCESS, data);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false, MessageConstant.GET_AGE_LIST_FAIL);
+        }
+    }
 
     //会员数量折线图
     @RequestMapping("/getMemberReport")

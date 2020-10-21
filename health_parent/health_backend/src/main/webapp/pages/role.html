@@ -321,14 +321,12 @@
                 queryString: null//查询条件
             },
             activeName: 'first',//添加/编辑窗口Tab标签名称
-            dataList: [{
-                id: 1, name: "001", keyword: "张三", description: 1,
-            }],//当前页要展示的分页列表数据
+            dataList: [],//当前页要展示的分页列表数据
             formData: {},//新增表单数据
             permissionIds: [],//新增和编辑表单中权限对应的复选框，基于双向绑定可以进行回显和数据提交
             menuIds: [],//新增和编辑表单中菜单对应的复选框，基于双向绑定可以进行回显和数据提交
-            datatable4permission: [{id: 1, name: "健康管理师", keyword: "jjj", description: "1111"}],//新增和编辑表单中对应的角色信息
-            datatable4menu: [{id: 1, name: "健康管理师", level: "2", parentMenuId: "1", description: "1111"}],//新增和编辑表单中对应的菜单信息
+            datatable4permission: [],//新增和编辑表单中对应的角色信息
+            datatable4menu: [],//新增和编辑表单中对应的菜单信息
             editFormData: {},//编辑表单数据
             dialogFormVisible: false,//增加表单是否可见
             dialogFormVisible4Edit: false,//编辑表单是否可见
@@ -352,9 +350,8 @@
             //发送ajax请求向后端获取到该用户拥有的权限
             axios.post("/permissionserver/findAllPermission.do").then((res) => {
                 this.permission = res.data;
-            })
+            });
                 this.findPage();
-
         },
         methods: {
             //分页查询
@@ -508,8 +505,6 @@
                         this.$message.error(res.data.message);
                     }
                 });
-
-
             },
 
             //前置处理,obj0是所有检查项集合，obj1是该检查组的检查项的id组成的集合
@@ -537,7 +532,6 @@
             },
             //编辑
             handleEdit() {
-
                 //判断数据有没有发生改变，watch中调用方法 判断两者是否完全相等
                 if (!this.formDataChange && !this.permissionIdsChange && !this.menuIdsChange) {
                     this.$message("数据没有改变");
@@ -594,10 +588,6 @@
 
 
                 }).catch(() => {
-                    /*this.$message({
-                        type: 'info',
-                        message: '已取消删除'
-                    });*/
                     this.$message.info("已取消删除")
                 });
             },

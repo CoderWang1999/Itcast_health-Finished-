@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.itheima.dao.ReportDao">
+    <!--根据日期统计会员数，统计指定日期之前的会员数-->
+    <select id="findOrderCountBeforeDate" parameterType="string" resultType="int">
+        select count(id) from t_order where orderDate &lt;= #{date}
+    </select>
+
+    <select id="findOrderByMonth" parameterType="string" resultType="java.lang.Integer">
+        select count(id) from t_order where orderDate =#{date}
+    </select>
+    <!--根据日期统计预约数，统计指定日期之后的预约数-->
+    <select id="findOrderCountAfterDate" parameterType="string" resultType="int">
+        select count(id) from t_order where orderDate &gt;= #{date}
+    </select>
+
+    <!--根据日期统计到诊数-->
+    <select id="findArriveByMonth" parameterType="string" resultType="java.lang.Integer">
+        select count(id) from t_order where orderDate = #{value} and orderStatus = '已到诊'
+    </select>
+
+
+
+    <!--查询已预约的套餐的名称和对应的已预约的套餐的数量-->
+    <select id="findSetmealMoney" resultType="map">
+        SELECT
+            t_setmeal.name AS name,
+        SUM(t_setmeal.price) AS value
+        FROM
+            t_order
+        INNER JOIN
+            t_setmeal
+        ON
+            t_order.setmeal_id = t_setmeal.id
+        GROUP BY
+            t_setmeal.price
+    </select>
+
+    <!--查询年纪-->
+    <select id="findAllAge" resultType="java.lang.Integer">
+        select age from t_member ;
+    </select>
+</mapper>

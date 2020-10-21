@@ -28,15 +28,6 @@
     <div class="app-container">
         <div class="box">
             <div class="filter-container">
-                <!--<el-input placeholder="服务器名称" v-model="pagination.queryString" style="width: 200px;"
-                          class="filter-item"></el-input>
-                <el-input placeholder="用户名" v-model="pagination.queryString" style="width: 200px;"
-                          class="filter-item"></el-input>
-                <el-date-picker v-model="value1" type="daterange" range-separator="至"
-                                start-placeholder="开始日期" end-placeholder="结束日期">
-                </el-date-picker>
-                <el-button @click="handleCurrentChange(1)" class="dalfBut">查询</el-button>-->
-
                 <div style="margin-top: 20px">
                    <span>
                     <el-button @click="delArray()" type="danger">批量删除</el-button>
@@ -58,12 +49,6 @@
                 <el-table-column prop="method" label="方法" align="center"></el-table-column>
                 <el-table-column prop="visitTime" label="访问时间" align="center"></el-table-column>
                 </el-table-column>
-               <!-- <el-table-column label="操作" align="center">
-                    <template slot-scope="scope">
-                        <el-button size="mini" type="danger" @click="handleDelete(row)">删除</el-button>
-                    </template>
-                </el-table-column>-->
-
             </el-table>
 
             <div class="pagination-container">
@@ -196,10 +181,8 @@
             },
             // 删除
             handleDelete(row) {
-               // alert(this.checkIds);
                 alert(JSON.stringify(row));
                 alert(row.id);
-
                 this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
