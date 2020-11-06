@@ -6,7 +6,6 @@ import com.github.pagehelper.PageHelper;
 import com.itheima.dao.ISysLogDao;
 import com.itheima.entity.PageResult;
 import com.itheima.entity.QueryPageBean;
-import com.itheima.entity.Result;
 import com.itheima.pojo.Syslog;
 import com.itheima.service.ISysLogService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 @Service(interfaceClass = ISysLogService.class)
 public class ISysLogServiceImpl implements ISysLogService {
