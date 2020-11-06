@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.AdviceDao">
+
+    <!--添加建议信息建议 饮食 运动 管理员到order表中-->
+    <update id="update" parameterType="com.itheima.pojo.Order">
+        update t_order
+        <set>
+            <if test="food!=null">
+                food=#{food},
+            </if>
+            <if test="sport!=null">
+                sport=#{sport},
+            </if>
+            <if test="healthName!=null">
+                healthName=#{healthName},
+            </if>
+            <if test="suggestion!=null">
+                suggestion=#{suggestion},
+            </if>
+        </set>
+        where id=#{id}
+    </update>
+
+</mapper>

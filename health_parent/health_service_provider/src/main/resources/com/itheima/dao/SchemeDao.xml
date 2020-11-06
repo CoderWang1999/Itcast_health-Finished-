@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.SchemeDao">
+    <!--################健康干预 干预方案####################################################-->
+    <!--根据查询条件查询干预方案-->
+    <select id="selectByCondition" parameterType="String" resultType="com.itheima.pojo.Scheme">
+        select * from t_scheme
+        <if test="value !=null and value.length >0">
+            where title like concat('%',#{value},'%') or people like concat('%',#{value},'%')
+        </if>
+    </select>
+
+    <!--新增方案-->
+    <!--<insert id="add" parameterType="com.itheima.pojo.Scheme">
+        insert into t_scheme(title,key,people,goal,statue,remarks)
+                      values
+        (#{title},#{key},#{people},#{goal},#{statue},#{remarks})
+    </insert>-->
+
+    <insert id="add" parameterType="com.itheima.pojo.Scheme">
+        insert into t_scheme(title,keyword,people,goal,statue,remarks)
+                      values
+        (#{title},#{keyword},#{people},#{goal},#{statue},#{remarks})
+    </insert>
+
+    <!--根据id查询-实现数据回显-->
+    <select id="findById" resultType="com.itheima.pojo.Scheme">
+        select * from t_scheme where id=#{id}
+    </select>
+
+    <!--删除-->
+    <delete id="delete" parameterType="int">
+        delete from t_scheme where id=#{id}
+    </delete>
+
+    <!--更新-->
+    <update id="edit" parameterType="com.itheima.pojo.Scheme">
+        update t_scheme
+        <set>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="keyword != null">
+                keyword = #{keyword},
+            </if>
+            <if test="people != null">
+                people = #{people},
+            </if>
+            <if test="goal != null">
+                goal = #{goal},
+            </if>
+            <if test="statue != null">
+                statue = #{statue},
+            </if>
+            <if test="remarks != null">
+                remarks = #{remarks},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+</mapper>

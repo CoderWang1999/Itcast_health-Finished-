@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.Intervention_controlDao">
+    <!--################## 新增：干预控制 (没有写完！！！)#############################################-->
+    <!--查询已经预约的会员 进行干预控制-->
+    <select id="selectIntervenByCondition" parameterType="string" resultType="com.itheima.pojo.Member">
+        SELECT
+         t_member.fileNumber,t_member.name
+        from
+            t_member ,
+            t_order
+
+        <if test="value !=null and value.length >0">
+            where
+            t_member.id = t_order.member_id and t_order.orderStatus='已到诊';
+            and t_member.fileNumber like concat('%',#{value},'%') or t_member.name like concat('%',#{value},'%')
+        </if>
+    </select>
+</mapper>
